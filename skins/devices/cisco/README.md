@@ -13,7 +13,7 @@ console digits are rendered from URW Nimbus Mono PS Bold, a Courier clone.
 ```
 
 Outputs: `Cisco.wsz`, `Cisco-2800.wsz` and `preview-<theme>.png` here; sheets in `out/<theme>/`
-(`out/` is ignored).
+(`out/` is ignored). Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

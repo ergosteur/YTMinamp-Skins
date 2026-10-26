@@ -12,10 +12,18 @@ One procedural generator, one theme per skin:
   gen3  Pokémon Ruby/Sapphire/Emerald (Game Boy Advance): the PokéNav's mint header and dotted
         screen, the rounded teal message box, the cream battle healthbox with its HP and EXP
         bars, the Hoenn starters (Emerald sprites).
+  pokemon-yellow  Pokémon Yellow as it looks on a Game Boy Color: Yellow's own CGB palettes
+        (pokeyellow CGBBasePalettes), the Gen 1 text box on yellow, the title logo's blue, the GBC
+        HP bars, the games' own font in the title bands, Yellow's Pikachu (front, and following
+        the player in the About spot).
+  pokemon-yellow-overworld  The same, calmer: a Route 1 tile map (overworld tileset, PAL_ROUTE)
+        behind the main window and the EQ, controls on the white path, grass-green bands and
+        frame stripe, a white list; all its colours through Gambatte's GBC LCD correction.
 
 Everything is drawn here in integer pixels (rectangles and hand-made pixel fonts, no smoothing),
 except the in-game sprites, which are pasted unscaled from source/sprites-gen*/ (downloaded from
-the pret disassemblies, see README.md).
+the pret disassemblies, see README.md), and Yellow's title font, read from
+source/yellow/gfx_font_font.png.
 
     /usr/bin/python3 -I gen_skin.py              # every theme
     /usr/bin/python3 -I gen_skin.py gen2         # just this one
@@ -34,6 +42,8 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_ROOT = os.path.join(HERE, "out")
@@ -59,6 +69,18 @@ G2_GREY = gbc(21, 21, 21)
 G2_DGREY = gbc(13, 13, 13)
 G2_BLACK = (0, 0, 0)
 G2_WHITE = (255, 255, 255)
+
+# Pokémon Yellow on a Game Boy Color: pokeyellow data/sgb/sgb_palettes.asm, CGBBasePalettes
+Y_WHITE = gbc(31, 31, 31)
+Y_YEL = gbc(31, 31, 0)        # colour 1 of PAL_YELLOWMON / PAL_MEWMON / PAL_SAFFRON / the HP bars
+Y_BLACK = gbc(3, 3, 3)        # colour 3 of every palette (text, frames)
+Y_BLUE = gbc(7, 7, 25)        # PAL_LOGO2 (the title screen's POKéMON logo): outline
+Y_DBLUE = gbc(0, 0, 17)       # PAL_LOGO2: the logo's dark shadow
+Y_LBLUE = gbc(11, 23, 31)     # colour 2 of the town palettes
+Y_BROWN = gbc(19, 7, 1)       # PAL_PIKACHU_PORTRAIT, colour 2
+Y_PAL_YELLOWMON = [Y_WHITE, Y_YEL, gbc(28, 14, 0), Y_BLACK]
+Y_PAL_SAFFRON = [Y_WHITE, Y_YEL, Y_LBLUE, Y_BLACK]
+OBP0 = [0, 0, 1, 3]           # rOBP0 = %11010000 (home/palettes.asm GBPalNormal): sprite shade -> colour
 
 THEMES = {
     "gen1": dict(
@@ -125,7 +147,46 @@ THEMES = {
                      about=("sprites-gen3", "graphics_pokemon_treecko_icon.png", "gba", None),
                      pl=("sprites-gen3", "graphics_pokemon_mudkip_icon.png", "gba", None)),
     ),
+    "pokemon-yellow": dict(
+        style="gb", name="Pokémon Yellow", wsz="Pokemon-Yellow",
+        games="Yellow Version: Special Pikachu Edition (Game Boy Color)",
+        sub="YELLOW", eq_title="EQUALIZER", pl_title="PLAYLIST", gen_title="POKEDEX",
+        body=Y_YEL, body2=Y_YEL, band=Y_DBLUE, band_un=Y_BLUE, txt_band=Y_YEL, txt_band_un=Y_LBLUE,
+        line=Y_BLACK, panel=Y_WHITE, panel_l=Y_WHITE, ink=Y_BLACK, ink2=Y_BROWN, shadow=None,
+        hp=[gbc(0, 31, 0), gbc(31, 18, 0), gbc(31, 0, 0)], hp_shade=None, track=Y_WHITE,
+        bar_line=Y_BLACK, exp=Y_BLUE,
+        ball=dict(top=gbc(31, 1, 1), bot=Y_WHITE, line=Y_BLACK, shine=Y_WHITE, top_p=gbc(31, 18, 0)),
+        btn_face=Y_WHITE, btn_line=Y_BLACK, btn_glyph=Y_BLACK, btnp_face=Y_BLUE, btnp_glyph=Y_YEL,
+        logo_fill=Y_YEL, logo_line=Y_BLUE, logo_fill_un=Y_LBLUE, logo_line_un=Y_DBLUE,
+        cursor=Y_BLACK, off=Y_BROWN, sel=Y_WHITE, dim=(206, 206, 206), cur=Y_BLUE, normal=Y_BLACK,
+        vis_bars=[gbc(31, 0, 0)] * 3 + [gbc(31, 18, 0)] * 5 + [gbc(0, 31, 0)] * 8, vis_dots=(222, 222, 222),
+        vis_peak=Y_BLACK, pref="GBC", dexno="NO.025",
+        # Yellow's own sprites; the front pic in Pikachu's battle palette (PAL_YELLOWMON), the
+        # overworld ones in an OBJ palette converted through OBP0 from Saffron City's (PAL_SAFFRON,
+        # whose colour 1 is yellow), as on a Game Boy Color
+        sprites=dict(eq=("yellow", "gfx_pokemon_front_pikachu.png", "gbc_bg", Y_PAL_YELLOWMON),
+                     about=[("yellow", "gfx_sprites_red.png", "gbc_obj", (Y_PAL_SAFFRON, 2)),
+                            ("yellow", "gfx_sprites_pikachu.png", "gbc_obj", (Y_PAL_SAFFRON, 2))],
+                     pl=("yellow", "gfx_sprites_pikachu.png", "gbc_obj", (Y_PAL_SAFFRON, 2, True))),
+    ),
 }
+
+# The same Yellow, calmer: Route 1 in its GBC palette (PAL_ROUTE) as a tile map behind the main
+# window and the EQ, the controls on the white path, grass-green title bands, a white list.
+Y_GREEN = gbc(16, 31, 4)      # PAL_ROUTE colour 1 (grass)
+Y_PAL_ROUTE = [Y_WHITE, Y_GREEN, Y_LBLUE, Y_BLACK]
+THEMES["pokemon-yellow-overworld"] = dict(
+    THEMES["pokemon-yellow"], name="Pokémon Yellow Overworld", wsz="Pokemon-Yellow-Overworld",
+    games="Yellow Version: Special Pikachu Edition (Game Boy Color), Route 1",
+    body=Y_WHITE, body2=Y_WHITE, band=Y_GREEN, band_un=Y_LBLUE, txt_band=Y_BLACK, txt_band_un=Y_DBLUE,
+    logo_fill=Y_WHITE, logo_line=Y_BLUE, logo_fill_un=Y_WHITE, logo_line_un=Y_BLUE,
+    btnp_face=Y_GREEN, btnp_glyph=Y_BLACK, sel=Y_GREEN, map=Y_PAL_ROUTE, frame_mid=Y_GREEN,
+    band_edge=Y_BLACK, lcd=True, main_band=Y_YEL,
+    sprites=dict(eq=("yellow", "gfx_pokemon_front_pikachu.png", "gbc_bg", Y_PAL_YELLOWMON),
+                 about=[("yellow", "gfx_sprites_red.png", "gbc_obj", (Y_PAL_ROUTE, 2)),
+                        ("yellow", "gfx_sprites_pikachu.png", "gbc_obj", (Y_PAL_ROUTE, 2))],
+                 pl=("yellow", "gfx_sprites_pikachu.png", "gbc_obj", (Y_PAL_ROUTE, 2, True))),
+)
 
 T = {}
 
@@ -133,9 +194,34 @@ T = {}
 def setup_theme(key):
     global T, OUT
     T = dict(THEMES[key])
+    if T.get("lcd"):
+        T = gbc_lcd(T)
     T["key"] = key
+    if key.startswith("pokemon-yellow"):
+        T["tfont"] = real_font()
     OUT = os.path.join(OUT_ROOT, key)
     os.makedirs(OUT, exist_ok=True)
+
+
+def gambatte(c):
+    """Gambatte's Game Boy Color LCD colour correction (libgambatte video.cpp gbcToRgb32) of an
+    8-bit colour made by gbc(): back to 5-bit, then
+    R = (13r + 2g + b) >> 1,  G = (3g + b) << 1,  B = (3r + 2g + 11b) >> 1   (0..248)."""
+    r, g, b = (int(round(v * 31 / 255)) for v in c)
+    return ((13 * r + 2 * g + b) >> 1, (3 * g + b) << 1, (3 * r + 2 * g + 11 * b) >> 1)
+
+
+def gbc_lcd(x):
+    """Every colour in a theme (nested dicts, lists, sprite specs) through the LCD correction."""
+    if isinstance(x, dict):
+        return {k: gbc_lcd(v) for k, v in x.items()}
+    if isinstance(x, list):
+        return [gbc_lcd(v) for v in x]
+    if isinstance(x, tuple):
+        if len(x) == 3 and all(type(v) is int and 0 <= v <= 255 for v in x):
+            return gambatte(x)
+        return tuple(gbc_lcd(v) for v in x)
+    return x
 
 
 def GBA():
@@ -328,20 +414,57 @@ def text_center(a, font, s, cx, y, col, gap=1, shadow=None):
     draw_text(a, font, s, cx - text_w(font, s, gap) // 2, y, col, gap, shadow)
 
 
+REAL_FONT = {}
+
+
+def real_font():
+    """The Gen 1 games' own font (pokeyellow gfx/font/font.png, $80-$FF in 8x8 tiles), as glyphs
+    7 wide (the tile minus its blank last column), so text keeps the games' 8 px pitch."""
+    if not REAL_FONT:
+        f = np.array(Image.open(os.path.join(SRC, "yellow", "gfx_font_font.png")).convert("L")) < 128
+
+        def tile(code, rows=range(7)):
+            r, c = divmod(code - 0x80, 16)
+            g = f[r * 8:r * 8 + 8, c * 8:c * 8 + 7]
+            return ["".join("#" if g[y, x] else "." for x in range(7)) for y in rows]
+        for i, ch in enumerate("ABCDEFGHIJKLMNOPQRSTUVWXYZ"):
+            REAL_FONT[ch] = tile(0x80 + i)
+        for i in range(10):
+            REAL_FONT[str(i)] = tile(0xF6 + i)
+        REAL_FONT["é"] = tile(0xBA)
+        REAL_FONT["/"] = tile(0xF3)
+        REAL_FONT["-"] = tile(0xE3)
+        REAL_FONT[" "] = ["......."] * 7
+        # ▶ / ▷ ($ED / $EC) sit one row lower in their tile than the capitals
+        REAL_FONT[">"] = tile(0xED, range(8))
+        REAL_FONT["}"] = tile(0xEC, range(8))
+    return REAL_FONT
+
+
+def TF():
+    """The title bands' font: the games' own for Yellow, else the 5x7 menu font."""
+    return T.get("tfont", F7)
+
+
+def logo_w():
+    return LOGO_W if "tfont" not in T else text_w(TF(), "POKéMON", 1) + 2
+
+
 def logo(a, x, y, lit=True):
     """POKéMON in the logo's manner: chunky letters with a thick outline (9 rows tall)."""
     fill = T["logo_fill"] if lit else T["logo_fill_un"]
     line = T["logo_line"] if lit else T["logo_line_un"]
     s = "POKéMON"
-    gap = 2
-    m = np.zeros((9, text_w(F7, s, gap) + 2), bool)
+    font = TF()
+    gap = 2 if font is F7 else 1
+    m = np.zeros((9, text_w(font, s, gap) + 2), bool)
     xx = 1
     for c in s:
-        for r, row in enumerate(F7[c]):
+        for r, row in enumerate(font[c]):
             for k, ch in enumerate(row):
                 if ch == "#":
                     m[r + 1, xx + k] = True
-        xx += glyph_w(F7, c) + gap
+        xx += glyph_w(font, c) + gap
     bold = m
     ol = np.zeros_like(bold)
     for dy in (-1, 0, 1):
@@ -460,7 +583,10 @@ def display(a, x, y, w, h, kind="msg"):
 def band_rows(h, lit):
     """Colours of the title band's rows (gen 3: the PokéNav header's mint stripes)."""
     if not GBA():
-        return [T["band"] if lit else T["band_un"]] * h
+        rows = [T["band"] if lit else T["band_un"]] * h
+        if T.get("band_edge"):
+            rows[-1] = T["band_edge"]   # a dark line under the band, like a ledge's edge
+        return rows
     s = "" if lit else "_un"
     hi, mid, base, lo = T["band" + s + "_hi"], T["band" + s + "_mid"], T["band" if lit else "band_un"], T["band" + s + "_lo"]
     rows = [hi, mid] + [base] * (h - 4) + [mid, lo]
@@ -474,13 +600,15 @@ def band(w, h, lit):
     return a
 
 
-def band_text(a, s, x, y, lit, font=F7):
+def band_text(a, s, x, y, lit, font=None):
+    font = TF() if font is None else font
     col = T["txt_band"] if lit else T["txt_band_un"]
     sh = (T["band_shadow"] if lit else T["band_shadow_un"]) if GBA() else None
     return draw_text(a, font, s, x, y, col, shadow=sh)
 
 
-def band_text_center(a, s, cx, y, lit, font=F7):
+def band_text_center(a, s, cx, y, lit, font=None):
+    font = TF() if font is None else font
     band_text(a, s, cx - text_w(font, s) // 2, y, lit, font)
 
 
@@ -488,7 +616,7 @@ def frame_cols():
     """Side profile from the outside in (None = window material)."""
     if GBA():
         return T["frame"]
-    return [T["line"], None, T["line"]]
+    return [T["line"], T.get("frame_mid"), T["line"]]
 
 
 def side(a, x, y, h, left=True):
@@ -503,9 +631,12 @@ def side(a, x, y, h, left=True):
 def bottom_frame(a, x, y, w, left_corner, right_corner):
     """The bottom 4 rows of the frame (y is the first of them), with rounded corners."""
     if not GBA():
-        prof = [T["line"], T["line"], None, T["line"]]
-        cmap = {"#": T["line"], ".": T["body"]}
+        mid = T.get("frame_mid")
+        prof = [T["line"], T["line"], mid, T["line"]]
+        cmap = {"#": T["line"], ".": T["body"], "g": mid}
         corner = GB_CORNER[::-1]  # rows y-1 .. y+3, the side's last row first
+        if mid is not None:
+            corner = ["#g##", "#g##", "#gg#", ".#gg", "..##"]  # the same, its gap filled
     else:
         fr = T["frame"]
         prof = [fr[2], fr[1], fr[1], fr[0]]
@@ -622,6 +753,8 @@ def load_sprite(spec):
     """RGBA numpy array of a sprite's first frame, cropped to its content."""
     folder, fname, kind, extra = spec
     im = Image.open(os.path.join(SRC, folder, fname))
+    if kind in ("gbc_bg", "gbc_obj"):
+        return load_gbc_sprite(im, kind, extra)
     w = im.width
     fh = w if kind != "gba" or "icon" not in fname else 32
     if kind == "gba":
@@ -655,6 +788,97 @@ def load_sprite(spec):
     ys, xs = np.nonzero(alpha)
     y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
     return rgb[y0:y1, x0:x1], alpha[y0:y1, x0:x1]
+
+
+def load_gbc_sprite(im, kind, extra):
+    """A Game Boy 2bpp sprite (pret PNG: white, light grey, dark grey, black = shades 0..3) in
+    Game Boy Color colours. gbc_bg: a battle/Pokédex pic in a palette, BGP %11100100 (shade n is
+    colour n), the white connected to the edge left out. gbc_obj: an overworld sprite frame
+    (extra = (palette, frame[, mirrored]); 16x16 frames), through OBP0, shade 0 transparent as on the hardware."""
+    g = np.array(im.convert("L"))
+    shade = np.rint((255 - g.astype(np.int32)) / 85).astype(np.int32)
+    if kind == "gbc_bg":
+        pal = extra
+        idx = shade
+        h, w = idx.shape
+        alpha = np.ones((h, w), bool)
+        stack = [(0, c) for c in range(w)] + [(h - 1, c) for c in range(w)] + \
+                [(r, 0) for r in range(h)] + [(r, w - 1) for r in range(h)]
+        while stack:
+            r, c = stack.pop()
+            if 0 <= r < h and 0 <= c < w and alpha[r, c] and idx[r, c] == 0:
+                alpha[r, c] = False
+                stack += [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]
+    else:
+        pal, frame = extra[:2]
+        sh = shade[frame * 16:frame * 16 + 16]
+        if len(extra) > 2 and extra[2]:
+            sh = sh[:, ::-1]  # facing right: the left-facing frame mirrored, as the games do (OAM X flip)
+        idx = np.vectorize(lambda v: OBP0[v])(sh)
+        alpha = sh != 0
+    rgb = np.array([[pal[v] for v in row] for row in idx], np.int32)
+    ys, xs = np.nonzero(alpha)
+    y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    return rgb[y0:y1, x0:x1], alpha[y0:y1, x0:x1]
+
+
+# ------------------------------------------------------------------------------------------
+# The overworld backdrop (pokemon-yellow-overworld): pokeyellow's overworld tileset, 8x8 tiles
+# unscaled, coloured through BGP %11100100 with the map palette as on a Game Boy Color
+# ------------------------------------------------------------------------------------------
+
+OW_PATH, OW_SPECK, OW_GRASS, OW_FLOWER, OW_TALL = 0x23, 0x39, 0x2C, 0x03, 0x52
+OW_TREE = ((0x40, 0x41), (0x50, 0x51))   # the round tree, 16x16 (block $0F)
+
+
+def ow_tile(n):
+    im = Image.open(os.path.join(SRC, "yellow", "gfx_tilesets_overworld.png")).convert("L")
+    r, c = divmod(n, 16)
+    g = np.array(im.crop((c * 8, r * 8, c * 8 + 8, r * 8 + 8)))
+    shade = np.rint((255 - g.astype(np.int32)) / 85).astype(np.int32)
+    return np.array(T["map"], np.int32)[shade]
+
+
+def overworld(a, w, h, controls, seed, open_ground=()):
+    """Lay a little Route 1 inside the window frame (y 14 .. h-4): grass tiles with trees where a
+    16x16 cell is clear of everything the app draws, flowers and tall grass sprinkled, and the
+    white path (with its specks) under the controls (their rects, 1 px around), whose own
+    backgrounds are that white. open_ground: rects kept to plain grass (no trees, flowers or tall
+    grass), where sprites stand. Then the frame goes back on top."""
+    rng = np.random.RandomState(seed)
+    x0, y0 = 3, 14
+    cols, rows = -(-(w - 6) // 8), -(-(h - 18) // 8)
+    busy = np.zeros((rows * 8, cols * 8), bool)
+    for x, y, cw, ch in controls:
+        busy[max(0, y - 1 - y0):max(0, y + ch + 1 - y0), max(0, x - 1 - x0):max(0, x + cw + 1 - x0)] = True
+    calm = np.zeros_like(busy)
+    for x, y, cw, ch in open_ground:
+        calm[max(0, y - y0):max(0, y + ch - y0), max(0, x - x0):max(0, x + cw - x0)] = True
+    canvas = np.zeros((rows * 8, cols * 8, 3), np.int32)
+    path = np.zeros_like(canvas)
+    done = np.zeros((rows, cols), bool)
+    for r in range(rows - 1):
+        for c in range(cols - 1):
+            cell = (slice(8 * r, 8 * r + 16), slice(8 * c, 8 * c + 16))
+            if not (busy[cell].any() or calm[cell].any() or done[r:r + 2, c:c + 2].any()):
+                for dr in (0, 1):
+                    for dc in (0, 1):
+                        canvas[8 * (r + dr):8 * (r + dr) + 8, 8 * (c + dc):8 * (c + dc) + 8] = ow_tile(OW_TREE[dr][dc])
+                done[r:r + 2, c:c + 2] = True
+    for r in range(rows):
+        for c in range(cols):
+            v = rng.randint(16)
+            path[8 * r:8 * r + 8, 8 * c:8 * c + 8] = ow_tile(OW_SPECK if v < 2 else OW_PATH)
+            if not done[r, c]:
+                n = OW_FLOWER if v < 3 else OW_TALL if v < 5 else OW_GRASS
+                if calm[8 * r:8 * r + 8, 8 * c:8 * c + 8].any():
+                    n = OW_GRASS
+                canvas[8 * r:8 * r + 8, 8 * c:8 * c + 8] = ow_tile(n)
+    canvas[busy] = path[busy]
+    a[y0:h - 4, x0:w - 3] = canvas[:h - 4 - y0, :w - 6]
+    side(a, 0, 14, h - 14 - 4, True)
+    side(a, w - 1, 14, h - 14 - 4, False)
+    bottom_frame(a, 0, h - 4, w, True, True)
 
 
 OCC = {}  # sheet name -> occupancy of the sprite, for the overlap checks
@@ -695,7 +919,23 @@ def clutter_bar(lit_letters):
     return a
 
 
+class main_band:
+    """While drawing the main window's titlebar pieces: its own band colour when the theme has
+    one (main_band), the other windows keeping theirs."""
+    def __enter__(self):
+        self.saved = T["band"]
+        T["band"] = T.get("main_band", T["band"])
+
+    def __exit__(self, *exc):
+        T["band"] = self.saved
+
+
 def main_titlebar(lit):
+    with main_band():
+        return _main_titlebar(lit)
+
+
+def _main_titlebar(lit):
     a = band(275, 14, lit)
     mini_button(a, 6, 3, "options", lit)
     mini_button(a, 244, 3, "minimize", lit)
@@ -704,15 +944,21 @@ def main_titlebar(lit):
     col = T["txt_band"] if lit else T["txt_band_un"]
     sh = (T["band_shadow"] if lit else T["band_shadow_un"]) if GBA() else None
     sub = T["sub"].replace("POKE", "POKé")
-    total = 4 + 4 + LOGO_W + 5 + text_w(F7, sub)
+    cw = glyph_w(TF(), ">")
+    total = cw + 4 + logo_w() + 5 + text_w(TF(), sub)
     x = (275 - total) // 2
-    draw_text(a, F7, ">" if lit else "}", x, 4, col, shadow=sh)
-    x = logo(a, x + 8, 2, lit)
-    draw_text(a, F7, sub, x + 5, 4, col, shadow=sh)
+    draw_text(a, TF(), ">" if lit else "}", x, 4, col, shadow=sh)
+    x = logo(a, x + cw + 4, 2, lit)
+    draw_text(a, TF(), sub, x + 5, 4, col, shadow=sh)
     return a
 
 
 def make_titlebar():
+    with main_band():
+        return _make_titlebar()
+
+
+def _make_titlebar():
     a = new(344, 87)
     for kind, x in (("options", 0), ("minimize", 9), ("close", 18)):
         for pressed, y in ((False, 0), (True, 9)):
@@ -745,6 +991,8 @@ ABOUT = (239, 83, 32, 28)   # the free corner (the About spot), x y w h
 
 def make_main():
     a = window(275, 116, 14)
+    if T.get("map"):
+        overworld(a, 275, 116, MAIN_CONTROLS[1:], seed=1, open_ground=[ABOUT])
     a[0:14, :] = main_titlebar(True)
     a[22:65, 10:18] = clutter_bar("")
     display(a, 20, 18, 86, 45, "health")      # time + analyser (inside 23..102 x 22..58)
@@ -755,9 +1003,18 @@ def make_main():
     draw_text(a, TINY, "KHZ", 169, 44, T["ink2"])
     # the emblem / sprite in the About spot
     spec = T["sprites"]["about"]
-    w, h = sprite_size(spec)
     ax, ay, aw, ah = ABOUT
-    paste_sprite(a, spec, ax + (aw - w) // 2, ay + (ah - h) // 2 + (1 if h < 20 else 0), "main")
+    if isinstance(spec, list):
+        # a row of overworld sprites on one ground line (Yellow: Pikachu following the player)
+        sizes = [sprite_size(s) for s in spec]
+        tw, th = sum(w for w, h in sizes), max(h for w, h in sizes)
+        x = ax + (aw - tw) // 2
+        for s, (w, h) in zip(spec, sizes):
+            paste_sprite(a, s, x, ay + (ah - th) // 2 + 1 + th - h, "main")
+            x += w
+    else:
+        w, h = sprite_size(spec)
+        paste_sprite(a, spec, ax + (aw - w) // 2, ay + (ah - h) // 2 + (1 if h < 20 else 0), "main")
     return a
 
 
@@ -893,7 +1150,7 @@ def make_shufrep():
 def make_monoster():
     a = new(56, 24, T["panel"])
     for y, on in ((0, True), (12, False)):
-        col = T["ink"] if on else T["sel"] if not GBA() else (214, 214, 214)
+        col = T["ink"] if on else T.get("dim", T["sel"]) if not GBA() else (214, 214, 214)
         text_center(a, TINY, "STEREO", 14, y + 4, col)
         text_center(a, TINY, "MONO", 42, y + 4, col)
     return a
@@ -1052,12 +1309,13 @@ EQ_SPRITE_BOX = (36, 38, 41, 64)   # between the preamp and the first band (the 
 def eq_titlebar(lit):
     a = band(275, 14, lit)
     s = T["eq_title"]
-    tw = 6 + text_w(F7, s)
+    cw = glyph_w(TF(), ">") + 2
+    tw = cw + text_w(TF(), s)
     x = (275 - tw) // 2
     col = T["txt_band"] if lit else T["txt_band_un"]
     sh = (T["band_shadow"] if lit else T["band_shadow_un"]) if GBA() else None
-    draw_text(a, F7, ">" if lit else "}", x, 4, col, shadow=sh)
-    band_text(a, s, x + 6, 4, lit)
+    draw_text(a, TF(), ">" if lit else "}", x, 4, col, shadow=sh)
+    band_text(a, s, x + cw, 4, lit)
     mini_button(a, 264, 3, "close", lit)
     return a
 
@@ -1083,6 +1341,8 @@ def eq_slider_frame(a, x, y, n):
 
 def make_eqmain():
     a = window(275, 116, 14)
+    if T.get("map"):
+        overworld(a, 275, 116, EQ_CONTROLS[1:] + [(36, 38, 41, 64)], seed=2)
     a = np.concatenate([a, new(275, 315 - 116)], 0)
     a[0:14, :] = eq_titlebar(True)
     if GBA():
@@ -1132,7 +1392,7 @@ def make_eqmain():
         text_center(a, TINY, "PRESETS", 224 + 22 + o, y + 4 + o - (1 if GBA() else 0), ink, shadow=sh)
     # graph
     rect(a, 0, 294, 113, 19, T["panel"])
-    grid = T["sel"] if not GBA() else (224, 232, 224)
+    grid = T.get("dim", T["sel"]) if not GBA() else (224, 232, 224)
     for x in range(0, 113, 12):
         for y in range(0, 19, 2):
             px(a, 2 + x, 294 + y, grid)
@@ -1190,7 +1450,7 @@ def make_pledit():
         spec = T["sprites"]["pl"]
         sw, sh_ = sprite_size(spec)
         s = T["pl_title"]
-        total = sw + 4 + text_w(F7, s)
+        total = sw + 4 + text_w(TF(), s)
         x0 = (100 - total) // 2
         sy = max(0, (BAND20 - sh_) // 2) if sh_ <= BAND20 else BAND20 + 2 - sh_
         paste_sprite(t, spec, x0, sy, "pledit" if lit else None)
@@ -1404,10 +1664,12 @@ def write_text_files():
                 f"SelectedBG={hexs(T['sel'])}\nMbBG={hexs(T['body'])}\nMbFG={hexs(T['normal'])}\nFont=Arial\n")
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n", encoding="utf-8") as f:
         f.write(
-            f"{T['name']} — a personal skin in the style of Pokémon {T['games']}.\n"
-            f"Pokémon and its sprites © Nintendo / Creatures / GAME FREAK; private use only.\n\n"
-            f"A classic (Winamp 2.x format) skin, generated by a script (gen_skin.py). Not affiliated\n"
-            f"with Nintendo, Creatures or GAME FREAK.\n"
+            f"{T['name']} — a skin in the style of Pokémon {T['games']}.\n"
+            f"Pokémon and its sprites © Nintendo / Creatures / GAME FREAK.\n\n"
+            f"A classic (Winamp 2.x format) skin, generated by a script (gen_skin.py).\n"
+            + ("Colours through Gambatte's Game Boy Color LCD colour correction (gbcToRgb32,\n"
+               "libgambatte, GPLv2, github.com/sinamas/gambatte), as the real screen showed them.\n"
+               if T.get("lcd") else "")
         )
 
 
@@ -1450,6 +1712,9 @@ def build():
             info.compress_type = zipfile.ZIP_DEFLATED
             with open(os.path.join(OUT, n), "rb") as fh:
                 z.writestr(info, fh.read())
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(wsz)
     return names, wsz
 
 
@@ -1794,12 +2059,6 @@ def check():
         assert x + w <= 26 + 100 - 26 + 100 and y >= 0
 
 
-def genex_wacup(wsz):
-    import subprocess
-    tool = "/home/matt/gitea/ergosteur/ytminamp/skins/genex_wacup.py"
-    subprocess.run(["/usr/bin/python3", "-I", os.path.normpath(tool), wsz], check=True)
-
-
 if __name__ == "__main__":
     args = sys.argv[1:]
     if "--list" in args:
@@ -1814,5 +2073,4 @@ if __name__ == "__main__":
         names, wsz = build()
         check()
         preview()
-        genex_wacup(wsz)
         print(f"{key}: {T['wsz']}.wsz, preview-{key}.png, out/{key}/ ({len(names)} files)")

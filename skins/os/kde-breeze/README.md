@@ -11,10 +11,12 @@ Noto-ish UI font, 5px capitals for text.bmp and gen.bmp). It needs Pillow, numpy
 /usr/bin/python3 -I gen_skin.py                     # all of them
 /usr/bin/python3 -I gen_skin.py breeze-dark         # some (breeze-light, breeze-dark)
 /usr/bin/python3 -I gen_skin.py --accent=#e93d58    # another accent colour
+/usr/bin/python3 -I gen_skin.py --list              # theme names
 ```
 
 Outputs: `KDE-Breeze-Light.wsz`, `KDE-Breeze-Dark.wsz` and `preview-<theme>.png` here; sheets in
-`out/<theme>/` (`out/` is ignored). Deterministic (fixed zip timestamps, no noise).
+`out/<theme>/` (`out/` is ignored). Deterministic (fixed zip timestamps, no noise). Each .wsz is
+finished by `skins/genex_wacup.py`.
 
 ## Themes
 
@@ -43,7 +45,6 @@ Both share the Breeze widget style:
 ## Limits
 
 - The seek bar has no fill: posbar.bmp can't show progress.
-- The generator takes theme names and `--accent` only; there is no `--list`.
 
 ## Sources
 

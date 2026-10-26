@@ -9,11 +9,13 @@ stay crisp at 11-13 px. Everything else is drawn by the script. It needs Pillow,
 ```sh
 /usr/bin/python3 -I gen_skin.py                # all of them
 /usr/bin/python3 -I gen_skin.py win10          # some (win8, win10, win11)
+/usr/bin/python3 -I gen_skin.py --list         # theme names
 ```
 
 Outputs: `Windows-8.wsz`, `Windows-10.wsz`, `Windows-11.wsz` and `preview-<theme>.png` here (main
 window, EQ, playlist and a gen.bmp frame, focused and unfocused, 2x); sheets in `out/<theme>/`
-(`out/` is ignored). Deterministic: the noise has fixed seeds and the zip entries a fixed date.
+(`out/` is ignored). Deterministic: the noise has fixed seeds and the zip entries a fixed date. Each
+.wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 
@@ -44,7 +46,6 @@ UI font's caps in rows 88/96; text.bmp's space cell is the plain display colour.
 ## Limits
 
 - Balance has no fill (its frames don't know which side it is on).
-- The generator takes theme names only; there is no `--list`.
 
 ## Sources
 

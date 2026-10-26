@@ -17,7 +17,8 @@ YouTube Music and SoundCloud, Adwaita Sans, an Inter derivative, for Spotify and
 
 Outputs: `YouTube-Music.wsz`, `YouTube-Music-Light.wsz`, `Spotify.wsz`, `Apple-Music.wsz`,
 `SoundCloud.wsz` and `preview-<theme>.png` here; sheets in `out/<theme>/` (`out/` is ignored),
-scratch files (rasterised logos) in `out/scratch/`. Deterministic.
+scratch files (rasterised logos) in `out/scratch/`. Deterministic. Each .wsz is finished by
+`skins/genex_wacup.py`.
 
 ## Themes
 

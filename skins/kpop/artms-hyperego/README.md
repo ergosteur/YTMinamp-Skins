@@ -9,7 +9,8 @@ letters; the playlist's script title is set in the system font URW Z003.
 /usr/bin/python3 -I gen_skin.py
 ```
 
-Outputs: `ARTMS-Hyper-Ego.wsz` and `preview.png` here; sheets in `out/` (ignored).
+Outputs: `ARTMS-Hyper-Ego.wsz` and `preview.png` here; sheets in `out/` (ignored). Each .wsz is
+finished by `skins/genex_wacup.py`.
 
 ## Themes
 

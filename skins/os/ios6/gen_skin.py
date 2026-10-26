@@ -13,6 +13,9 @@ import zipfile
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+import sys
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "out")
@@ -1342,13 +1345,13 @@ def write_text_files():
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n", encoding="utf-8") as f:
         f.write(
             "iOS 6 — a skin in the style of iOS 6's skeuomorphic look, drawn from scratch "
-            "except for the logo. Not affiliated with Apple.\n\n"
+            "except for the logo.\n\n"
             "A classic (Winamp 2.x format) skin: blue-grey glossy navigation bars, a black glossy\n"
             "toolbar with white pictograms, blue-filled sliders with white knobs, pinstripes and\n"
             "white grouped panels. Every bitmap was drawn by a script (gen_skin.py) from gradients,\n"
             "anti-aliased shapes and hand-made pixel fonts; the one exception is the small logo in\n"
             "the main window's emblem spot. A style homage only.\n\n"
-            "Apple logo © Apple Inc.; private use only.\n"
+            "Apple logo © Apple Inc.\n"
         )
 
 
@@ -1390,6 +1393,9 @@ def build():
             info.compress_type = zipfile.ZIP_DEFLATED
             with open(os.path.join(OUT, n), "rb") as f:
                 z.writestr(info, f.read())
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(wsz)
     return names
 
 
@@ -1690,6 +1696,9 @@ def preview():
 
 
 if __name__ == "__main__":
+    if "--list" in sys.argv[1:]:
+        print("iOS6")  # the one theme
+        sys.exit(0)
     names = build()
     preview()
     for n in names:

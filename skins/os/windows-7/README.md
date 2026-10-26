@@ -14,7 +14,7 @@ letters (album art, lyrics, search titles) in capitals of the same font. It need
 
 Outputs: `Windows-7.wsz` and `preview.png` here (main window, EQ, playlist and a gen.bmp frame at
 their real positions, 2x); sheets in `out/` (ignored; scratch files in `out/scratch/`).
-Deterministic.
+Deterministic. Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

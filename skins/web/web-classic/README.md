@@ -17,7 +17,8 @@ wordmark (blue G, red envelope M, a/i/l), the reddit alien (shapes drawn at 8x a
 Outputs: `deviantArt.wsz`, `What-cd.wsz`, `Gmail-2004.wsz`, `Reddit-Classic.wsz` and
 `preview-<theme>.png` here (both windows' states, 2x; the main title is drawn in a TrueType font
 in text.bmp's ink, as the app does); sheets in `out/<theme>/` (`out/` is ignored). The build
-asserts that text.bmp's space cell is the display colour and that its ink is the theme's ink.
+asserts that text.bmp's space cell is the display colour and that its ink is the theme's ink. Each
+.wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

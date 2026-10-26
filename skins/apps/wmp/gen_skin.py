@@ -23,6 +23,8 @@ from types import SimpleNamespace
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_ROOT = os.path.join(HERE, "out")
@@ -1652,11 +1654,11 @@ def write_text_files():
     name = f"WMP {T.version}"
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n", encoding="utf-8") as f:
         f.write(
-            f"{name} — a personal skin in the style of {T.era}.\n"
-            "Windows Media Player logo © Microsoft Corporation; private use only.\n\n"
+            f"{name} — a skin in the style of {T.era}.\n"
+            "Windows Media Player logo © Microsoft Corporation.\n\n"
             "A classic (Winamp 2.x format) skin. Every bitmap was drawn by a script (gen_skin.py) from\n"
             "gradients, shapes and hand-made pixel fonts; the logo in the About spot is redrawn from\n"
-            "shapes too. Not affiliated with Microsoft.\n"
+            "shapes too.\n"
         )
 
 
@@ -1700,6 +1702,9 @@ def build():
             info.compress_type = zipfile.ZIP_DEFLATED
             with open(os.path.join(OUT, n), "rb") as fh:
                 z.writestr(info, fh.read())
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(wsz)
     return names
 
 

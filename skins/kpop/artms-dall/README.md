@@ -13,7 +13,7 @@ numpy (system Python).
 ```
 
 Outputs: `ARTMS-Dall.wsz` and `preview.png` here; sheets in `out/` (ignored). Deterministic (fixed
-seeds).
+seeds). Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

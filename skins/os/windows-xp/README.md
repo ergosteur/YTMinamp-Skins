@@ -10,7 +10,8 @@ About spot. Pixel fonts and all other artwork are drawn by the script. It needs 
 ```
 
 Outputs: `Windows-XP.wsz` and `preview.png` here (main window, EQ, playlist and a gen.bmp frame at
-their real positions, 2x); sheets in `out/` (ignored). Deterministic.
+their real positions, 2x); sheets in `out/` (ignored). Deterministic. Each .wsz is finished by
+`skins/genex_wacup.py`.
 
 ## Themes
 

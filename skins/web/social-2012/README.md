@@ -16,7 +16,8 @@ art.
 Outputs: `Twitter-2012.wsz`, `Instagram-2012.wsz`, `Google-Plus.wsz` and `preview-<theme>.png`
 here; sheets in `out/<theme>/`, scratch files (rasterised logos) in `out/scratch/` (`out/` is
 ignored). Deterministic (fixed noise seed, fixed zip timestamps). The main title is previewed as
-the app draws it by default: TrueType, in text.bmp's ink colour (#333333, #2d5d88, #333333).
+the app draws it by default: TrueType, in text.bmp's ink colour (#333333, #2d5d88, #333333). Each
+.wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

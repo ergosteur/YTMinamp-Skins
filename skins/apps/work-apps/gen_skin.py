@@ -21,6 +21,8 @@ from types import SimpleNamespace
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_ROOT = os.path.join(HERE, "out")
@@ -1702,8 +1704,8 @@ def write_text_files():
                 f"SelectedBG={p['SelectedBG']}\nMbBG={p['NormalBG']}\nMbFG={p['Normal']}\nFont=Arial\n")
     title = T.wsz[:-4].replace("-", " ")
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n") as f:
-        f.write(f"{title} - a personal skin in the style of {T.subject}.\n"
-                f"{T.logo_owner} logo (c) {T.logo_owner}; private use only.\n\n"
+        f.write(f"{title} - a skin in the style of {T.subject}.\n"
+                f"{T.logo_owner} logo (c) {T.logo_owner}.\n\n"
                 "A classic (Winamp 2.x format) skin. Every bitmap was drawn by a script (gen_skin.py),\n"
                 "except the logo.\n")
 
@@ -1747,6 +1749,9 @@ def build():
             info.compress_type = zipfile.ZIP_DEFLATED
             with open(os.path.join(OUT, n), "rb") as fh:
                 z.writestr(info, fh.read())
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(wsz)
     return names
 
 

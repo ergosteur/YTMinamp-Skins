@@ -14,7 +14,7 @@ DejaVu) for the window titles. It needs Pillow and numpy.
 Outputs: `Frutiger-Aero.wsz` and `preview.png` here (main, EQ, playlist and a gen.bmp frame put
 together from the sprites at their real positions, focused and unfocused, at 2x); sheets in
 `out/` (ignored). Deterministic: bokeh positions come from a seeded RNG and the zip entries have a
-fixed date.
+fixed date. Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

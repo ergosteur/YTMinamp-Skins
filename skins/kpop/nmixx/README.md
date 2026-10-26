@@ -12,7 +12,8 @@ Everything else is drawn by the script. It needs Pillow, numpy and `/usr/bin/rsv
 ```
 
 Outputs: `NMIXX.wsz` and `preview.png` here; sheets in `out/nmixx/` and the rasterised logo in
-`out/scratch/` (`out/` is ignored). Deterministic: noise seeds and zip timestamps are fixed.
+`out/scratch/` (`out/` is ignored). Deterministic: noise seeds and zip timestamps are fixed. Each
+.wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

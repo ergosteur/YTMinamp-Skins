@@ -14,7 +14,7 @@ spot. Everything else is drawn by the script too.
 
 Outputs: `WMP-7.wsz`, `WMP-8.wsz`, `WMP-9.wsz`, `WMP-10.wsz` and `preview-<theme>.png` here;
 sheets in `out/<theme>/` (`out/` is ignored), scratch in `out/scratch/`. Deterministic (fixed
-seed, fixed zip timestamps).
+seed, fixed zip timestamps). Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

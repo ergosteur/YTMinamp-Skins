@@ -15,7 +15,7 @@ titlebar in pixel lettering drawn by the script. Everything else is drawn by the
 Outputs: `iPod-classic-Silver.wsz`, `iPod-classic-Black.wsz`, `iPod-mini-<Colour>.wsz`,
 `iPod-mini-<Colour>-Metal.wsz` and `preview-<theme>.png` here; sheets in `out/<theme>/` (`out/` is
 ignored), scratch files (the rasterised logo) in `out/scratch/`. Deterministic (fixed noise seed,
-fixed zip timestamps).
+fixed zip timestamps). Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

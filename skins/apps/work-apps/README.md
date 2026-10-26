@@ -15,7 +15,7 @@ fonts, icons, anti-aliased shapes).
 Outputs: `Microsoft-Teams.wsz`, `Slack.wsz`, `Slack-Light.wsz`, `Palo-Alto-Networks.wsz` and
 `preview-<theme>.png` here (the windows assembled from the sprites the way the app does, 2x);
 sheets in `out/<theme>/` and the rasterised logos in `out/scratch/` (`out/` is ignored).
-Deterministic.
+Deterministic. Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

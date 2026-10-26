@@ -17,7 +17,8 @@ Outputs: `Mac-OS-9.wsz`, `Mac-OS-X-Aqua.wsz`, `Mac-OS-X-Snow-Leopard.wsz` and
 `preview-<theme>.png` here (the windows assembled from the sprites the way the app does, lit on
 the left, unfocused and with buttons pressed on the right); sheets in `out/<theme>/` (`out/` is
 ignored). Deterministic. The build checks every sheet's size, that gen.bmp's letter rows are found
-the way the app scans them, and that text.bmp's space cell is the plain display colour.
+the way the app scans them, and that text.bmp's space cell is the plain display colour. Each .wsz is
+finished by `skins/genex_wacup.py`.
 
 ## Themes
 

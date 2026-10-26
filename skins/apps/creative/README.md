@@ -11,11 +11,9 @@ spot; the script draws everything else.
 /usr/bin/python3 -I gen_skin.py --list
 ```
 
-Outputs: `FL-Studio.wsz`, `RealPlayer-10.wsz`, `Photoshop-CS6.wsz` and `preview-<theme>.png`
-here; sheets in `out/<theme>/` and the rasterised logos in `out/scratch/` (`out/` is ignored).
-Deterministic. Each .wsz is finished by `skins/genex_wacup.py`: it keeps the skin's 18 genex
-colours, derives the other six and redraws genex.bmp in Winamp's 112x59 layout (the copy in
-`out/<theme>/` is the pre-WACUP one).
+Outputs: `FL-Studio.wsz`, `RealPlayer-10.wsz`, `Photoshop-CS6.wsz` and `preview-<theme>.png` here;
+sheets in `out/<theme>/` and the rasterised logos in `out/scratch/` (`out/` is ignored).
+Deterministic. Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

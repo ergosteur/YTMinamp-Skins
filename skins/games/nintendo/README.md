@@ -14,7 +14,8 @@ script.
 
 Outputs: `Nintendo-DS.wsz`, `Nintendo-DSi.wsz`, `Nintendo-3DS.wsz`, `Wii.wsz`,
 `Nintendo-Switch.wsz` and `preview-<theme>.png` here; sheets in `out/<theme>/` (`out/` is
-ignored), scratch files (the rasterised logos) in `out/scratch/`. Deterministic.
+ignored), scratch files (the rasterised logos) in `out/scratch/`. Deterministic. Each .wsz is
+finished by `skins/genex_wacup.py`.
 
 ## Themes
 

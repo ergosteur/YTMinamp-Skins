@@ -34,6 +34,8 @@ import zipfile
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCRATCH = os.path.join(HERE, "out", "scratch")
@@ -1598,11 +1600,9 @@ def write_text_files():
             "tb": "the Tumblr \"t\" in the main titlebar"}[S]
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n") as f:
         f.write(
-            f"{T['name']} — a personal skin in the style of {T['subject']}. {T['mark']} logo © {T['owner']}; "
-            f"private use only.\n\n"
+            f"{T['name']} — a skin in the style of {T['subject']}. {T['mark']} logo © {T['owner']}.\n\n"
             f"A classic (Winamp 2.x format) skin. Every bitmap was drawn by a script (gen_skin.py) from\n"
             f"rectangles and hand-made pixel fonts; the only real mark is {mark}.\n"
-            f"Not affiliated with {T['owner']}.\n"
         )
 
 # ------------------------------------------------------------------------------------------
@@ -1643,6 +1643,9 @@ def build():
             info.compress_type = zipfile.ZIP_DEFLATED
             with open(os.path.join(OUT, n), "rb") as fh:
                 z.writestr(info, fh.read())
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(wsz)
     return names
 
 

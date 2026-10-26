@@ -14,6 +14,7 @@ titlebar); everything else is drawn by the script.
 
 Outputs: `PlayStation.wsz`, `PSone.wsz`, `PlayStation-2.wsz` and `preview-<theme>.png` here;
 sheets in `out/<theme>/` (`out/` is ignored), rasterised logos in `out/scratch/`. Deterministic.
+Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

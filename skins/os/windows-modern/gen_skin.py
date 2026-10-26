@@ -29,6 +29,8 @@ import zipfile
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SEP = (255, 0, 255)  # gen.bmp letter separators (never shown)
@@ -1449,11 +1451,11 @@ def write_text_files():
     v = T["ver"]
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n") as f:
         f.write(f"Windows {v} \u2014 a skin in the style of Windows {v}, drawn from scratch (apart from\n"
-                f"the small Windows logo). Not affiliated with Microsoft.\n\n"
+                f"the small Windows logo).\n\n"
                 "A classic (Winamp 2.x format) skin. Every bitmap was drawn by a script (gen_skin.py)\n"
                 "from rectangles, rounded rectangles and hand-made pixel fonts and icons; the one\n"
                 "exception is the Windows logo in the bottom-right corner. No wallpapers or screenshots.\n\n"
-                "Windows logo \u00a9 Microsoft; private use only.\n")
+                "Windows logo \u00a9 Microsoft.\n")
 
 
 # ------------------------------------------------------------------------------------------
@@ -1494,6 +1496,9 @@ def build():
             info.compress_type = zipfile.ZIP_DEFLATED
             with open(os.path.join(OUT, n), "rb") as fh:
                 z.writestr(info, fh.read())
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(os.path.join(HERE, T["wsz"]))
     return names
 
 
@@ -1803,6 +1808,9 @@ def run(key):
 
 
 if __name__ == "__main__":
+    if "--list" in sys.argv[1:]:
+        print("\n".join(THEME_KEYS))
+        sys.exit(0)
     keys = [a.lower() for a in sys.argv[1:]]
     for k in keys:
         if k not in THEME_KEYS:

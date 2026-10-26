@@ -21,6 +21,8 @@ import zipfile
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -160,6 +162,7 @@ def shade(c, t):
 
 def make_theme(key):
     light = key.endswith("-light")
+    set_mode(light)  # before the theme: its colours go through N(), which reads the mode
     base = key[:-6] if light else key
     objekt = base.endswith("-objekt")
     mk = base[:-7] if objekt else base
@@ -1496,12 +1499,10 @@ def write_text_files():
         who = T["readme_who"]
         f.write(f"{T['wsz'][:-4]}\n\n")
         if T["member"] is None:
-            f.write("ARTMS — a personal fan skin. ARTMS logo and signatures © MODHAUS; "
-                    "for private use only.\n")
+            f.write("ARTMS — a fan skin. ARTMS logo and signatures © MODHAUS.\n")
         else:
             extra = " and objekt photos" if T["objekt"] else ""
-            f.write(f"ARTMS — a personal fan skin for {who}. ARTMS logo, signatures{extra} © MODHAUS; "
-                    "for private use only.\n")
+            f.write(f"ARTMS — a fan skin for {who}. ARTMS logo, signatures{extra} © MODHAUS.\n")
 
 
 # ------------------------------------------------------------------------------------------
@@ -1543,6 +1544,9 @@ def build():
             info.external_attr = 0o644 << 16
             with open(os.path.join(OUT, n), "rb") as f:
                 z.writestr(info, f.read())
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(os.path.join(HERE, T["wsz"]))
     return names
 
 
@@ -1862,7 +1866,6 @@ def preview():
 def run(key):
     global T, OUT
     T = make_theme(key)
-    set_mode(T["light"])
     OUT = os.path.join(HERE, "out", key)
     os.makedirs(OUT, exist_ok=True)
     names = build()

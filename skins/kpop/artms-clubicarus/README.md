@@ -13,6 +13,7 @@ time digits are drawn by the script.
 
 Outputs: `ARTMS-Club-Icarus.wsz` and `preview.png` here (main window, EQ, playlist and a gen.bmp
 frame at their real positions, 2x); sheets in `out/` (ignored). Deterministic (fixed noise seed).
+Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

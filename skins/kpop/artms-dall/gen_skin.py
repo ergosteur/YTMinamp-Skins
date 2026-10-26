@@ -21,6 +21,9 @@ import zipfile
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+import sys
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "out")
@@ -1408,8 +1411,7 @@ def write_text_files():
     with open(os.path.join(OUT, "pledit.txt"), "w", newline="\r\n") as f:
         f.write("[Text]\n" + "".join(f"{k}={v}\n" for k, v in PLEDIT.items()))
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n", encoding="utf-8") as f:
-        f.write("ARTMS Dall — a personal fan skin. ARTMS logo, album art and photos © MODHAUS; "
-                "for private use only.\n")
+        f.write("ARTMS Dall — a fan skin. ARTMS logo, album art and photos © MODHAUS.\n")
 
 
 # ------------------------------------------------------------------------------------------
@@ -1447,6 +1449,9 @@ def build():
     with zipfile.ZipFile(wsz, "w", zipfile.ZIP_DEFLATED) as z:
         for n in names:
             z.write(os.path.join(OUT, n), n)
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(wsz)
     return names
 
 
@@ -1745,6 +1750,9 @@ def preview():
 
 
 if __name__ == "__main__":
+    if "--list" in sys.argv[1:]:
+        print("ARTMS-Dall")  # the one theme
+        sys.exit(0)
     names = build()
     preview()
     for n in names:

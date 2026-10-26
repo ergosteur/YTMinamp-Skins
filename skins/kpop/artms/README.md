@@ -17,7 +17,7 @@ drawn by the script. It needs Pillow and numpy (system Python).
 Outputs: `ARTMS.wsz` and `preview.png`, `ARTMS-<Name>.wsz`, `ARTMS-<Name>-Objekt.wsz`,
 `ARTMS-Light.wsz`, `ARTMS-<Name>-Light.wsz`, `ARTMS-<Name>-Objekt-Light.wsz` and
 `preview-<theme>.png` here; sheets in `out/<theme>/` (`out/` is ignored). Deterministic (fixed
-noise seeds, fixed zip timestamps).
+noise seeds, fixed zip timestamps). Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

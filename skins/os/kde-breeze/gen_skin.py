@@ -25,6 +25,8 @@ import zipfile
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCRATCH = os.path.join(HERE, "out", "scratch")
@@ -1154,7 +1156,7 @@ def write_text_files():
             "colour for focus, slider fill and selection. Every bitmap was drawn by a script\n"
             "(gen_skin.py) from rectangles and hand-made pixel fonts, apart from the KDE logo.\n\n"
             "Breeze is KDE's visual style (LGPL); this is an homage, not a copy of its artwork.\n"
-            "KDE logo (c) KDE e.V.; private use only.\n"
+            "KDE logo (c) KDE e.V.\n"
         )
 
 
@@ -1194,6 +1196,9 @@ def build():
             info.compress_type = zipfile.ZIP_DEFLATED
             with open(os.path.join(OUT, n), "rb") as f:
                 z.writestr(info, f.read())
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(os.path.join(HERE, T["wsz"]))
     return names
 
 
@@ -1516,6 +1521,9 @@ def run(key, accent):
 
 
 if __name__ == "__main__":
+    if "--list" in sys.argv[1:]:
+        print("\n".join(THEME_KEYS))
+        sys.exit(0)
     keys, accent = [], None
     for arg in sys.argv[1:]:
         if arg.startswith("--accent="):

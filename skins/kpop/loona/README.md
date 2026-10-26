@@ -16,7 +16,7 @@ place of Arial) in text.bmp's ink colour.
 
 Outputs: `LOONA.wsz`, `LOONA-<Theme>.wsz`, `LOONA-<Theme>-Light.wsz` and `preview.png` /
 `preview-<theme>.png` here; sheets in `out/<theme>/` (`out/` is ignored). Deterministic (fixed
-noise seeds, fixed zip timestamps).
+noise seeds, fixed zip timestamps). Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

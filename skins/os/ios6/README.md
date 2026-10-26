@@ -11,7 +11,7 @@ hand-made pixel fonts. It needs `/usr/bin/rsvg-convert`.
 ```
 
 Outputs: `iOS6.wsz` and `preview.png` here (the windows assembled from the sprites, at 2x); sheets
-in `out/` (ignored). Deterministic.
+in `out/` (ignored). Deterministic. Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

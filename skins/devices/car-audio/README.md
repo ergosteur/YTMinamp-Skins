@@ -1,20 +1,21 @@
-# Car Audio: VW MIB II (two takes), Clarion, Clarion ADX5655z
+# Car Audio: VW MIB II (two takes), Clarion, Clarion ADX5655z (two takes)
 
-Four classic skins from one generator (`gen_skin.py`, based on `skins/ember/gen_skin.py`, whose
+Five classic skins from one generator (`gen_skin.py`, based on `skins/ember/gen_skin.py`, whose
 sheet layouts it keeps), a theme each. The real marks used are the Volkswagen roundel (both MIB II
 skins); the Clarion wordmark is hand-drawn pixel lettering. Everything else is drawn by the script.
-The v2 and ADX themes have their own sheet makers (`V2_MAKERS`, `AX_MAKERS`) so the first two skins
-stay byte-identical.
+The v2 and ADX themes have their own sheet makers (`V2_MAKERS`, `AX_MAKERS`, and `AXS_MAKERS` for
+the silver ADX, which reuses the `AX_MAKERS` VFD sprites) so the earlier skins stay byte-identical.
 
 ```sh
 /usr/bin/python3 -I gen_skin.py                # all of them
 /usr/bin/python3 -I gen_skin.py clarion        # some (vw-mib2, vw-mib2-v2, clarion,
-                                               #   clarion-adx5655z)
+                                               #   clarion-adx5655z, clarion-adx5655z-silver)
 /usr/bin/python3 -I gen_skin.py --list
 ```
 
-Outputs: `VW-MIB-II.wsz`, `VW-MIB-II-v2.wsz`, `Clarion.wsz`, `Clarion-ADX5655z.wsz` and
-`preview-<theme>.png` here; sheets in `out/<theme>/` (`out/` is ignored).
+Outputs: `VW-MIB-II.wsz`, `VW-MIB-II-v2.wsz`, `Clarion.wsz`, `Clarion-ADX5655z.wsz`,
+`Clarion-ADX5655z-Silver.wsz` and `preview-<theme>.png` here; sheets in `out/<theme>/` (`out/` is ignored). Each .wsz is finished by
+`skins/genex_wacup.py`.
 
 ## Themes
 
@@ -72,6 +73,32 @@ Outputs: `VW-MIB-II.wsz`, `VW-MIB-II-v2.wsz`, `Clarion.wsz`, `Clarion-ADX5655z.w
   and an orange cap cursor, between white brackets. Playlist: pale-blue VFD text on violet-black,
   orange current track, with the "FULL LOGIC CASSETTE SYSTEM" cassette door behind the ADD / REM
   / SEL / MISC keys.
+- **Clarion ADX5655z Silver** (`clarion-adx5655z-silver`): the same unit and the same VFD content,
+  with the balance inverted to match the real front more closely: the keys sit on the satin
+  brushed silver faceplate (#EAEDF1 at the top to #B4B8C1, faint horizontal brush streaks, darker
+  silver #9CA1AB bevels down the sides, waisted on the main window and EQ, straight on the tiled
+  windows), and only the display sections are recessed VFD glass (black gloss rim, #100A16 glass,
+  a light lip below). Print on the silver is dark grey (#181A20, #424650 for small print); unlit
+  titlebars fade it to #8A8E97.
+  - Titlebar: "HIGH POWER 45Wx4" and "ADX5655z" in dark italic, "SPECTRUM ANALYZER" small
+    between; grey rubber caption keys.
+  - Main window: one VFD window, its left bank deeper (time, analyzer) and its right part holding
+    the title, the FUNCTION / CH lozenges round kbps / kHz and STEREO / MONO. On the silver: the
+    pale-blue preset keys (clutterbar), volume and balance as dark recessed tracks lit with
+    blue-to-orange VFD segments under a silver slider cap with a dark index line (orange when
+    held), EQ / PL as grey rubber keys with an orange LED, the seek bar as a long recessed slot,
+    grey rubber transport keys, a silver eject, pale-blue RDM / RPT keys, "CENET" and "MAGI-TUNE"
+    print, the dark Clarion wordmark (the only one), the rocker pad on its silver ring (About).
+  - Equalizer: silver body with the whole line "TUNER/COMPACT DISC/CASSETTE PLAYER WITH SPECTRUM
+    ANALYZER" in the titlebar; the graph and the slider bank are one T-shaped VFD window (blue
+    segment columns with an orange cap cursor between white brackets, pale band labels); ON /
+    AUTO / PRESETS are pale-blue keys on the silver.
+  - Playlist and album art: silver frames with straight sides, the list and the art in a black
+    gloss rim, printed outline title boxes ("PLAYLIST", the album-art title in dark print). The
+    playlist's bottom bar is silver with grey ADD / REM / SEL / MISC / LIST keys, the small time
+    displays as VFD glass, and a smoked "FULL LOGIC CASSETTE SYSTEM" slot; the scrollbar is a
+    dark groove with a silver thumb.
+  Playlist: #96C8FF on #100A16, #FF9224 current, #34244E selection. Font: Arial.
 
 ## Limits
 
@@ -80,6 +107,11 @@ Outputs: `VW-MIB-II.wsz`, `VW-MIB-II-v2.wsz`, `Clarion.wsz`, `Clarion-ADX5655z.w
 - Clarion's volume knob sits bottom right, since the About spot is the only free area big enough
   (most real Clarion units put it on the left).
 - The MIB II v2 highlight red is sampled from photos, where camera bloom makes it look pinker.
+- Clarion ADX5655z Silver: the real unit is mostly black gloss round the display with silver at
+  the edges; this take puts the keys on silver on purpose. Winamp's main window has no slots for
+  the photo's SPE-ANA / DISP / FUNC / ISR / BAND keys, so the pale-blue keys are the clutterbar,
+  RDM / RPT and the EQ's ON / AUTO / PRESETS, and the cassette door is reduced to a slot in the
+  playlist's bottom bar.
 
 ## Sources
 

@@ -14,7 +14,7 @@ hand-made pixel fonts.
 
 Outputs: `MSN-Messenger.wsz`, `Office-2007.wsz`, `Office-2010.wsz` and `preview-<theme>.png`
 here; sheets in `out/<theme>/` and the rasterised logos in `out/scratch/` (`out/` is ignored).
-Deterministic.
+Deterministic. Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

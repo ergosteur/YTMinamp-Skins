@@ -16,6 +16,9 @@ import zipfile
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+import sys
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "out")
@@ -1804,12 +1807,12 @@ def write_text_files():
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n") as f:
         f.write(
             "Windows 7 — a skin in the style of Windows 7's Aero theme, drawn from scratch\n"
-            "(apart from the Windows flag in the About spot). Not affiliated with Microsoft.\n\n"
+            "(apart from the Windows flag in the About spot).\n\n"
             "A classic (Winamp 2.x format) skin: Aero glass frames, the light window face, Windows 7\n"
             "buttons and trackbars, a green progress bar for the seek bar, a dark glossy display.\n"
             "Every bitmap was drawn by a script (gen_skin.py) from gradients, shapes and hand-made\n"
             "pixel fonts; no screenshots or copied artwork.\n\n"
-            "Windows logo © Microsoft; private use only.\n"
+            "Windows logo © Microsoft.\n"
         )
 
 
@@ -1853,6 +1856,9 @@ def build():
             info.compress_type = zipfile.ZIP_DEFLATED
             with open(os.path.join(OUT, n), "rb") as f:
                 z.writestr(info, f.read())
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(wsz)
     return names
 
 
@@ -2172,6 +2178,9 @@ def preview():
 
 
 if __name__ == "__main__":
+    if "--list" in sys.argv[1:]:
+        print(WSZ_NAME[:-4])  # the one theme
+        sys.exit(0)
     names = build()
     preview()
     for n in names:

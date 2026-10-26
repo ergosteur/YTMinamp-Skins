@@ -13,7 +13,7 @@ spot under the EQ/PL buttons; everything else is drawn by the script.
 
 Outputs: `Chrome.wsz`, `Firefox.wsz`, `Discord.wsz`, `Chrome-Classic-Blue.wsz`, `Netscape-4.8.wsz`
 and `preview-<theme>.png` here; sheets in `out/<theme>/`, rasterised logos in `out/scratch/`
-(`out/` is ignored). Deterministic.
+(`out/` is ignored). Deterministic. Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

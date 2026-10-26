@@ -17,7 +17,8 @@ script. The themes share the drawing code in two families, "light" (the 360 dash
 
 Outputs: `Xbox-360.wsz`, `PS3.wsz`, `Xbox-Original.wsz`, `Xbox-360-NXE.wsz`,
 `Xbox-360-Metro.wsz`, `Xbox-Series.wsz` and `preview-<theme>.png` here; sheets in `out/<theme>/`
-(`out/` is ignored), scratch files (the rasterised logo) in `out/scratch/`. Deterministic.
+(`out/` is ignored), scratch files (the rasterised logo) in `out/scratch/`. Deterministic. Each .wsz
+is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

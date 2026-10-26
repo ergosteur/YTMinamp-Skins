@@ -21,6 +21,8 @@ from types import SimpleNamespace
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_ROOT = os.path.join(HERE, "out")
@@ -86,6 +88,23 @@ THEMES = {
     "clarion-adx5655z": SimpleNamespace(
         name="clarion-adx5655z", title="Clarion ADX5655z", wsz="Clarion-ADX5655z.wsz",
         subject="the Clarion ADX5655z car stereo", owner="Clarion Co., Ltd.",
+        logo_note="Clarion wordmark (hand-drawn pixel lettering)",
+        disp=(16, 10, 22), ink=(214, 230, 255),
+        accent=(255, 146, 36), accent_hi=(255, 196, 70), accent_lo=(80, 40, 10),
+        dim=(44, 32, 58), line=(44, 32, 58),
+        pledit=dict(Normal="#96C8FF", Current="#FF9224", NormalBG="#100A16", SelectedBG="#34244E"),
+        vis=[(255, 190, 70), (150, 225, 255), (40, 74, 196)],
+        vis_rows=[(255, 196, 70), (255, 166, 50), (255, 140, 36), (150, 226, 255), (132, 214, 255),
+                  (116, 202, 255), (102, 188, 255), (90, 174, 255), (80, 160, 252), (72, 146, 246),
+                  (64, 132, 240), (58, 118, 232), (52, 106, 224), (48, 96, 216), (44, 86, 206), (40, 76, 196)],
+        vis_dots=(38, 26, 50), vis_peak=(255, 146, 36),
+        genex=None,
+    ),
+    # The same unit, closer to its real front: the keys on the brushed silver faceplate, only the
+    # display sections dark VFD glass (the same VFD content and playlist colours).
+    "clarion-adx5655z-silver": SimpleNamespace(
+        name="clarion-adx5655z-silver", title="Clarion ADX5655z Silver", wsz="Clarion-ADX5655z-Silver.wsz",
+        subject="the Clarion ADX5655z car stereo (silver faceplate)", owner="Clarion Co., Ltd.",
         logo_note="Clarion wordmark (hand-drawn pixel lettering)",
         disp=(16, 10, 22), ink=(214, 230, 255),
         accent=(255, 146, 36), accent_hi=(255, 196, 70), accent_lo=(80, 40, 10),
@@ -1587,10 +1606,10 @@ def write_text_files():
                 f"SelectedBG={p['SelectedBG']}\nMbBG={p['NormalBG']}\nMbFG={p['Normal']}\n"
                 f"Font={getattr(T, 'font', 'Arial')}\n")
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n") as f:
-        f.write(f"{T.title} — a personal skin in the style of {T.subject}.\n"
-                f"{T.owner} logo © {T.owner}; private use only.\n\n"
+        f.write(f"{T.title} — a skin in the style of {T.subject}.\n"
+                f"{T.owner} logo © {T.owner}.\n\n"
                 "A classic (Winamp 2.x format) skin drawn by a script (gen_skin.py) from gradients,\n"
-                "shapes and hand-made pixel fonts. Not affiliated with or endorsed by the owner.\n")
+                "shapes and hand-made pixel fonts.\n")
 
 
 # ------------------------------------------------------------------------------------------
@@ -2169,17 +2188,28 @@ DOT57 = {
 }
 
 
-def ax_gloss(a, x, y, w, h, top=0, total=116):
+def ax_gloss(a, x, y, w, h, top=0, total=116, stops=None):
     for r in range(h):
-        rect(a, x, y + r, w, 1, ramp(AX_GLOSS, (top + r) / max(1, total - 1)))
+        rect(a, x, y + r, w, 1, ramp(stops or AX_GLOSS, (top + r) / max(1, total - 1)))
 
 
-def ax_silver_sides(a, top=0, total=116, left=True, right=True):
-    """The sculpted silver surround down the sides: wider at top and bottom, waisted in the middle."""
+# The playlist and gen windows are tiled pieces: their surround is straight (constant width and
+# colour) and their gloss flat down the sides, fading in from the titlebar and out into the bottom
+# bar, so the tiles repeat and the pieces meet without a step. The curve is the main window's and EQ's.
+AX_STRAIGHT_W = 3.0
+AX_STRAIGHT_SILVER = (196, 200, 206)
+AX_FLAT = (10, 10, 13)
+AX_GLOSS_TOP = [AX_GLOSS[0], AX_GLOSS[1], AX_FLAT]
+AX_GLOSS_BOTTOM = [AX_FLAT, AX_GLOSS[2], AX_GLOSS[3]]
+
+
+def ax_silver_sides(a, top=0, total=116, left=True, right=True, straight=False):
+    """The sculpted silver surround down the sides: wider at top and bottom, waisted in the middle
+    (or `straight`, for the tiled windows)."""
     h, w = a.shape[:2]
     for r in range(h):
         t = (top + r) / max(1, total - 1)
-        sw = 2.2 + 3.0 * (1 - np.sin(np.pi * t)) ** 1.5
+        sw = AX_STRAIGHT_W if straight else 2.2 + 3.0 * (1 - np.sin(np.pi * t)) ** 1.5
         for side in ((0,) if left else ()) + ((1,) if right else ()):
             m = np.zeros((1, w), np.float32)
             xs = np.arange(w) + 0.5
@@ -2187,7 +2217,7 @@ def ax_silver_sides(a, top=0, total=116, left=True, right=True):
                 m[0] = np.clip(sw - xs + 0.5, 0, 1)
             else:
                 m[0] = np.clip(sw - (w - xs) + 0.5, 0, 1)
-            col = ramp(AX_SILVER, 0.15 + 0.7 * abs(t - 0.4))
+            col = AX_STRAIGHT_SILVER if straight else ramp(AX_SILVER, 0.15 + 0.7 * abs(t - 0.4))
             paint(a, 0, r, m, col)
             # the dark seam where silver meets the gloss
             edge = np.clip(1 - np.abs((xs if side == 0 else w - xs) - sw - 0.5), 0, 1)[None, :]
@@ -2609,12 +2639,26 @@ def ax_make_eqmain():
     return a
 
 
-def ax_bar_piece(w, h, top=0, total=116, left=False, right=False):
+def ax_bar_piece(w, h, top=0, total=116, left=False, right=False, stops=None):
+    """A piece of chrome; `stops` (a gloss ramp) makes it a tiled window's, with straight sides."""
     a = new(w, h)
-    ax_gloss(a, 0, 0, w, h, top, total)
+    ax_gloss(a, 0, 0, w, h, top, total, stops)
     if left or right:
-        ax_silver_sides(a, top, total, left, right)
+        ax_silver_sides(a, top, total, left, right, straight=stops is not None)
     return a
+
+
+def ax_tbar(w, h, **kw):
+    """Tiled windows: titlebar piece, its gloss fading to the flat sides."""
+    return ax_bar_piece(w, h, 0, h, stops=AX_GLOSS_TOP, **kw)
+
+
+def ax_side(w, h, **kw):
+    return ax_bar_piece(w, h, 0, h, stops=[AX_FLAT], **kw)
+
+
+def ax_bottom(w, h, **kw):
+    return ax_bar_piece(w, h, 0, h, stops=AX_GLOSS_BOTTOM, **kw)
 
 
 def ax_plate(a, x, y, w, h=11):
@@ -2630,20 +2674,20 @@ def ax_make_pledit():
             rect(t, 0, 0, t.shape[1], 1, AX_SILVER[0])
             rect(t, 0, 1, t.shape[1], 1, AX_SILVER[2])
             return t
-        t = top(ax_bar_piece(25, 20, 0, 60))
+        t = top(ax_tbar(25, 20))
         a[y:y + 20, 127:152] = t
-        t = top(ax_bar_piece(25, 20, 0, 60, left=True))
+        t = top(ax_tbar(25, 20, left=True))
         a[y:y + 20, 0:25] = t
-        t = top(ax_bar_piece(100, 20, 0, 60))
+        t = top(ax_tbar(100, 20))
         ax_plate(t, 2, 5, 96)
         text_center(t, FONT5, "PLAYLIST", 50, 8, AX_TEXT if lit else (90, 96, 120))
         a[y:y + 20, 26:126] = t
-        t = top(ax_bar_piece(25, 20, 0, 60, right=True))
+        t = top(ax_tbar(25, 20, right=True))
         ax_caption(t, 14, 3, "close", lit)
         rect(t, 9, 14, 10, 6, (24, 24, 28))
         a[y:y + 20, 153:178] = t
-    a[42:71, 0:12] = ax_bar_piece(12, 29, 30, 60, left=True)
-    t = ax_bar_piece(20, 29, 30, 60, right=True)
+    a[42:71, 0:12] = ax_side(12, 29, left=True)
+    t = ax_side(20, 29, right=True)
     rect(t, 4, 0, 10, 29, (24, 24, 28))
     rect(t, 4, 0, 1, 29, (2, 2, 3))
     a[42:71, 31:51] = t
@@ -2656,8 +2700,7 @@ def ax_make_pledit():
         a[53:71, x:x + 8] = hnd
 
     def bottom_base(w, left=False, right=False):
-        t = ax_bar_piece(w, 38, 78, 116, left, right)
-        return t
+        return ax_bottom(w, 38, left=left, right=right)
 
     t = bottom_base(125, left=True)
     # the cassette door: a smoked window in a silver rim, FULL LOGIC CASSETTE SYSTEM
@@ -2692,7 +2735,7 @@ def ax_make_gen():
     ax_gloss(a, 0, 0, 194, 109, 0, 109)
     for lit, y in ((True, 0), (False, 21)):
         for px0 in (0, 26, 52, 78, 104, 130):
-            t = ax_bar_piece(25, 20, 0, 60, left=px0 == 0, right=px0 == 130)
+            t = ax_tbar(25, 20, left=px0 == 0, right=px0 == 130)
             rect(t, 0, 0, 25, 1, AX_SILVER[0])
             rect(t, 0, 1, 25, 1, AX_SILVER[2])
             if px0 == 26:
@@ -2708,7 +2751,7 @@ def ax_make_gen():
             a[y:y + 20, px0:px0 + 25] = t
 
     def bottom(w, grip, left):
-        t = ax_bar_piece(w, 14, 102, 116, left=left, right=not left)
+        t = ax_bottom(w, 14, left=left, right=not left)
         rect(t, 0, 12, w, 1, AX_SILVER[2])
         rect(t, 0, 13, w, 1, AX_SILVER[0])
         if grip:
@@ -2719,12 +2762,12 @@ def ax_make_gen():
 
     a[42:56, 0:125] = bottom(125, False, True)
     a[57:71, 0:125] = bottom(125, True, False)
-    t = ax_bar_piece(25, 14, 102, 116)
+    t = ax_bottom(25, 14)
     rect(t, 0, 12, 25, 1, AX_SILVER[2])
     rect(t, 0, 13, 25, 1, AX_SILVER[0])
     a[72:86, 127:152] = t
     for x, w, h, left in ((127, 11, 29, True), (158, 11, 24, True), (139, 8, 29, False), (170, 8, 24, False)):
-        a[42:42 + h, x:x + w] = ax_bar_piece(w, h, 30, 60, left=left, right=not left)
+        a[42:42 + h, x:x + w] = ax_side(w, h, left=left, right=not left)
     c = a[3:12, 144:153].copy()
     ax_caption(c, 0, 0, "close", True, pressed=True)
     a[42:51, 148:157] = c
@@ -2765,6 +2808,557 @@ AX_MAKERS = {
 
 
 # ------------------------------------------------------------------------------------------
+# clarion-adx5655z-silver: the same unit with the balance inverted, closer to its real front:
+# the keys sit on the satin/brushed silver faceplate (darker silver bevels down the sides) and
+# only the display sections are dark VFD glass. The VFD sprites (digits, text, analyzer, EQ
+# columns, lozenges) are the ax_* ones. The silver varies vertically only (fine horizontal brush
+# streaks on the main window and EQ), and the tiled playlist and gen pieces have straight sides
+# of constant columns, so their tiles repeat cleanly.
+# ------------------------------------------------------------------------------------------
+
+AXS_SATIN = [(234, 237, 241), (218, 222, 228), (204, 208, 215), (192, 196, 204), (180, 184, 193)]
+AXS_FLAT = (206, 210, 217)          # the tiled windows' silver where the sides run
+AXS_BEVEL = [(156, 161, 171), (132, 137, 147)]
+AXS_EDGE = (74, 78, 86)
+AXS_HI = (248, 249, 251)
+AXS_SHADOW = (122, 126, 135)
+AXS_INK = (24, 26, 32)              # print on the silver
+AXS_PRINT = (66, 70, 80)            # smaller print
+AXS_DIM = (138, 142, 151)           # unlit titlebar print
+AXS_RIM = (10, 10, 13)              # black gloss rim of a glass window
+AXS_GROOVE = (40, 42, 49)
+AXS_SMOKE = [(66, 70, 80), (34, 36, 42), (48, 52, 60)]
+AXS_LED_OFF = (92, 96, 104)
+AXS_STREAK = [int(v) for v in np.random.default_rng(5655).integers(-2, 3, 97)]
+AXS_TBAR = [AXS_SATIN[0], AXS_SATIN[1], AXS_FLAT]
+AXS_BOTTOM = [AXS_FLAT, AXS_SATIN[3], AXS_SATIN[4]]
+
+
+def axs_satin(a, x, y, w, h, top=0, total=116, stops=None, streaks=True):
+    """Satin silver, lighter at the top; `streaks` adds faint horizontal brush lines."""
+    for r in range(h):
+        c = ramp(stops or AXS_SATIN, (top + r) / max(1, total - 1))
+        s = AXS_STREAK[(top + r) % len(AXS_STREAK)] if streaks else 0
+        rect(a, x, y + r, w, 1, tuple(v + s for v in c))
+
+
+def axs_sides(a, top=0, total=116, left=True, right=True):
+    """The darker silver bevels down the sides, waisted in the middle (main window and EQ)."""
+    h, w = a.shape[:2]
+    xs = np.arange(w) + 0.5
+    for r in range(h):
+        t = (top + r) / max(1, total - 1)
+        sw = 3.0 + 3.0 * (1 - np.sin(np.pi * t)) ** 1.5
+        col = ramp(AXS_BEVEL, min(1.0, abs(t - 0.4) * 1.6))
+        for side in ((0,) if left else ()) + ((1,) if right else ()):
+            d = xs if side == 0 else w - xs
+            paint(a, 0, r, np.clip(sw - d + 0.5, 0, 1)[None, :], col)
+            paint(a, 0, r, np.clip(1 - np.abs(d - sw - 0.5), 0, 1)[None, :], AXS_HI, 0.9)
+            paint(a, 0, r, (d < 1).astype(np.float32)[None, :], AXS_EDGE)
+
+
+def axs_frame_edges(a):
+    """Top and bottom outer edges of a whole window body."""
+    w = a.shape[1]
+    rect(a, 0, 0, w, 1, AXS_EDGE)
+    rect(a, 1, 1, w - 2, 1, AXS_HI)
+    rect(a, 1, a.shape[0] - 2, w - 2, 1, AXS_SHADOW)
+    rect(a, 0, a.shape[0] - 1, w, 1, AXS_EDGE)
+
+
+def axs_glass(a, rects, r=3, top_line=True):
+    """A recessed VFD window (the union of `rects`, x y w h): shadowed silver lip, black gloss rim,
+    the dark violet-black glass."""
+    h, w = a.shape[:2]
+
+    def union(inset, rr):
+        m = np.zeros((h, w), np.float32)
+        for (x, y, ww, hh) in rects:
+            m = np.maximum(m, rr_m(w, h, x + inset, y + inset, x + ww - inset, y + hh - inset, max(0.5, rr)))
+        return m
+    paint(a, 0, 1, union(-1, r + 1), AXS_HI, 0.9)
+    paint(a, 0, -1, union(-1, r + 1), AXS_SHADOW)
+    paint(a, 0, 0, union(-1, r + 1), lerp(AXS_SHADOW, AXS_EDGE, 0.4))
+    paint(a, 0, 0, union(0, r), AXS_RIM)
+    paint(a, 0, 0, union(1, r - 1), AX_VFD)
+    if top_line:
+        x, y, ww, hh = rects[0]
+        rect(a, x + r, y + 1, ww - 2 * r, 1, (38, 30, 48))
+
+
+def axs_key_label(a, s, cx, y, col=AXS_INK):
+    text_center(a, AX_TINY, s, cx, y, col)
+
+
+def axs_rocker(a, cx, cy, r):
+    x0, y0 = int(cx - r - 3), int(cy - r - 3)
+    w = h = int(2 * r + 7)
+    paint(a, x0, y0, circle_m(w, h, cx - x0, cy - y0 + 0.6, r + 1.2), AXS_EDGE, 0.9)
+    paint(a, x0, y0, circle_m(w, h, cx - x0, cy - y0 + 1.4, r + 1.0), AXS_HI, 0.5)
+    ax_rocker(a, cx, cy, r)
+
+
+def axs_titlebar(lit, which="main"):
+    a = new(275, 14)
+    axs_satin(a, 0, 0, 275, 14, 0, 116)
+    axs_sides(a, 0, 116)
+    rect(a, 0, 0, 275, 1, AXS_EDGE)
+    rect(a, 1, 1, 273, 1, AXS_HI)
+    ink = AXS_INK if lit else AXS_DIM
+    if which == "main":
+        ax_italic(a, "HIGH POWER 45W×4", 19, 11, 9, ink)
+        text_center(a, AX_TINY, "SPECTRUM ANALYZER", 147, 5, AXS_PRINT if lit else AXS_DIM)
+        ax_italic(a, "ADX5655z", 239, 11, 10, ink, anchor="rs")
+        axs_caption(a, 244, 3, "minimize", lit)
+        axs_caption(a, 254, 3, "shade", lit)
+    else:
+        s = "TUNER/COMPACT DISC/CASSETTE PLAYER WITH SPECTRUM ANALYZER"
+        text_center(a, AX_TINY, s, 137, 5, AXS_PRINT if lit else AXS_DIM)
+    axs_caption(a, 6, 3, "options", lit)
+    axs_caption(a, 264, 3, "close", lit)
+    return a
+
+
+def axs_caption(a, x, y, kind, lit=True, pressed=False):
+    ax_key(a, x, y, 9, 9, pressed, "rubber", 2.0)
+    caption_glyph(a, kind, x, y, (20, 20, 24) if lit else (96, 98, 104))
+
+
+def axs_clutter(lit_letters):
+    a = new(8, 43)
+    axs_satin(a, 0, 0, 8, 43, 22, 116)
+    for letter, y, h in CLUTTER_SLOTS:
+        on = letter in lit_letters
+        ax_key(a, 0, y - 1, 8, h + 1, on, "pale", 1.5)
+        draw_text(a, AX_TINY, letter, 3, y + (h - 5) // 2, AX_PALE_INK if not on else (0, 40, 110))
+    return a
+
+
+def axs_make_titlebar():
+    a = new(344, 87)
+    axs_satin(a, 0, 0, 344, 87, 0, 87, streaks=False)
+    lit, dim = axs_titlebar(True), axs_titlebar(False)
+    a[0:14, 27:302] = lit
+    a[15:29, 27:302] = dim
+    a[29:43, 27:302] = lit
+    a[42:56, 27:302] = dim
+    for kind, sx, x in (("options", 6, 0), ("minimize", 244, 9), ("close", 264, 18)):
+        a[0:9, x:x + 9] = lit[3:12, sx:sx + 9]
+        c = lit[3:12, sx:sx + 9].copy()
+        axs_caption(c, 0, 0, kind, True, pressed=True)
+        a[9:18, x:x + 9] = c
+    a[18:27, 0:9] = lit[3:12, 254:263]
+    c = lit[3:12, 254:263].copy()
+    axs_caption(c, 0, 0, "shade", True, pressed=True)
+    a[18:27, 9:18] = c
+    unlit, on = axs_clutter(""), axs_clutter("OAIDV")
+    a[0:43, 304:312] = unlit
+    a[0:43, 312:320] = unlit
+    for (letter, y, h), sx, sy in zip(CLUTTER_SLOTS, [304, 312, 320, 328, 336], [47, 55, 62, 69, 77]):
+        a[sy:sy + h, sx:sx + 8] = on[y:y + h]
+    return a
+
+
+# the main window's VFD: the right part (title, kbps / kHz, stereo) and the deeper left bank
+# (time, analyzer), one window
+AXS_GLASS_MAIN = [(20, 17, 248, 40), (20, 17, 86, 48)]
+
+
+def axs_make_main():
+    a = new(275, 116)
+    axs_satin(a, 0, 0, 275, 116)
+    axs_sides(a)
+    axs_frame_edges(a)
+    a[0:14, :] = axs_titlebar(True)
+    a[22:65, 10:18] = axs_clutter("")
+    axs_glass(a, AXS_GLASS_MAIN)
+    ax_chevron(a, 21, 42, 16, (226, 230, 240), "left")
+    px(a, 74, 30, AX_TEXT)
+    px(a, 74, 34, AX_TEXT)
+    for xx in range(110, 266, 2):
+        px(a, xx, 37, AX_GHOST)
+    ax_lozenge(a, 107, 40, 44, 14, AX_ORANGE, "FUNCTION")
+    draw_text(a, AX_TINY, "KBPS", 129, 44, AX_ORANGE)
+    ax_lozenge(a, 152, 40, 36, 14, AX_ORANGE)
+    draw_text(a, AX_TINY, "CH", 169, 44, AX_ORANGE)
+    draw_text(a, AX_TINY, "KHZ", 191, 44, AX_LABEL)
+    # print on the silver
+    draw_text(a, AX_TINY, "CENET", 22, 67, AXS_PRINT)
+    draw_text(a, AX_TINY, "MAGI-TUNE", 201, 83, AXS_PRINT)
+    clarion_wordmark(a, 127 - CLARION_W // 2, 106, AXS_INK)
+    axs_rocker(a, 259.5, 98.5, 10.5)
+    return a
+
+
+def axs_make_shufrep(main):
+    a = ax_make_shufrep(main)
+    for x, label, pressed, mx in [(0, "EQ", False, 219), (23, "PL", False, 242), (46, "EQ", True, 219),
+                                  (69, "PL", True, 242)]:
+        for on, y in ((False, 61), (True, 73)):
+            c = main[58:70, mx:mx + 23].copy()
+            ax_key(c, 0, 0, 22, 12, pressed, "rubber", 2.5)
+            o = 1 if pressed else 0
+            draw_text(c, AX_TINY, label, 5, 3 + o, AXS_INK)
+            rect(c, 14, 4 + o, 3, 3, AX_ORANGE if on else AXS_LED_OFF)
+            a[y:y + 12, x:x + 23] = c
+    return a
+
+
+def axs_track(a, x, y, w):
+    """A dark recessed slot in the silver, 3px deep, at rows y .. y+2."""
+    rect(a, x, y - 1, w, 1, AXS_SHADOW)
+    rect(a, x, y, w, 3, AXS_GROOVE)
+    rect(a, x, y, w, 1, (22, 23, 28))
+    rect(a, x, y + 3, w, 1, AXS_HI)
+
+
+def axs_thumb(a, x, y, w, h, pressed):
+    ax_key(a, x, y, w, h, pressed, "silver", 2.0)
+    rect(a, x + w // 2 - 1, y + 2, 2, h - 4, AX_ORANGE if pressed else AXS_INK)
+
+
+def axs_make_posbar(main):
+    a = new(307, 10)
+    a[0:10, 0:248] = main[72:82, 16:264]
+    axs_track(a, 1, 4, 246)
+    for x, pressed in ((248, False), (278, True)):
+        a[0:10, x:x + 29] = a[0:10, 100:129]
+        axs_thumb(a, x + 7, 0, 15, 10, pressed)
+    return a
+
+
+def axs_segs(a, x0, y, n, lit, rev=False):
+    """VFD-like lit segments inside a track: n cells, 2px every 3px; `lit` from the start."""
+    for k in range(n):
+        xx = x0 - 3 * k - 1 if rev else x0 + 3 * k
+        if k < lit:
+            col = AX_ORANGE if k == lit - 1 else ramp(AX_BLUE[::-1], k / max(1, n - 1))
+        else:
+            col = (56, 50, 70)
+        rect(a, xx, y, 2, 2, col)
+
+
+def axs_make_volume(main):
+    a = new(68, 433)
+    axs_satin(a, 0, 0, 68, 433, 57, 116, streaks=False)
+    n = 20
+    for i in range(28):
+        y = i * 15
+        a[y:y + 13, :] = main[57:70, 107:175]
+        axs_track(a, 2, y + 5, 64)
+        axs_segs(a, 4, y + 6, n, round(i / 27 * n))
+    c = main[58:69, 107:121].copy()
+    for x, pressed in ((0, True), (15, False)):
+        t = c.copy()
+        axs_thumb(t, 0, 0, 14, 11, pressed)
+        a[422:433, x:x + 14] = t
+    return a
+
+
+def axs_make_balance(main):
+    a = new(68, 433)
+    axs_satin(a, 0, 0, 68, 433, 57, 116, streaks=False)
+    for i in range(28):
+        y = i * 15
+        a[y:y + 13, 9:47] = main[57:70, 177:215]
+        axs_track(a, 11, y + 5, 34)
+        reach = round(5 * i / 27)
+        axs_segs(a, 29, y + 6, 5, reach)
+        axs_segs(a, 27, y + 6, 5, reach, rev=True)
+        rect(a, 27, y + 4, 2, 5, AX_ORANGE if i == 0 else AXS_INK)
+    c = main[58:69, 177:191].copy()
+    for x, pressed in ((0, True), (15, False)):
+        t = c.copy()
+        axs_thumb(t, 0, 0, 14, 11, pressed)
+        a[422:433, x:x + 14] = t
+    return a
+
+
+AXS_LABEL = (150, 160, 196)   # band labels in the EQ glass
+
+
+def axs_eq_body():
+    a = new(275, 116)
+    axs_satin(a, 0, 0, 275, 116)
+    axs_sides(a)
+    axs_frame_edges(a)
+    a[0:14, :] = axs_titlebar(True, "eq")
+    axs_glass(a, [(84, 15, 117, 23), (13, 37, 249, 76)], 3, top_line=False)
+    rect(a, 87, 16, 111, 1, (38, 30, 48))
+    ax_chevron(a, 16, 41, 56, (226, 230, 240), "left")
+    ax_chevron(a, 255, 41, 56, (226, 230, 240), "right")
+    for lbl, yy in (("+12", 41), ("0", 66), ("-12", 92)):
+        text_center(a, AX_TINY, lbl, 59, yy, AX_ORANGE)
+    for xx in EQ_SLIDER_X:
+        a[38:101, xx:xx + 14] = ax_eq_frame(14)
+    text_center(a, AX_TINY, "PREAMP", 28, 104, AXS_LABEL)
+    for i, lbl in enumerate(EQ_BANDS):
+        text_center(a, AX_TINY, lbl, 78 + 18 * i + 7, 104, AXS_LABEL)
+    return a
+
+
+def axs_make_eqmain():
+    a = new(275, 315)
+    axs_satin(a, 0, 0, 275, 315, 0, 315, streaks=False)
+    body = axs_eq_body()
+    a[0:116, :] = body
+    lit, dim = axs_titlebar(True, "eq"), axs_titlebar(False, "eq")
+    c = lit[3:12, 264:273].copy()
+    axs_caption(c, 0, 0, "close", True, pressed=True)
+    a[125:134, 0:9] = c
+    for x, label, on, pressed in [
+        (10, "ON", False, False), (36, "AUTO", False, False), (69, "ON", True, False), (95, "AUTO", True, False),
+        (128, "ON", False, True), (154, "AUTO", False, True), (187, "ON", True, True), (213, "AUTO", True, True),
+    ]:
+        w = 26 if label == "ON" else 32
+        bx = 14 if label == "ON" else 40
+        c = body[18:30, bx:bx + w].copy()
+        ax_key(c, 0, 0, w - 1, 12, pressed, "pale", 2.0)
+        tw = text_w(AX_TINY, label)
+        tx = (w - 1 - tw - 4) // 2
+        draw_text(c, AX_TINY, label, tx, 3 + (1 if pressed else 0), AX_PALE_INK)
+        rect(c, tx + tw + 2, 4 + (1 if pressed else 0), 2, 3, AX_ORANGE if on else (60, 90, 130))
+        a[119:131, x:x + w] = c
+    a[134:148, :] = lit
+    a[149:163, :] = dim
+    a[164:175, 0:11] = ax_eq_thumb(False)
+    a[176:187, 0:11] = ax_eq_thumb(True)
+    for n in range(28):
+        x, y = 13 + (n % 14) * 15, 164 + (n // 14) * 65
+        a[y:y + 63, x:x + 14] = ax_eq_frame(n)
+    for y, pressed in ((164, False), (176, True)):
+        c = body[18:30, 217:261].copy()
+        ax_key(c, 0, 0, 44, 12, pressed, "pale", 2.0)
+        text_center(c, AX_TINY, "PRESETS", 22, 3 + (1 if pressed else 0), AX_PALE_INK)
+        a[y:y + 12, 224:268] = c
+    rect(a, 0, 294, 113, 19, AX_VFD)
+    for x in range(0, 113, 2):
+        px(a, x, 294 + 9, AX_GHOST)
+    for r in range(19):
+        px(a, 115, 294 + r, ramp([AX_AMBER, AX_ORANGE, AX_ORANGE, AX_AMBER], r / 18))
+    for x in range(113):
+        px(a, x, 314, AX_BLUE[1] if x % 3 != 2 else AX_VFD)
+    return a
+
+
+# Tiled windows: every side is a fixed list of column colours (outer edge first), the same in
+# the side pieces and down the titlebar and bottom pieces, so the tiles meet without a step.
+AXS_PL_LEFT = [AXS_EDGE] + [AXS_BEVEL[0]] * 3 + [AXS_HI] + [AXS_FLAT] * 4 + [AXS_SHADOW, (40, 40, 46), AXS_RIM]
+AXS_PL_RIGHT = ([AXS_RIM, (40, 40, 46), AXS_FLAT, AXS_FLAT, (70, 72, 80)] + [AXS_GROOVE] * 8 + [AXS_HI, AXS_FLAT]
+                + [AXS_HI] + [AXS_BEVEL[0]] * 3 + [AXS_EDGE])
+AXS_GEN_LEFT = [AXS_EDGE] + [AXS_BEVEL[0]] * 3 + [AXS_HI] + [AXS_FLAT] * 2 + [AXS_RIM] * 4
+AXS_GEN_RIGHT = [AXS_RIM, AXS_FLAT, AXS_FLAT, AXS_HI] + [AXS_BEVEL[0]] * 3 + [AXS_EDGE]
+
+
+def axs_cols(a, x, cols, y0=0, y1=None):
+    for k, c in enumerate(cols):
+        rect(a, x + k, y0, 1, (a.shape[0] if y1 is None else y1) - y0, c)
+
+
+def axs_outer(cols):
+    """The outer part of a side (edge, bevel, highlight): it runs through every piece."""
+    n = 0
+    for c in (cols if cols[0] == AXS_EDGE else cols[::-1]):
+        n += 1
+        if c == AXS_HI:
+            break
+    return n
+
+
+def axs_piece(w, h, kind, left=None, right=None):
+    """A tiled-window piece: `kind` "top" (satin to flat), "side" (flat) or "bottom" (flat down
+    to darker), with `left` / `right` the side's column list running its full height."""
+    a = new(w, h)
+    if kind == "side":
+        rect(a, 0, 0, w, h, AXS_FLAT)
+    else:
+        axs_satin(a, 0, 0, w, h, 0, h, AXS_TBAR if kind == "top" else AXS_BOTTOM, streaks=False)
+    if left:
+        axs_cols(a, 0, left if kind == "side" else left[:axs_outer(left)])
+    if right:
+        cols = right if kind == "side" else right[-axs_outer(right):]
+        axs_cols(a, w - len(cols), cols)
+    if kind == "top":
+        rect(a, 0, 0, w, 1, AXS_EDGE)
+        rect(a, 1 if left else 0, 1, w - (1 if left else 0) - (1 if right else 0), 1, AXS_HI)
+    if kind == "bottom":
+        rect(a, 0, h - 1, w, 1, AXS_EDGE)
+        rect(a, 1 if left else 0, h - 2, w - (1 if left else 0) - (1 if right else 0), 1, AXS_SHADOW)
+    return a
+
+
+def axs_print_box(a, x0, x1, y0, y1, col, left=True, right=True):
+    """A printed outline (silkscreen box) from x0 to x1 inclusive."""
+    rect(a, x0, y0, x1 - x0 + 1, 1, col)
+    rect(a, x0, y1, x1 - x0 + 1, 1, col)
+    if left:
+        rect(a, x0, y0, 1, y1 - y0 + 1, col)
+    if right:
+        rect(a, x1, y0, 1, y1 - y0 + 1, col)
+
+
+def axs_make_pledit():
+    a = new(280, 186)
+    axs_satin(a, 0, 0, 280, 186, 0, 186, streaks=False)
+    L, R = AXS_PL_LEFT, AXS_PL_RIGHT
+    rim = [AXS_SHADOW, (40, 40, 46), AXS_RIM]       # the list's top edge, rows 17..19
+    for lit, y in ((True, 0), (False, 21)):
+        ink = AXS_INK if lit else AXS_DIM
+        t = axs_piece(25, 20, "top")
+        for k, c in enumerate(rim):
+            rect(t, 0, 17 + k, 25, 1, c)
+        a[y:y + 20, 127:152] = t
+        t = axs_piece(25, 20, "top", left=L)
+        for k, c in enumerate(rim):
+            rect(t, 9 + k, 17 + k, 25 - 9 - k, 1, c)
+        axs_cols(t, 9, L[9:], 17, 20)
+        a[y:y + 20, 0:25] = t
+        t = axs_piece(100, 20, "top")
+        for k, c in enumerate(rim):
+            rect(t, 0, 17 + k, 100, 1, c)
+        axs_print_box(t, 18, 81, 3, 13, AXS_PRINT if lit else AXS_DIM)
+        text_center(t, FONT5, "PLAYLIST", 50, 6, ink)
+        a[y:y + 20, 26:126] = t
+        t = axs_piece(25, 20, "top", right=R)
+        for k, c in enumerate(rim):
+            rect(t, 0, 17 + k, 5 + 2 - k, 1, c)
+        axs_cols(t, 5, R[:3], 17, 20)
+        axs_caption(t, 13, 3, "close", lit)
+        a[y:y + 20, 153:178] = t
+    a[42:71, 0:12] = axs_piece(12, 29, "side", left=L)
+    a[42:71, 31:51] = axs_piece(20, 29, "side", right=R)
+    c = a[3:12, 166:175].copy()
+    axs_caption(c, 0, 0, "close", True, pressed=True)
+    a[42:51, 52:61] = c
+    for x, pressed in ((52, False), (61, True)):
+        hnd = new(8, 18, AXS_GROOVE)
+        ax_key(hnd, 0, 0, 8, 18, pressed, "silver", 1.5)
+        for k in range(3):
+            rect(hnd, 2, 6 + 2 * k, 4, 1, AXS_SHADOW)
+        a[53:71, x:x + 8] = hnd
+
+    def bottom_base(w, left=False, right=False, list_from=0, list_to=None):
+        t = axs_piece(w, 38, "bottom", left=L if left else None, right=R if right else None)
+        lt = w if list_to is None else list_to
+        rect(t, list_from, 0, lt - list_from, 1, AXS_RIM)
+        rect(t, list_from, 1, lt - list_from, 1, (40, 40, 46))
+        rect(t, list_from, 2, lt - list_from, 1, AXS_HI)
+        return t
+
+    t = bottom_base(125, left=True, list_from=10)
+    axs_cols(t, 10, L[10:], 0, 2)
+    for bx, lbl in ((14, "ADD"), (43, "REM"), (72, "SEL"), (101, "MISC")):
+        ax_key(t, bx, 6, 22, 15, False, "rubber", 4.0)
+        axs_key_label(t, lbl, bx + 11, 11)
+    # the cassette door: a smoked slot, FULL LOGIC CASSETTE SYSTEM
+    paint(t, 12, 24, rr_m(112, 11, 0, 0, 112, 11, 2), AXS_EDGE)
+    paint(t, 12, 24, rr_m(112, 11, 1, 1, 111, 10, 1.5), vgrad_arr(112, 11, AXS_SMOKE))
+    rect(t, 14, 35, 108, 1, AXS_HI)
+    text_center(t, AX_TINY, "FULL LOGIC CASSETTE SYSTEM", 68, 27, (190, 196, 206))
+    a[72:110, 0:125] = t
+    t = bottom_base(150, right=True, list_to=130)
+    axs_cols(t, 130, R[:2], 0, 2)
+    axs_cols(t, 134, R[4:14], 0, 2)
+    axs_glass(t, [(5, 8, 58, 10)], 1, top_line=False)
+    for k, kind in enumerate(["previous", "play", "pause", "stop", "next", "eject"]):
+        bx = 3 + 10 * k
+        ax_key(t, bx, 22, 10, 10, False, "rubber", 2.0)
+        mini_transport_icon(t, kind, bx, 22, (24, 24, 28))
+    axs_glass(t, [(64, 21, 35, 10)], 1, top_line=False)
+    rect(t, 84, 24, 1, 1, AX_TEXT)
+    rect(t, 84, 27, 1, 1, AX_TEXT)
+    ax_key(t, 106, 8, 22, 15, False, "rubber", 4.0)
+    axs_key_label(t, "LIST", 117, 13)
+    for k in range(4):
+        for j in range(k + 1):
+            px(t, 141 - 3 * k + 3 * j, 33 - 3 * j, AXS_PRINT)
+    a[72:110, 126:276] = t
+    a[0:38, 179:204] = bottom_base(25)
+    return a
+
+
+def axs_make_gen():
+    a = new(194, 109)
+    axs_satin(a, 0, 0, 194, 109, 0, 109, streaks=False)
+    L, R = AXS_GEN_LEFT, AXS_GEN_RIGHT
+    for lit, y in ((True, 0), (False, 21)):
+        box = AXS_PRINT if lit else AXS_DIM
+        for px0 in (0, 26, 52, 78, 104, 130):
+            t = axs_piece(25, 20, "top", left=L if px0 == 0 else None, right=R if px0 == 130 else None)
+            # the art's black rim, rows 16..19
+            x0 = 7 if px0 == 0 else 0
+            x1 = 18 if px0 == 130 else 24
+            rect(t, x0, 16, x1 - x0 + 1, 4, AXS_RIM)
+            if px0 == 26:
+                axs_print_box(t, 20, 24, 2, 12, box, right=False)
+            elif px0 == 52:
+                axs_print_box(t, 0, 24, 2, 12, box, left=False, right=False)
+            elif px0 == 78:
+                axs_print_box(t, 0, 4, 2, 12, box, left=False)
+            elif px0 == 130:
+                axs_caption(t, 14, 3, "close", lit)
+            a[y:y + 20, px0:px0 + 25] = t
+
+    def bottom(w, left):
+        t = axs_piece(w, 14, "bottom", left=L if left else None, right=None if left else R)
+        if left:
+            rect(t, 7, 0, w - 7, 4, AXS_RIM)
+        else:
+            rect(t, 0, 0, w - 7, 4, AXS_RIM)
+        return t
+
+    a[42:56, 0:125] = bottom(125, True)
+    t = bottom(125, False)
+    for k in range(3):
+        for j in range(k + 1):
+            px(t, 125 - 6 - 3 * k + 3 * j, 11 - 3 * j, AXS_PRINT)
+    a[57:71, 0:125] = t
+    t = axs_piece(25, 14, "bottom")
+    rect(t, 0, 0, 25, 4, AXS_RIM)
+    a[72:86, 127:152] = t
+    for x, w, h, left in ((127, 11, 29, True), (158, 11, 24, True), (139, 8, 29, False), (170, 8, 24, False)):
+        a[42:42 + h, x:x + w] = axs_piece(w, h, "side", left=L if left else None, right=None if left else R)
+    c = a[3:12, 144:153].copy()
+    axs_caption(c, 0, 0, "close", True, pressed=True)
+    a[42:51, 148:157] = c
+    # the title letters: printed on the silver, each cell the titlebar's own rows 4..10
+    tb = axs_piece(25, 20, "top")
+    for lit, y in ((True, 88), (False, 96)):
+        rect(a, 0, y, 194, 7, SEP)
+        x = 1
+        for ch in GEN_LETTERS:
+            w = glyph_w(FONT5, ch) + 1
+            for r in range(7):
+                rect(a, x, y + r, w, 1, tuple(int(v) for v in tb[4 + r, 10]))
+            draw_text(a, FONT5, ch, x, y + 1, AXS_INK if lit else AXS_DIM)
+            x += w + 1
+        assert x <= 194, x
+    return a
+
+
+def axs_make_genex():
+    a = new(256, 64)
+    axs_satin(a, 0, 0, 256, 64, 0, 64, streaks=False)
+    cols = [AX_VFD, (150, 200, 255), (204, 208, 215), (24, 26, 32), (24, 26, 32), (96, 156, 214),
+            (52, 36, 80), (180, 184, 193), (24, 26, 32), (236, 238, 242), (180, 184, 193), (112, 116, 124),
+            (160, 164, 172), (196, 200, 206), (60, 62, 68), (150, 200, 240), (40, 42, 48), (122, 126, 135)]
+    rect(a, 0, 0, 256, 1, (204, 208, 215))
+    for i, c in enumerate(cols):
+        px(a, 48 + 2 * i, 0, c)
+    ax_key(a, 0, 1, 47, 15, False, "rubber", 5.0)
+    ax_key(a, 0, 16, 47, 15, True, "rubber", 5.0)
+    return a
+
+
+AXS_MAKERS = dict(AX_MAKERS, **{
+    "main.bmp": axs_make_main, "titlebar.bmp": axs_make_titlebar, "shufrep.bmp": axs_make_shufrep,
+    "posbar.bmp": axs_make_posbar, "volume.bmp": axs_make_volume, "balance.bmp": axs_make_balance,
+    "pledit.bmp": axs_make_pledit, "eqmain.bmp": axs_make_eqmain, "gen.bmp": axs_make_gen,
+    "genex.bmp": axs_make_genex,
+})
+
+
+# ------------------------------------------------------------------------------------------
 # Build
 # ------------------------------------------------------------------------------------------
 
@@ -2776,6 +3370,8 @@ def build():
         return build_with(V2_MAKERS)
     if T.name == "clarion-adx5655z":
         return build_with(AX_MAKERS)
+    if T.name == "clarion-adx5655z-silver":
+        return build_with(AXS_MAKERS)
     return build_with({})
 
 
@@ -2812,6 +3408,9 @@ def build_with(over):
             info.compress_type = zipfile.ZIP_DEFLATED
             with open(os.path.join(OUT, n), "rb") as fh:
                 z.writestr(info, fh.read())
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(os.path.join(HERE, T.wsz))
     return names
 
 

@@ -25,6 +25,8 @@ from types import SimpleNamespace
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_ROOT = os.path.join(HERE, "out")
@@ -1303,8 +1305,8 @@ def write_text_files():
     name = T.wsz[:-4]
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n") as f:
         f.write(
-            f"{name} — a personal skin in the style of Cisco classic hardware.\n"
-            "Cisco logo © Cisco Systems, Inc.; private use only.\n\n"
+            f"{name} — a skin in the style of Cisco classic hardware.\n"
+            "Cisco logo © Cisco Systems, Inc.\n\n"
             "Generated procedurally by gen_skin.py.\n"
         )
 
@@ -1342,6 +1344,9 @@ def build():
             info.compress_type = zipfile.ZIP_DEFLATED
             with open(os.path.join(OUT, n), "rb") as fh:
                 z.writestr(info, fh.read())
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(os.path.join(HERE, T.wsz))
     return names
 
 

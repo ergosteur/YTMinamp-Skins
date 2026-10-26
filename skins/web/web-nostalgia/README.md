@@ -13,7 +13,7 @@ else is drawn by the script. No Neopets characters are used.
 
 Outputs: `MySpace.wsz`, `Facebook-2006.wsz`, `Neopets.wsz` and `preview-<theme>.png` here; sheets
 in `out/<theme>/`, scratch files (rasterised logos) in `out/scratch/` (`out/` is ignored).
-Deterministic.
+Deterministic. Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

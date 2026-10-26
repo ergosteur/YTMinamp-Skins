@@ -19,7 +19,8 @@ the "iMac" pixel wordmark.
 Outputs: `iMac-G3-Bondi-Blue.wsz`, `iMac-G3-<Colour>.wsz` (Blueberry, Strawberry, Lime, Grape,
 Tangerine, Graphite), `MacBook-Pro-Unibody.wsz` and `preview-<theme>.png` here; sheets in
 `out/<theme>/` (`out/` is ignored), scratch files (the rasterised logos) in `out/scratch/`.
-Deterministic (fixed noise seed, fixed zip timestamps).
+Deterministic (fixed noise seed, fixed zip timestamps). Each .wsz is finished by
+`skins/genex_wacup.py`.
 
 ## Themes
 

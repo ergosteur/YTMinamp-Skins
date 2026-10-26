@@ -11,11 +11,12 @@ letters a 5-row caps font.
 ```sh
 /usr/bin/python3 -I gen_skin.py                # all of them
 /usr/bin/python3 -I gen_skin.py ios26-v2       # some (ios7, ios26, ios26-v2)
+/usr/bin/python3 -I gen_skin.py --list         # theme names
 ```
 
 Outputs: `iOS7.wsz`, `iOS26.wsz`, `iOS26-v2.wsz` and `preview-<theme>.png` here; sheets in
 `out/<theme>/` (`out/` is ignored, with `out/scratch/` for the rasterised logo). Deterministic:
-two runs give identical files.
+two runs give identical files. Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 
@@ -53,7 +54,6 @@ a uniform colour, since its sprite is the same at every position.
 - numbers.bmp's thin digit 2 has no straight middle row, so a player that takes the minus sign
   from numbers.bmp (rather than nums_ex.bmp, which all of them have) shows a faint one.
 - No region.txt: the app only shapes the main window, and docked panels stay rectangular.
-- The generator takes theme names only; there is no `--list`.
 
 ## Sources
 

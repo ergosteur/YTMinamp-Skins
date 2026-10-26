@@ -22,6 +22,8 @@ import zipfile
 from types import SimpleNamespace
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_ROOT = os.path.join(HERE, "out")
@@ -2019,11 +2021,10 @@ def write_text_files():
                 f"SelectedBG={p['SelectedBG']}\nMbBG={p['NormalBG']}\nMbFG={p['Normal']}\nFont=Tahoma\n")
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n", encoding="utf-8") as f:
         f.write(
-            f"{T.skin} — a personal skin in the style of {T.era}.\n"
-            f"{T.owner} logo © {T.owner}; private use only.\n\n"
+            f"{T.skin} — a skin in the style of {T.era}.\n"
+            f"{T.owner} logo © {T.owner}.\n\n"
             "A classic (Winamp 2.x format) skin. Every bitmap was drawn by a script (gen_skin.py) from\n"
             f"gradients, shapes and hand-made pixel fonts, apart from the {T.logo_note} in the About spot.\n"
-            f"Not affiliated with {T.owner}.\n"
         )
 
 # ------------------------------------------------------------------------------------------
@@ -2066,9 +2067,9 @@ def build():
             info.compress_type = zipfile.ZIP_DEFLATED
             with open(os.path.join(OUT, n), "rb") as fh:
                 z.writestr(info, fh.read())
-    # complete genex.bmp for real Winamp / WACUP (keeps the 18 colours above, derives the rest)
-    subprocess.run(["/usr/bin/python3", "-I", "/home/matt/gitea/ergosteur/ytminamp/skins/genex_wacup.py", wsz],
-                   check=True, stdout=subprocess.DEVNULL)
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(wsz)
     return names
 
 

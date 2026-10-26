@@ -14,7 +14,8 @@ main titlebar; the script draws everything else.
 Outputs: `Encarta-97.wsz`, `Tumblr.wsz` and `preview-<theme>.png` here; sheets in `out/<theme>/`,
 scratch files (rasterised logos) in `out/scratch/` (`out/` is ignored). Deterministic (fixed zip
 timestamps). The main title is previewed as the app draws it by default: TrueType, in text.bmp's
-ink colour (#000000 on #d9d6c5; #444444 on #f3f4f6).
+ink colour (#000000 on #d9d6c5; #444444 on #f3f4f6). Each .wsz is finished by
+`skins/genex_wacup.py`.
 
 ## Themes
 

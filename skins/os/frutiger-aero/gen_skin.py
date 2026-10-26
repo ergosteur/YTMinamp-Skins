@@ -17,6 +17,9 @@ import zipfile
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+import sys
+sys.path.insert(0, "/home/matt/gitea/ergosteur/ytminamp/skins")  # skins/genex_wacup.py, which finishes each .wsz
+import genex_wacup  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "out")
@@ -1484,6 +1487,9 @@ def build():
             info.compress_type = zipfile.ZIP_DEFLATED
             with open(os.path.join(OUT, n), "rb") as f:
                 z.writestr(info, f.read())
+    # genex.bmp completed for real Winamp and WACUP: all 24 colours, readable text, and the
+    # standard 112x59 button and scrollbar layout (skins/genex_wacup.py).
+    genex_wacup.process(wsz)
     return names
 
 
@@ -1783,6 +1789,9 @@ def preview():
 
 
 if __name__ == "__main__":
+    if "--list" in sys.argv[1:]:
+        print(SKIN)  # the one theme
+        sys.exit(0)
     names = build()
     preview()
     for n in names:

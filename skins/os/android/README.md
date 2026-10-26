@@ -13,7 +13,8 @@ else is drawn by the script: gradients, anti-aliased shapes, hand-made pixel fon
 ```
 
 Outputs: `Android-2.3.wsz`, `Android-4.0.wsz`, `Android-6.0.wsz` and `preview-<theme>.png` here;
-sheets in `out/<theme>/` (`out/` is ignored). Deterministic (fixed zip timestamps, no noise).
+sheets in `out/<theme>/` (`out/` is ignored). Deterministic (fixed zip timestamps, no noise). Each
+.wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

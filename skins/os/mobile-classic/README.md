@@ -18,7 +18,7 @@ Outputs: `BlackBerry-OS-5.wsz`, `BlackBerry-OS-6.wsz`, `BlackBerry-10.wsz`,
 `Windows-Mobile-6.wsz` and `preview-<theme>.png` here (active windows left, inactive and pressed
 states right, 2x); sheets in `out/<theme>/` (`out/` is ignored), rasterised logos and
 `compare.png` (the four side by side) in `out/scratch/`. Deterministic (fixed zip timestamps, no
-randomness).
+randomness). Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 

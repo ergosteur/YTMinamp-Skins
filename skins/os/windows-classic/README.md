@@ -10,12 +10,14 @@ options button) is a small compact disc of its own.
 ```sh
 /usr/bin/python3 -I gen_skin.py                # all of them
 /usr/bin/python3 -I gen_skin.py win2000        # some (win95, win98, win2000)
+/usr/bin/python3 -I gen_skin.py --list         # theme names
 ```
 
 Outputs: `Windows-95.wsz`, `Windows-98.wsz`, `Windows-2000.wsz` and `preview-<theme>.png` here
 (active windows on the left, inactive and pressed states on the right, 2x); sheets in
 `out/<theme>/` (`out/` is ignored), scratch (the rasterised logos, `compare.png` with the three
-themes' active windows side by side) in `out/scratch/`. Deterministic.
+themes' active windows side by side) in `out/scratch/`. Deterministic. Each .wsz is finished by
+`skins/genex_wacup.py`.
 
 ## Themes
 
@@ -54,7 +56,6 @@ What differs between the versions:
 
 - The playlist's scrollbar track is a flat white/face blend: a 1px dither can't tile across the
   29px side tiles.
-- The generator takes theme names only; there is no `--list`.
 
 ## Sources
 
