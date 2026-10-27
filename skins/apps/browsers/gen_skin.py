@@ -157,7 +157,7 @@ def save(a, name):
     return img
 
 
-def logo(a, x, y, size, path_png, bg_circle=None, fit="h"):
+def logo(a, x, y, size, path_png, bg_circle=None, fit="h", tint=None):
     """Pastes a logo (an RGBA PNG rasterised from source/) scaled to size, centred in a size box."""
     im = Image.open(path_png).convert("RGBA")
     bbox = im.getchannel("A").point(lambda v: 255 if v > 8 else 0).getbbox()
@@ -169,7 +169,7 @@ def logo(a, x, y, size, path_png, bg_circle=None, fit="h"):
     arr = np.asarray(im, dtype=np.float32)
     al = arr[..., 3] / 255.0
     ox, oy = x + (sw - nw) // 2, y + (sh - nh) // 2
-    paint(a, ox, oy, al, arr[..., :3])
+    paint(a, ox, oy, al, arr[..., :3] if tint is None else tint)
 
 
 # ------------------------------------------------------------------------------------------
@@ -697,21 +697,44 @@ def title_text(a, s, x, y, lit, on_tab=True):
     draw_text(a, UI, s, x, y, col)
 
 
-def new_tab_button(a, x, y, lit):
-    """The small "new tab" button after the tabs."""
+def new_tab_button(a, x, y, lit, h=8, slant=4, bar_h=14):
+    """The small "new tab" button after the tabs, its top-left corner at (x, y)."""
     W, H = a.shape[1], a.shape[0]
     edge = T.tab_edge_lit if lit else T.tab_edge_dim
-    fill = lerp(T.tab_top if lit else T.tab_top_dim, frame_colour_at(y + 3, lit), 0.55)
+    fill = lerp(T.tab_top if lit else T.tab_top_dim, frame_colour_at(y + 3, lit, bar_h), 0.55)
     if T.tab_style == "trapezoid":
-        # Chrome's slanted little button
-        paint(a, 0, 0, poly_mask(W, H, [(x, y + 7), (x + 3, y), (x + 15, y), (x + 12, y + 7)]), edge)
-        paint(a, 0, 0, poly_mask(W, H, [(x + 1.6, y + 6), (x + 3.8, y + 1), (x + 13.4, y + 1), (x + 11.2, y + 6)]),
+        # Chrome's slanted little button, a parallelogram leaning like the tab's right edge (its
+        # top shifted left of its bottom), tucked in beside it, with a small "+"
+        w = 14
+        paint(a, 0, 0, poly_mask(W, H, [(x, y), (x + w, y), (x + w + slant, y + h), (x + slant, y + h)]), edge)
+        k = slant / h
+        paint(a, 0, 0, poly_mask(W, H, [(x + 1.2 + k, y + 1), (x + w - 1.2 + k, y + 1),
+                                         (x + w - 1.2 + slant - k, y + h - 1), (x + 1.2 + slant - k, y + h - 1)]),
               fill)
+        cx, cy = round(x + (w + slant) / 2) - 1, y + h // 2 - 2
+        ink = lerp(edge, fill, 0.15)
+        rect(a, cx, cy - 1, 1, 5, ink)
+        rect(a, cx - 2, cy + 1, 5, 1, ink)
     else:
         rbox(a, x, y, 13, 8, 2.5, fill, edge)
         cx = x + 6
         rect(a, cx, y + 2, 1, 4, edge)
         rect(a, cx - 2, y + 4, 5, 1, edge)
+
+
+def new_tab_after(a, tx, ty, tw, th, slant, lit, bar_h=14, gap=2):
+    """The new-tab button beside a tab drawn by tab(a, tx, ty, tw, th, ...): Chrome's tucked against
+    the tab's slanted right edge, its bottom 2px above the tab's; Firefox's after a small gap."""
+    if T.tab_style == "trapezoid":
+        h = 8 if th <= 12 else 10
+        by = ty + th - 2 - h
+        s = round(h * slant / th) or 1
+        # the tab's right edge at row by, plus the gap
+        ex = tx + tw - slant + slant * (by - ty) / th
+        new_tab_button(a, int(ex + gap), by, lit, h, s, bar_h)
+    else:
+        by = ty + (th - 8) // 2 + (1 if th > 12 else 0)
+        new_tab_button(a, tx + tw + gap + 1, by, lit, bar_h=bar_h)
 
 
 def bar_frame(w, h, lit, left_edge=False, right_edge=False):
@@ -887,7 +910,7 @@ def main_titlebar(lit):
     if T.kind == "chrome":
         tab(a, 18, 2, 92, 12, lit, slant=6)
         title_text(a, T.main_title, 30, 4, lit)
-        new_tab_button(a, 106, 5, lit)
+        new_tab_after(a, 18, 2, 92, 12, 6, lit)
     elif T.kind == "firefox":
         # the orange Firefox menu button, hanging from the top edge
         stops = T.app_btn if lit else T.app_btn_dim
@@ -897,7 +920,7 @@ def main_titlebar(lit):
         draw_text(a, UI, "Firefox", 19, 2, WHITE, shadow=lerp(stops[2], BLACK, 0.35), sh=(0, 1))
         tab(a, 66, 2, 90, 12, lit)
         title_text(a, T.main_title, 76, 4, lit)
-        new_tab_button(a, 159, 4, lit)
+        new_tab_after(a, 66, 2, 90, 12, 4, lit)
     elif T.kind == "netscape":
         title_text(a, T.main_title, 18, 4, lit)
     else:
@@ -1128,7 +1151,8 @@ def make_main():
         ns_main_extras(a)
     elif T.kind == "discord":
         paint(a, 245, 85, ellipse_mask(22, 22, 0, 0, 22, 22), T.accent)
-        logo(a, 249, 89, (14, 14), logo_png(64))
+        # Clyde in white on the blurple disc, like the play button's (the SVG itself is black)
+        logo(a, 249, 89, (14, 14), logo_png(64), tint=WHITE)
     else:
         logo(a, 245, 86, (21, 21), logo_png(64))
     return a
@@ -1316,6 +1340,7 @@ def eq_titlebar(lit):
     else:
         tab(a, 6, 2, 84, 12, lit, slant=6)
         title_text(a, T.eq_title, 22, 4, lit)
+        new_tab_after(a, 6, 2, 84, 12, 6, lit)
     caption_button(a, 264, 3, "close", lit)
     return a
 
@@ -1486,7 +1511,8 @@ def mini_transport_icon(a, kind, x, y, col):
 
 
 def title_piece_pl(lit):
-    """The 100px title piece: a tab (its slants in the 4px end caps), or a channel name."""
+    """The 100px title piece: a tab (its slants or corners in the 4px end caps, which YTMinamp's
+    search panel stretches the piece by; no new-tab button here), or a channel name."""
     t = bar20(100, lit)
     if T.kind == "discord":
         title_text(t, "# " + T.pl_title, 50 - text_w(UI, "# " + T.pl_title) // 2, 5, lit)
@@ -1623,6 +1649,8 @@ def make_gen():
         t = bar20(25, lit)
         if T.tab_style:
             tab(t, -191, TAB_Y_GEN, 200, TAB_H_GEN, lit, slant=4)
+            # the right end cap goes beside the title's right end at any width: the button lives here
+            new_tab_after(t, -191, TAB_Y_GEN, 200, TAB_H_GEN, 4, lit, bar_h=20)
         piece(78, t)
         piece(104, bar20(25, lit))
         t = bar20(25, lit, right_edge=True)

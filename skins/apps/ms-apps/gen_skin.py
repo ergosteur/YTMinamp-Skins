@@ -1273,10 +1273,21 @@ def make_posbar(main):
     return a
 
 
-def slider_thumbs(a, seat):
+# The groove: rows 4-8 of each 15-row frame (centre row 6). The app and Winamp draw the 14x11 thumb
+# one row down (rows 1-11, centre row 6), so the knob and the groove share a centre line. The thumb
+# sprite is opaque: the bits of groove either side of the knob are drawn at the same rows, from a
+# full 15-row frame so the fill's gradient matches, then cut to rows 1-11.
+SLIDER_GROOVE_Y = 4
+
+
+def slider_thumbs(a, seat, filled_left):
     for x, sel in ((0, True), (15, False)):
-        t = seat[1:12, 20:34].copy()
-        track_h(t, -10, 4, 40, 5, fill_from=0, fill_to=7)
+        t = seat[:, 20:34].copy()
+        if filled_left:
+            track_h(t, -20, SLIDER_GROOVE_Y, 60, 5, fill_from=0, fill_to=7)
+        else:
+            track_h(t, -20, SLIDER_GROOVE_Y, 60, 5)
+        t = t[1:12].copy()
         if T.kind == "msn":
             knob(t, 1, 0, 11, 11, sel)
             paint(t, 0, 0, ellipse_mask(14, 11, 3.5, 1.2, 6, 3.5), WHITE, 0.6)
@@ -1294,27 +1305,32 @@ def make_volume(main):
     for i in range(28):
         y = i * 15
         t = seat.copy()
-        level = (i + 1) / 28
-        track_h(t, 1, 4, 66, 5, fill_from=0, fill_to=1 + round(level * 66))
+        # The fill ends at the thumb's centre for this frame's level (thumb x = level * 54), so
+        # the groove either side of the knob matches the thumb's own bits. The groove runs the
+        # rect's full width so the thumb's outer bit still lands on it at 0 and 100.
+        centre = round((i + 1) / 28 * 54) + 7
+        track_h(t, 0, SLIDER_GROOVE_Y, 68, 5, fill_from=0, fill_to=centre)
         a[y:y + 15, 0:68] = t
-    slider_thumbs(a, seat)
+    slider_thumbs(a, seat, True)
     return a
 
 
 def make_balance(main):
+    # The frames can't tell left from right, so balance is an Office-style zoom slider: a plain
+    # groove with a centre tick, no fill (a symmetric fill would cross the thumb's bits on one side).
     a = new(68, 433, T.frame_body)
     clean = main_clean()
     seat = clean[57:72, 177:215]
+    t = seat.copy()
+    track_h(t, 0, SLIDER_GROOVE_Y, 38, 5)
+    rect(t, 19, SLIDER_GROOVE_Y - 2, 1, 2, T.track_edge)
+    rect(t, 19, SLIDER_GROOVE_Y + 5, 1, 2, T.track_edge)
     for i in range(28):
         y = i * 15
-        t = seat.copy()
-        reach = round(17 * i / 27)
-        track_h(t, 1, 4, 36, 5, fill_from=19 - max(1, reach), fill_to=19 + max(1, reach),
-                colour=T.accent if i else T.label)
         a[y:y + 15, 9:47] = t
         a[y:y + 15, 0:9] = seat[:, :1]
         a[y:y + 15, 47:68] = seat[:, -1:]
-    slider_thumbs(a, clean[57:72, 107:175])
+    slider_thumbs(a, seat, False)
     return a
 
 
@@ -1520,25 +1536,19 @@ def make_pledit():
         return t
 
     t = bottom_base(125)
-    lab = None
-    if T.kind == "o10":
-        # Backstage: the blue File panel with its white commands
-        vfill(t, 0, 1, 125, 36, T.backstage)
-        rect(t, 0, 0, 125, 1, lerp(T.word, BLACK, 0.25))
-        lab = WHITE
     rect(t, 0, 0, 1, 38, T.frame_edge_lit)
-    if T.kind != "o10":
-        rect(t, 1, 1, 1, 36, lerp(T.frame_body, WHITE, 0.6))
-    rect(t, 0, 0, 12, 1, T.frame_body if T.kind != "o10" else lerp(T.word, BLACK, 0.25))
+    rect(t, 1, 1, 1, 36, lerp(T.frame_body, WHITE, 0.6))
+    rect(t, 0, 0, 12, 1, T.frame_body)
     rect(t, 0, 0, 1, 1, T.frame_edge_lit)
     for bx, lbl in ((14, "ADD"), (43, "REM"), (72, "SEL"), (101, "MISC")):
-        if T.kind == "o10":
-            seg = t[8:26, bx:bx + 22]
-            gbox(seg, 0, 0, 22, 18, 0, [(255, 255, 255)], None, alpha=0.14)
-            rect(seg, 0, 17, 22, 1, lerp(T.word, WHITE, 0.35))
+        seg = t[8:26, bx:bx + 22]
+        if T.kind == "o10" and lbl == "ADD":
+            # Office 2010's blue used sparingly, as Word does: only the File tab is blue, so only
+            # the first button (where the File tab sits) is; the rest are silver like LIST.
+            gbox(seg, 0, 0, 22, 18, 1.0, T.backstage, lerp(T.word, BLACK, 0.25))
             text_center(seg, TINY, lbl, 11, 7, WHITE)
         else:
-            t[8:26, bx:bx + 22] = toggle_cell(t[8:26, bx:bx + 22], 22, 18, lbl, False, False, toggle=False)
+            t[8:26, bx:bx + 22] = toggle_cell(seg, 22, 18, lbl, False, False, toggle=False)
     a[72:110, 0:125] = t
 
     t = bottom_base(150)

@@ -51,7 +51,8 @@ on white. The preview draws it that way too, using the app's `textInk` rule.
     boxes.
   - The Word icon (W tile on a page) is the window menu, which is the options button.
   - The Equalizer tab row starts with the blue File tab (#2B579A).
-  - The playlist's ADD/REM/SEL/MISC panel is a Backstage-blue strip with white commands.
+  - In the playlist's bottom bar only ADD is blue, as the File tab is the only blue tab in Word;
+    REM, SEL and MISC are silver like LIST.
   - Checked and pressed states use the flatter yellow-orange.
   - The visualiser runs in Word blue with orange peaks.
   - The real Office 2010 logo sits in the About spot.
@@ -62,6 +63,10 @@ on white. The preview draws it that way too, using the app's `textInk` rule.
   Equalizer's titlebar.
 - The 2007 orb can be no larger than the 14px bar (Office's overhangs the tab row).
 - "Help" in the About spot is a stand-in: Office 2007's logo is already in the orb.
+- Volume and balance (all three skins): the groove sits on rows 4-8 of each frame and the thumb,
+  drawn one row down, is centred on it; the thumb carries the groove's bits either side of its
+  knob. Volume's fill ends at the thumb's centre. Balance frames can't tell left from right, so
+  balance is a zoom-style slider: a plain groove with a centre tick and no fill.
 
 ## Sources
 

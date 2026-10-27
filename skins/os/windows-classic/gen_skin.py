@@ -57,10 +57,13 @@ THEMES = {
         cap_text_i=(212, 208, 200), select=(10, 36, 106),
         pl_current="#0A246A", pl_selected="#A6CAF0",
         logo="win2000",
+        desk=(58, 110, 165),   # Windows 2000's default desktop blue, not 95/98's teal
     ),
 }
 
 T = SimpleNamespace()          # the theme being built (set_theme)
+# The preview's desktop: 95/98's teal unless the theme names its own.
+DESK = lambda: getattr(T, "desk", (0, 128, 128))
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 LED = (0, 255, 0)              # the CD-player style readouts
@@ -1557,10 +1560,11 @@ def preview_gen(lit, w, h, title, pressed_close=False):
     rw_ = min(125, w - lw_)
     blit(img, g, (0, 42, 125, 14), 0, by, lw_)
     blit(img, g, (0, 57, 125, 14), w - rw_, by, rw_, 125 - rw_)
-    # a stand-in picture: a teal desktop-like gradient
+    # a stand-in picture: a desktop-like gradient in the theme's desktop colour
     pic = Image.linear_gradient("L").resize((w - 22, h - 34)).convert("RGB")
     arr = np.array(pic).astype(np.float32) / 255
-    col = np.stack([0 + 30 * arr[..., 0], 128 - 40 * arr[..., 0], 128 - 20 * arr[..., 0]], -1)
+    r0, g0, b0 = DESK()
+    col = np.stack([r0 + 30 * arr[..., 0], g0 - 40 * arr[..., 0], b0 - 20 * arr[..., 0]], -1)
     img.paste(Image.fromarray(col.astype(np.uint8)), (11, 20))
     return img
 
@@ -1589,7 +1593,7 @@ def preview():
         col.paste(preview_gen(lit, 275, 140, "album art", pressed_close=not lit), (0, 464))
         cols.append(col)
     gap = 12
-    out = Image.new("RGB", (275 * 2 + gap * 3, cols[0].height + gap * 2), (0, 128, 128))
+    out = Image.new("RGB", (275 * 2 + gap * 3, cols[0].height + gap * 2), DESK())
     out.paste(cols[0], (gap, gap))
     out.paste(cols[1], (275 + 2 * gap, gap))
     out = out.resize((out.width * 2, out.height * 2), Image.NEAREST)

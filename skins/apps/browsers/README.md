@@ -21,15 +21,17 @@ The app draws the main window's title in a TrueType font in text.bmp's ink colou
 box contrasts with it (dark on white, #dbdee1 on #383a40); the previews draw it the same way.
 
 - **Chrome** (`chrome`, Chrome 1 to 10, 2008 to early 2011, Windows, the era of the 3D logo):
-  light blue gradient frame, trapezoid tabs ("New Tab" plus the slanted new-tab button), the
+  light blue gradient frame, trapezoid tabs ("New Tab" plus the new-tab button, a small "+"
+  parallelogram leaning like the tab's right edge and tucked against it, on the main, EQ and gen
+  windows' tabs), the
   wrench menu as the options button, flat caption glyphs, the pale toolbar, a white omnibox for
   the displays, flat grey toolbar glyphs for the transport (back/forward arrows for
   previous/next, the stop-loading cross for stop), thin blue progress and sliders.
 - **Firefox** (`firefox`, Firefox 4, 2011, on Windows 7): Aero-glass blue frame, the orange
   Firefox menu button as the options button, rounded tabs on top, Windows 7 caption buttons, pale
-  blue toolbar, white awesomebar displays, the transport as one rounded bar with the round
-  "keyhole" button (play) in it, orange accents. Logo: the 2009 to 2013 one Firefox 4 shipped
-  with.
+  blue toolbar, white awesomebar displays, a "+" new-tab button after the main, EQ and gen
+  windows' tabs, the transport as one rounded bar with the round "keyhole" button (play) in it,
+  orange accents. Logo: the 2009 to 2013 one Firefox 4 shipped with.
 - **Discord** (`discord`, today's dark theme): #1e1f22 titlebars with channel names
   (`# now-playing`), a server rail with the selected-server pill, #313338/#2b2d31 surfaces,
   #383a40 message-box displays, round "server icon" transport buttons that become blurple rounded
@@ -49,7 +51,10 @@ box contrasts with it (dark on white, #dbdee1 on #383a40); the previews draw it 
 
 ## Limits
 
-- None noted.
+- The new-tab button sits in the tiled titlebars' pieces that follow the tab (gen.bmp's right end
+  cap) so it stays beside the tab at every width. The playlists (Chrome, Firefox) have none: their
+  tab fills pledit.bmp's 100px title piece, its ends in the 4px end caps, as YTMinamp's search
+  panel needs (it stretches that piece by its caps).
 
 ## Sources
 

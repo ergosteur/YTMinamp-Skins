@@ -1,14 +1,14 @@
 #!/usr/bin/python3
-"""Mobile Classic: four classic Winamp 2.x skins in the style of BlackBerry OS 5, BlackBerry OS 6,
-BlackBerry 10 and Windows Mobile 6 (6.0/6.1, the classic Today/list look).
+"""Mobile Classic: five classic Winamp 2.x skins in the style of BlackBerry OS 4.5, BlackBerry OS 5,
+BlackBerry OS 6, BlackBerry 10 and Windows Mobile 6 (6.0/6.1, the classic Today/list look).
 
 One procedural generator, a theme per platform (based on skins/ember/gen_skin.py, keeping its sheet
 layouts). Everything is drawn here from code: gradients, rounded shapes, hand-made pixel fonts and
-small text rendered from free system fonts (Droid Sans, Noto Sans, Liberation Sans), except the
-BlackBerry pearls (the About spot of the three BlackBerry skins) and the Windows flag (the Windows
+small text rendered from free system fonts (Open Sans, Droid Sans, Noto Sans, Liberation Sans),
+except the BlackBerry pearls (the About spot of the four BlackBerry skins) and the Windows flag (the Windows
 Mobile titlebar), rasterised from the files under source/ (private use only).
 
-    /usr/bin/python3 -I gen_skin.py [bb5|bb6|bb10|wm6 ...]     (no args: all four; --list)
+    /usr/bin/python3 -I gen_skin.py [bb45|bb5|bb6|bb10|wm6 ...]     (no args: all five; --list)
 
 Writes the sheets into out/<theme>/, zips them flat into <Name>.wsz beside this file and draws
 preview-<theme>.png (the windows put together from the sprites the way the app does, 2x).
@@ -46,6 +46,8 @@ FONTS = {
     "notob": f"{FONTDIR}/google-noto/NotoSans-SemiBold.ttf",
     "lib": f"{FONTDIR}/liberation-sans-fonts/LiberationSans-Regular.ttf",
     "libb": f"{FONTDIR}/liberation-sans-fonts/LiberationSans-Bold.ttf",
+    "open": f"{FONTDIR}/open-sans/OpenSans-Regular.ttf",
+    "opensb": f"{FONTDIR}/open-sans/OpenSans-Semibold.ttf",
 }
 _font_cache = {}
 
@@ -63,6 +65,35 @@ def font(key, size):
 # ------------------------------------------------------------------------------------------
 
 THEMES = {
+    # BlackBerry OS 4.5 (2008), the Curve 8300/8320 Zen and Today themes: the deep blue
+    # wallpaper, a navy title band (smooth, not BB5's split gloss) with white bold text and the
+    # status icons, white list screens with black text, the flat royal-blue trackball focus box
+    # with its light rim, light rounded dialog buttons, and the Zen home screen's dark icon row
+    # right across the bottom.
+    "bb45": dict(
+        file="BlackBerry-OS-4.5", subject="BlackBerry OS 4.5 (the Curve 8300 Zen/Today look)",
+        owner="BlackBerry Limited", ui="open", uib="opensb", digits=("open", 16),
+        title_main="Now Playing", title_eq="Equalizer", title_pl="Music",
+        bar=[(0, hx("5a7cba")), (0.45, hx("2f5193")), (1, hx("1a3368"))],
+        bar_i=[(0, hx("6a7488")), (1, hx("3d4556"))],
+        bar_top=hx("8aa6d8"), bar_top_i=hx("848da0"), bar_bot=hx("0a1736"),
+        bar_text=hx("ffffff"), bar_text_i=hx("b9c0cc"), bar_shadow=hx("0c1a3c"),
+        body=[(0, hx("26508f")), (1, hx("0c1e45"))], edge_hi=hx("4c72b2"), edge_lo=hx("050d20"),
+        panel=hx("ffffff"), rim=hx("091634"), rim2=hx("dde3ec"), radius=2,
+        ink=hx("000000"), label=hx("9fb2d2"), label_in=hx("6b7a92"), ghost=hx("e3e8ef"),
+        hil=[(0, hx("5486dc")), (1, hx("1f4aa6"))], hil_edge=hx("cfdcf5"), accent=hx("2f62c8"),
+        tray=[(0, hx("10234b")), (1, hx("050c1e"))], tray_line=hx("3e5e9a"), tray_style="zen",
+        icon=hx("ffffff"), icon_dim=hx("7d8fb2"), icon_on=hx("8fb8ff"),
+        btn=[(0, hx("ffffff")), (1, hx("d0d7e3"))], btn_edge=hx("08142f"), btn_ink=hx("13254a"),
+        side=hx("16326a"), side_hi=hx("3e5e9a"), side_lo=hx("050d20"),
+        groove=hx("0a1736"), track=hx("0a1736"), track_fill=hx("79a4ee"),
+        thumb=[(0, hx("ffffff")), (1, hx("bcc8db"))], thumb_edge=hx("08142f"),
+        pl=dict(Normal="#000000", Current="#1D4FB0", NormalBG="#FFFFFF", SelectedBG="#ABC4EF",
+                MbBG="#FFFFFF", MbFG="#000000", Font="BBAlpha Sans"),
+        vis=[hx("0b2a6e"), hx("1d46a0"), hx("2f62c8"), hx("5b8ae0"), hx("8fb1ec"), hx("c4d5f4")],
+        osc=[hx("0b2a6e"), hx("1d46a0"), hx("2f62c8"), hx("5b8ae0"), hx("8fb1ec")], peak=hx("000000"),
+        logo="pearls", logo_col=hx("ffffff"), logo_shade=None,
+    ),
     # BlackBerry OS 5, the Bold 9000/9700 "Precision" theme: dark glossy charcoal chrome, black
     # displays, blue-grey glossy focus/highlight bars, the home screen's dark icon dock.
     "bb5": dict(
@@ -510,6 +541,10 @@ def mini_button(a, x, y, kind, lit=True, pressed=False):
         rshape(a, x, y, 9, 9, 2, T.hil if pressed else T.btn, edge=T.btn_edge,
                inner_hi=T.hil_edge if pressed else hx("6a7079"))
         ink = hx("ffffff") if (lit or pressed) else hx("9a9ea4")
+    elif T.name == "bb45":
+        rshape(a, x, y, 9, 9, 2, T.hil if pressed else [(0, hx("4a6dab")), (1, hx("1d3a74"))],
+               edge=hx("cfdcf5") if pressed else hx("08142f"))
+        ink = hx("ffffff") if (lit or pressed) else hx("c3c9d4")
     elif T.name == "bb6":
         rshape(a, x, y, 9, 9, 2, T.hil if pressed else T.btn, edge=T.btn_edge if not pressed else hx("1a5fb8"))
         ink = hx("ffffff") if pressed else (T.btn_ink if lit else hx("8f949a"))
@@ -585,6 +620,12 @@ def status_cluster(a, right, lit):
         tt(a, clock, right - cw, 10, T.ui, 9, col)
         speaker_icon(a, int(right - cw - 10), 3, col)
         signal_icon(a, int(right - cw - 23), 2, col, dim)
+        return
+    if T.name == "bb45":
+        # the 4.x status corner: the clock, then signal bars and the battery
+        battery_icon(a, right - 13, 4, col, hx("dbe5f6") if lit else col)
+        signal_icon(a, right - 27, 2, col, dim)
+        tt(a, "12:45", right - 31, 10, T.uib, 8, col, "rs")
         return
     battery_icon(a, right - 13, 4, col, T.accent if T.name != "bb6" else hx("3aa04a"))
     signal_icon(a, right - 27, 2, col, dim)
@@ -690,6 +731,10 @@ def make_tray(a):
         blend(a, hx0, TRAY_Y - 4, tab, T.tray_line)
         blend(a, hx0 + 1, TRAY_Y - 3, rr_mask(hw - 2, 7, 2), gradient_block(hw - 2, 7, [(0, hx("4a4d53")), (1, hx("3a3d42"))]))
         pix(a, hx0 + hw // 2 - 3, TRAY_Y - 2, G("...#...", "..#.#..", ".#...#."), hx("d6d9dd"))
+    elif style == "zen":                # BB OS 4.5: the Zen home screen's dark icon row
+        vgrad(a, 1, TRAY_Y, 273, TRAY_H + 6, T.tray, y0=TRAY_Y, span=TRAY_H)
+        rect(a, 1, TRAY_Y, 273, 1, T.tray_line)
+        rect(a, 1, TRAY_Y + 1, 273, 1, hx("1b3264"))
     elif style == "actionbar":          # BB10: a flat bar right across, a hairline on top
         rect(a, 1, TRAY_Y, 273, TRAY_H + 6, T.tray[0][1])
         rect(a, 1, TRAY_Y, 273, 1, T.tray_line)
@@ -715,8 +760,8 @@ def make_main():
     # right displays: title row, then kbps/kHz/mono/stereo row
     panel(a, 109, 21, 159, 15)
     panel(a, 109, 40, 159, 14)
-    draw_text(a, TINY, "KBPS", 129, 44, T.label)
-    draw_text(a, TINY, "KHZ", 169, 44, T.label)
+    draw_text(a, TINY, "KBPS", 129, 44, T.__dict__.get("label_in", T.label))
+    draw_text(a, TINY, "KHZ", 169, 44, T.__dict__.get("label_in", T.label))
 
     # volume / balance seats: their tracks are drawn by the sliders' frames
     # seek bar: a groove (the thumb sprite carries the groove behind it)
@@ -805,6 +850,10 @@ def tray_button(a, x, y, w, h, y_abs, pressed, divider=True):
     elif T.name == "bb6":
         if pressed:
             rshape(a, x, y, w, h, 3, T.hil, edge=hx("114f9e"), inner_hi=T.hil_edge)
+    elif T.name == "bb45":
+        if pressed:
+            # the trackball focus box: flat royal blue, a light rim
+            rshape(a, x, y, w, h, 3, T.hil, edge=T.hil_edge)
     elif T.name == "bb10":
         if pressed:
             rect(a, x, y, w, h, lerp(T.tray[0][1], T.accent, 0.35))
@@ -822,7 +871,7 @@ def make_cbuttons():
     a = new(136, 36, T.tray[0][1])
     specs = [("previous", 0, 23, 18), ("play", 23, 23, 18), ("pause", 46, 23, 18),
              ("stop", 69, 23, 18), ("next", 92, 22, 18)]
-    shadow = hx("000000") if T.name in ("bb5", "wm6") else None
+    shadow = hx("000000") if T.name in ("bb5", "wm6", "bb45") else None
     for kind, x, w, h in specs:
         for pressed, y in ((False, 0), (True, 18)):
             tray_button(a, x, y, w, h, 88, pressed, divider=kind != "next")
@@ -870,7 +919,7 @@ def toggle_icon(a, x, y, w, h, icon, on, pressed, y_abs):
     ink = hx("ffffff") if pressed else (T.icon_on if on else T.icon_dim)
     iw, ih = len(icon[0]), len(icon)
     ix, iy = x + (w - iw) // 2, y + (h - ih) // 2 - (1 if on else 0)
-    if T.name in ("bb5", "wm6") and not pressed:
+    if T.name in ("bb5", "wm6", "bb45") and not pressed:
         pix(a, ix, iy + 1, icon, hx("000000"))
     pix(a, ix, iy, icon, ink)
     if on and not pressed:
@@ -905,6 +954,8 @@ def pill(a, x, y, w, h, label, on, pressed, bg_fn):
     draw_text(a, TINY, label, lx, ly, ink)
     # the indicator dot
     dot = (hx("7cd36a") if T.name == "wm6" else T.icon_on) if on else (hx("5a5e64") if T.name == "bb5" else hx("aab0b8"))
+    if T.name == "bb45" and on and not pressed:
+        dot = T.accent
     rect(a, lx - 4, ly + 1, 2, 3, dot)
 
 
@@ -1191,6 +1242,10 @@ def pl_bottom_bar(t, w):
     elif T.name == "bb10":
         rect(t, 0, 0, w, 38, T.tray[0][1])
         rect(t, 0, 0, w, 1, T.tray_line)
+    elif T.name == "bb45":
+        vgrad(t, 0, 0, w, 38, T.tray)
+        rect(t, 0, 0, w, 1, T.tray_line)
+        rect(t, 0, 1, w, 1, hx("1b3264"))
     elif T.name == "wm6":
         vgrad(t, 0, 0, w, 38, [(0, hx("62676f")), (0.5, hx("33373d")), (0.5, hx("1f2226")), (1, hx("0c0d0f"))])
         rect(t, 0, 0, w, 1, T.tray_line)
@@ -1206,6 +1261,9 @@ def pl_label(t, x, y, w, h, s):
         rshape(t, x, y, w, h, 3, T.btn, edge=T.btn_edge, inner_hi=hx("6a7079"))
     elif T.name == "bb10":
         rect(t, x, y, w, h, hx("2b2b2b"))
+    elif T.name == "bb45":
+        rshape(t, x, y, w, h, 3, [(0, hx("4a6dab")), (1, hx("1d3a74"))], edge=hx("02060f"),
+               inner_hi=hx("7f9cd2"))
     elif T.name == "bb6":
         rshape(t, x, y, w, h, 3, [(0, hx("4a4d53")), (1, hx("34363b"))], edge=hx("15161a"))
     else:
@@ -1453,8 +1511,10 @@ def write_text_files():
             f"{name} - a skin in the style of {T.subject}.\n"
             f"{logo_note} (c) {T.owner}.\n\n"
             "A classic (Winamp 2.x format) skin, every bitmap drawn by a script (gen_skin.py)\n"
-            "from gradients, rounded shapes, pixel fonts and free system fonts (Droid Sans,\n"
-            "Noto Sans, Liberation Sans), apart from the logo.\n"
+            + ("from gradients, rounded shapes, pixel fonts and a free system font (Open Sans),\n"
+               "apart from the logo.\n" if T.name == "bb45" else
+               "from gradients, rounded shapes, pixel fonts and free system fonts (Droid Sans,\n"
+               "Noto Sans, Liberation Sans), apart from the logo.\n")
         )
 
 

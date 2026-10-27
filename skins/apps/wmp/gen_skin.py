@@ -1,14 +1,15 @@
 #!/usr/bin/python3
-"""Windows Media Player 7, 8, 9 Series and 10: classic Winamp 2.x skins in the style of WMP's
-full mode, one theme per version.
+"""Windows Media Player: classic Winamp 2.x skins in the style of WMP's full mode: 7, 8, 9 Series,
+10 and 11, plus two WMP-flavoured looks that claim no version (Blue and Dark).
 
 One procedural generator (based on skins/ember/gen_skin.py, whose sheet layouts it keeps, with
 the anti-aliased shape helpers of private-repo/skins/apps). Everything is drawn here from code:
-gradients, glossy round buttons, hand-made pixel fonts, and each era's logo (redrawn as shapes,
-once per skin, in the bottom-right About spot). The reference screenshots in source/ are only
-looked at, never read by this script. Private use only.
+gradients, glossy round buttons, hand-made pixel fonts, and each era's logo (7, 11, Blue, Dark:
+redrawn as shapes, once per skin, in the bottom-right About spot; 8, 9, 10: the real Windows flag
+from source/logo-windows-flag, once). The reference screenshots in source/ are only looked at,
+never read by this script. Private use only.
 
-    /usr/bin/python3 -I gen_skin.py [wmp7|wmp8|wmp9|wmp10 ...]   (no argument builds all four)
+    /usr/bin/python3 -I gen_skin.py [wmp7|wmp8|wmp9|wmp10|wmp11|wmp-blue|wmp-dark ...]   (none: all)
     /usr/bin/python3 -I gen_skin.py --list
 
 Per theme: the bitmaps and text files in out/<theme>/, zipped flat into WMP-<n>.wsz beside this
@@ -17,6 +18,7 @@ file, and preview-<theme>.png (the windows assembled from the sprites the way th
 
 import math
 import os
+import subprocess
 import sys
 import zipfile
 from types import SimpleNamespace
@@ -347,6 +349,8 @@ for _k, _g in FONT5.items():
     if _k.isupper() or _k.isdigit():
         UI[_k] = [_g[i] for i in (0, 1, 1, 2, 3, 3, 4)] + ["." * len(_g[0])] * 2
 UI["9"] = [".##.", "#..#", "#..#", ".###", "...#", "#..#", ".##."] + ["...."] * 2
+UI[":"] = [".", ".", "#", ".", ".", "#", ".", ".", "."]
+UI["."] = [".", ".", ".", ".", ".", ".", "#", ".", "."]
 
 # Clean sans digits for the time readout (7 x 11, in a 9 x 13 cell), like WMP's status clock.
 DIGITS = {
@@ -416,7 +420,7 @@ THEMES = {
     # grey buttons (the chosen one blue-violet), round silver play and stop buttons, the green
     # "Ready" status on black and a navy content pane, the embossed Windows Media flag.
     "wmp7": SimpleNamespace(
-        name="wmp7", version="7", wsz="WMP-7.wsz", era="Windows Media Player 7 (2000)",
+        name="wmp7", look="v7", label="WMP 7", wsz="WMP-7.wsz", era="Windows Media Player 7 (2000)",
         frame=[(238, 239, 244), (212, 214, 222), (194, 196, 205)],
         body=[(194, 196, 205), (176, 178, 188), (160, 162, 173)],
         rim=(62, 64, 78), hi=(246, 247, 251), lo=(118, 120, 134), gloss=0.0, brushed=2.2,
@@ -440,11 +444,12 @@ THEMES = {
         main_title="Windows Media Player", eq_title="Graphic Equalizer", pl_title="Now Playing",
         logo="flag",
     ),
-    # WMP 8 (2001, Windows XP): the periwinkle Luna-matching frame, the blue taskbar column, the
-    # silver-blue rounded transport deck with the big round play button, the green seek and
-    # volume thumbs, green status text on black; the XP-era four-colour ring logo.
-    "wmp8": SimpleNamespace(
-        name="wmp8", version="8", wsz="WMP-8.wsz", era="Windows Media Player for Windows XP (2001)",
+    # WMP Blue (once "WMP 8"; WMP-flavoured, no version claimed): the periwinkle Luna-matching
+    # frame, the blue taskbar column, the silver-blue rounded transport deck with the big round
+    # play button, the green seek and volume thumbs, green status text on black; the ring logo.
+    "wmp-blue": SimpleNamespace(
+        name="wmp-blue", look="blue", label="WMP Blue", wsz="WMP-Blue.wsz",
+        era="Windows Media Player's full mode, in periwinkle blue",
         frame=[(164, 186, 248), (112, 140, 228), (146, 168, 236)],
         body=[(150, 172, 238), (136, 158, 230), (118, 142, 220)],
         rim=(44, 66, 160), hi=(226, 234, 255), lo=(84, 106, 196), gloss=0.0, brushed=0.0,
@@ -469,11 +474,12 @@ THEMES = {
         main_title="Windows Media Player", eq_title="Graphic Equalizer", pl_title="Sample Playlist",
         logo="ring_xp",
     ),
-    # WMP 9 Series (2003): the dark blue-black chrome with a cool sheen, glossy pale-blue round
-    # buttons on a dark deck, green seek and volume thumbs, the blue visualisation, the
-    # "9 Series" wordmark in the titlebar; the glossy ring logo with the blue play arrow.
-    "wmp9": SimpleNamespace(
-        name="wmp9", version="9", wsz="WMP-9.wsz", era="Windows Media Player 9 Series (2003)",
+    # WMP Dark (once "WMP 9"; WMP-flavoured, no version claimed): the dark blue-black chrome with
+    # a cool sheen, glossy pale-blue round buttons on a dark deck, green seek and volume thumbs,
+    # the blue visualisation; the glossy ring logo with the blue play arrow.
+    "wmp-dark": SimpleNamespace(
+        name="wmp-dark", look="dark", label="WMP Dark", wsz="WMP-Dark.wsz",
+        era="Windows Media Player's full mode, in dark blue",
         frame=[(76, 92, 148), (36, 46, 90), (24, 32, 66)],
         body=[(24, 32, 66), (16, 22, 48), (8, 10, 24)],
         rim=(0, 0, 6), hi=(98, 120, 186), lo=(2, 4, 12), gloss=0.10, brushed=0.0,
@@ -496,15 +502,15 @@ THEMES = {
         vis_bars=[(240, 252, 255), (120, 210, 255), (50, 120, 240), (30, 40, 160)], vis_dots=(10, 14, 30),
         vis_peak=(255, 255, 255), vis_osc=[(200, 230, 255), (150, 200, 255), (110, 170, 255), (80, 130, 230),
                                            (60, 90, 200)],
-        main_title="Windows Media Player", main_series="9 Series", eq_title="Graphic Equalizer",
+        main_title="Windows Media Player", eq_title="Graphic Equalizer",
         pl_title="Now Playing",
         logo="ring_9",
     ),
-    # WMP 10 (2004): darker and smoother: near-black chrome, the task tabs along the top
+    # WMP 11 (2006; once called "WMP 10" here): near-black chrome, the task tabs along the top
     # (Now Playing lit in glassy blue), the black rounded transport bar with its blue rim and the
     # blue glass play button, round blue thumbs, white text; the same ring logo as 9.
-    "wmp10": SimpleNamespace(
-        name="wmp10", version="10", wsz="WMP-10.wsz", era="Windows Media Player 10 (2004)",
+    "wmp11": SimpleNamespace(
+        name="wmp11", look="w11", label="WMP 11", wsz="WMP-11.wsz", era="Windows Media Player 11 (2006)",
         frame=[(64, 68, 80), (28, 30, 36), (18, 19, 24)],
         body=[(18, 19, 24), (12, 13, 16), (6, 6, 8)],
         rim=(0, 0, 0), hi=(70, 76, 92), lo=(0, 0, 0), gloss=0.12, brushed=0.0,
@@ -532,6 +538,117 @@ THEMES = {
     ),
 }
 
+# The accurate WMP 8, 9 Series and 10 looks, drawn from screenshots of the real players (see the
+# "Accurate looks" section below for how their parts map onto Winamp's layout).
+THEMES.update({
+    # WMP for Windows XP (8, 2001): the curvy periwinkle frame, the silver bar along the top with
+    # the round blue menu button, the taskbar (white bold labels, the chosen one darker with an
+    # orange underline) sweeping into the rounded transport, bright green status text on black.
+    "wmp8": SimpleNamespace(
+        name="wmp8", look="x8", label="WMP 8", wsz="WMP-8.wsz",
+        era="Windows Media Player for Windows XP (8, 2001)",
+        frame=[(150, 164, 234), (116, 130, 216), (94, 106, 198)],
+        body=[(132, 146, 228), (104, 118, 208), (84, 94, 184)],
+        rim=(40, 44, 116), hi=(176, 188, 248), lo=(58, 64, 146), gloss=0.0, brushed=0.0,
+        silver=[(254, 254, 255), (238, 238, 248), (214, 214, 228), (198, 198, 214)], silver_edge=(118, 120, 160),
+        pane=(0, 0, 0), pane_edge=(44, 48, 120), ink=(0, 255, 0), ink_dim=(0, 56, 0), pane_label=(150, 154, 200),
+        play_ind=(132, 130, 204), info=(0, 0, 0), info_txt=(255, 255, 255), info_label="Ambience: Random",
+        sep=(150, 150, 168),
+        body_label=(28, 34, 110), accent=(255, 157, 48), accent_hi=(170, 180, 246),
+        deck=[(176, 188, 248), (128, 142, 226), (100, 112, 206), (114, 126, 214)], deck_rim=(52, 58, 140),
+        deck_hi=(214, 222, 255),
+        btn=[(255, 255, 255), (236, 238, 254), (188, 194, 240), (214, 218, 250)], btn_rim=(64, 70, 160),
+        btn_down=[(156, 164, 226), (190, 196, 240), (222, 226, 252)], glyph=(40, 50, 146), glyph_down=(24, 30, 110),
+        play=[(255, 255, 255), (238, 240, 255), (184, 190, 240), (212, 216, 250)], play_glyph=(40, 50, 146),
+        thumb=[(255, 255, 255), (226, 228, 240), (186, 188, 208)], thumb_rim=(92, 94, 130),
+        thumb_down=[(255, 255, 255), (200, 206, 246), (150, 160, 226)], thumb_shape="pill",
+        track=(46, 211, 49), groove=(50, 56, 138), track_hi=(150, 164, 236), seek=[(160, 250, 150), (60, 222, 62), (30, 170, 36)],
+        fill=[(150, 250, 140), (46, 200, 50)],
+        task=[(112, 130, 214), (98, 118, 204), (90, 110, 196)], task_sel=[(84, 106, 190), (68, 92, 172), (62, 84, 162)],
+        task_txt=(255, 255, 255), task_txt_dim=(214, 220, 250), task_txt_sel=(255, 255, 255), task_bg=(92, 112, 198),
+        title_lit=(30, 36, 110), title_dim=(110, 114, 150), title_shadow=None, title_bold=False,
+        caption="x8",
+        combo=[(255, 255, 255), (240, 242, 250)], combo_txt=(10, 14, 50), combo_edge=(80, 86, 160),
+        pledit=dict(Normal="#00D800", Current="#C8FFC8", NormalBG="#000000", SelectedBG="#2E2E2E"),
+        vis_bars=[(210, 246, 255), (70, 196, 244), (24, 110, 210), (10, 30, 110)], vis_dots=(8, 14, 40),
+        vis_peak=(255, 255, 255), vis_osc=[(190, 240, 255), (130, 220, 255), (70, 190, 244), (40, 140, 220),
+                                           (24, 90, 190)],
+        main_title="Windows Media Player", eq_title="Graphic Equalizer", pl_title="Sample Playlist",
+        logo="xpflag",
+    ),
+    # WMP 9 Series (2003): the pale silver-white frame with its soft blue edge, the left taskbar of
+    # navy labels on a light grey-blue gradient, the "Now Playing" drop-down by the window buttons,
+    # the navy playlist, green status text on black, white glass transport with green thumbs.
+    "wmp9": SimpleNamespace(
+        name="wmp9", look="x9", label="WMP 9 Series", wsz="WMP-9.wsz",
+        era="Windows Media Player 9 Series (2003)",
+        frame=[(255, 255, 255), (234, 238, 248), (210, 218, 238)],
+        body=[(246, 248, 253), (228, 233, 245), (208, 216, 236)],
+        rim=(96, 116, 184), hi=(255, 255, 255), lo=(160, 172, 206), gloss=0.0, brushed=0.0,
+        pane=(0, 0, 0), pane_edge=(70, 80, 120), ink=(140, 214, 70), ink_dim=(30, 52, 14), pane_label=(150, 160, 196),
+        play_ind=(110, 200, 50), scroll=(44, 52, 92), info=(33, 39, 63), info_txt=(255, 255, 255), info_label="Rotating Particle",
+        sep=(33, 39, 63),
+        body_label=(20, 36, 100), accent=(56, 106, 179), accent_hi=(150, 180, 240),
+        deck=[(255, 255, 255), (240, 243, 250), (210, 218, 234), (226, 232, 244)], deck_rim=(140, 152, 186),
+        deck_hi=(255, 255, 255),
+        btn=[(255, 255, 255), (240, 243, 250), (198, 206, 224), (222, 228, 240)], btn_rim=(112, 122, 152),
+        btn_down=[(176, 186, 210), (206, 214, 232), (234, 238, 248)], glyph=(56, 60, 78), glyph_down=(30, 34, 60),
+        play=[(255, 255, 255), (238, 242, 252), (192, 204, 228), (220, 228, 244)], play_glyph=(56, 60, 78),
+        thumb=[(250, 252, 250), (216, 222, 220)], thumb_rim=(40, 168, 52),
+        thumb_down=[(240, 255, 236), (170, 232, 150)], thumb_shape="pill",
+        track=(196, 202, 216), track_hi=(255, 255, 255), seek=[(206, 212, 224), (226, 230, 238)],
+        fill=[(176, 240, 150), (70, 186, 60)],
+        task=[(214, 226, 246), (196, 212, 238), (180, 198, 232)], task_sel=[(255, 255, 255), (234, 240, 252), (214, 226, 248)],
+        task_txt=(20, 36, 100), task_txt_dim=(90, 100, 140), task_txt_sel=(20, 36, 100), task_bg=(196, 212, 238),
+        title_lit=(20, 36, 100), title_dim=(120, 128, 160), title_shadow=None, title_bold=False,
+        caption="x9",
+        combo=[(255, 255, 255), (244, 246, 252)], combo_txt=(10, 14, 40), combo_edge=(130, 146, 190),
+        pledit=dict(Normal="#DCE2F4", Current="#9CE650", NormalBG="#394472", SelectedBG="#386AB3"),
+        vis_bars=[(255, 255, 255), (190, 220, 255), (150, 90, 220), (90, 30, 160)], vis_dots=(16, 16, 30),
+        vis_peak=(255, 255, 255), vis_osc=[(255, 255, 255), (220, 230, 255), (180, 200, 255), (150, 140, 240),
+                                           (130, 90, 220)],
+        main_title="Windows Media Player", eq_title="Graphic Equalizer", pl_title="Now Playing List",
+        logo="xpflag",
+    ),
+    # WMP 10 (2004): the light blue frame, the task tabs across the top (Now Playing raised and
+    # lighter), the darker blue info bar, white text on the black vis area, the blue playlist with
+    # white text, and the pale glass transport bar with green seek and volume.
+    "wmp10": SimpleNamespace(
+        name="wmp10", look="x10", label="WMP 10", wsz="WMP-10.wsz", era="Windows Media Player 10 (2004)",
+        frame=[(246, 250, 255), (222, 234, 252), (196, 214, 242)],
+        body=[(124, 190, 246), (96, 170, 238), (74, 150, 228)],
+        rim=(44, 92, 168), hi=(176, 222, 252), lo=(50, 112, 196), gloss=0.0, brushed=0.0,
+        pane=(0, 0, 0), pane_edge=(36, 70, 130), ink=(255, 255, 255), ink_dim=(40, 44, 56), pane_label=(150, 180, 230),
+        play_ind=(255, 255, 255), info=(56, 106, 179), info_txt=(255, 255, 255), info_label="Ambience : Water",
+        sep=(56, 106, 179),
+        body_label=(30, 60, 120), accent=(115, 159, 231), accent_hi=(170, 210, 255),
+        deck=[(252, 253, 254), (226, 236, 248), (190, 210, 236), (130, 168, 220)], deck_rim=(70, 120, 196),
+        deck_hi=(255, 255, 255),
+        btn=[(255, 255, 255), (238, 244, 252), (194, 212, 238), (220, 232, 248)], btn_rim=(96, 132, 190),
+        btn_down=[(170, 192, 226), (202, 218, 240), (232, 240, 250)], glyph=(54, 62, 84), glyph_down=(26, 34, 60),
+        play=[(255, 255, 255), (238, 244, 252), (190, 208, 236), (218, 230, 248)], play_glyph=(54, 62, 84),
+        thumb=[(255, 255, 255), (228, 236, 246), (190, 206, 228)], thumb_rim=(90, 120, 170),
+        thumb_down=[(255, 255, 255), (200, 220, 246), (150, 184, 236)], thumb_shape="pill",
+        track=(110, 196, 10), groove=(70, 104, 160), track_hi=(220, 234, 250), seek=[(200, 250, 120), (136, 210, 6), (92, 170, 0)],
+        fill=[(170, 236, 90), (90, 188, 8)],
+        task=[(66, 116, 189), (56, 106, 179), (48, 96, 168)], task_sel=[(150, 190, 244), (115, 159, 231), (96, 140, 220)],
+        task_txt=(255, 255, 255), task_txt_dim=(200, 214, 240), task_txt_sel=(255, 255, 255), task_bg=(56, 106, 179),
+        title_lit=(52, 64, 96), title_dim=(130, 140, 164), title_shadow=None, title_bold=False,
+        tab_txt=(54, 66, 98), tab_sep=(178, 198, 228), scroll=(166, 194, 236),
+        caption="x10",
+        combo=[(150, 190, 244), (115, 159, 231)], combo_txt=(255, 255, 255), combo_edge=(60, 100, 170),
+        tabs=["Now Playing", "Library", "Rip", "Burn", "Sync", "Guide"],
+        pledit=dict(Normal="#FFFFFF", Current="#B4C6FF", NormalBG="#5482C3", SelectedBG="#335B9D"),
+        vis_bars=[(255, 255, 255), (236, 200, 246), (160, 70, 170), (80, 20, 100)], vis_dots=(20, 10, 26),
+        vis_peak=(255, 255, 255), vis_osc=[(255, 255, 255), (246, 220, 250), (220, 170, 236), (180, 110, 200),
+                                           (140, 60, 160)],
+        main_title="Windows Media Player", eq_title="Graphic Equalizer", pl_title="All Music",
+        logo="xpflag",
+    ),
+})
+THEMES = {k: THEMES[k] for k in ("wmp7", "wmp8", "wmp9", "wmp10", "wmp11", "wmp-blue", "wmp-dark")}
+NEW = ("x8", "x9", "x10")
+
 
 def use_theme(name):
     global T, OUT
@@ -546,7 +663,7 @@ def flat_body():
 
 
 def light_frame():
-    return T.name in ("wmp7", "wmp8")
+    return T.look in ("v7", "blue") + NEW
 
 
 # ------------------------------------------------------------------------------------------
@@ -695,6 +812,8 @@ def frame_bg(a, x, y, w, h, lit):
 
 def bar_frame(w, h, lit, left_edge=False, right_edge=False):
     """A titlebar strip: the frame gradient, a top highlight and side borders."""
+    if T.look in NEW:
+        return xbar(w, h, lit, left_edge, right_edge)
     a = new(w, h)
     frame_bg(a, 0, 0, w, h, lit)
     rect(a, 0, 0, w, 1, T.rim)
@@ -714,6 +833,8 @@ def frame_colour_at(row, lit, h=14):
 
 def caption_button(a, x, y, kind, lit=True, pressed=False):
     """9x9 titlebar button: options (the menu), minimize, shade, close."""
+    if T.look in NEW:
+        return xcaption(a, x, y, kind, lit, pressed)
     W, H = a.shape[1], a.shape[0]
     style = T.caption
     if style == "round":
@@ -761,8 +882,8 @@ def title_text(a, s, cx, y, lit, series=None):
     """Titlebar text in the UI font, centred on cx (WMP 9: with its "9 Series" in light blue)."""
     col = T.title_lit if lit else T.title_dim
     bold = T.title_bold
-    shadow = T.title_shadow if (lit or T.name not in ("wmp7", "wmp8")) else None
-    if T.name == "wmp7" and lit:
+    shadow = T.title_shadow if (lit or T.look not in ("v7", "blue")) else None
+    if T.look == "v7" and lit:
         shadow, sh = T.title_shadow, (0, 1)
     else:
         sh = (1, 1)
@@ -829,13 +950,14 @@ def label_on_button(a, x, y, w, h, s, pressed, on, led=True):
     if led:
         lx = x + (w - tw - 4) // 2
         led_col = (60, 230, 60) if on else lerp(T.btn[2], BLACK, 0.25)
-        if T.name in ("wmp9", "wmp10") and on:
-            led_col = (120, 200, 255) if T.name == "wmp10" else (80, 240, 80)
+        if T.look in ("dark", "w11") and on:
+            led_col = (120, 200, 255) if T.look == "w11" else (80, 240, 80)
         rect(a, lx + o, y + h // 2 - 1 + o, 2, 2, led_col)
         draw_text(a, TINY, s, lx + 4 + o, y + (h - 5) // 2 + o, ink)
     else:
         if on:
-            ink = {"wmp7": (40, 48, 176), "wmp8": (18, 128, 24), "wmp9": (14, 116, 20), "wmp10": (130, 196, 255)}[T.name]
+            ink = {"v7": (40, 48, 176), "blue": (18, 128, 24), "dark": (14, 116, 20), "w11": (130, 196, 255),
+                   "x8": (18, 140, 24), "x9": (24, 130, 30), "x10": (40, 120, 220)}[T.look]
         draw_text(a, TINY, s, x + (w - tw) // 2 + o, y + (h - 5) // 2 + o, ink)
 
 
@@ -844,7 +966,7 @@ def groove(a, x, y, w, th, col=None):
     W, H = a.shape[1], a.shape[0]
     r = th / 2
     paint(a, 0, 0, rr_mask(W, H, r, x, y + 1, w, th), T.track_hi, 0.8)        # light lip below
-    paint(a, 0, 0, rr_mask(W, H, r, x, y, w, th), col or T.track)
+    paint(a, 0, 0, rr_mask(W, H, r, x, y, w, th), col or getattr(T, "groove", T.track))
 
 
 def knob(a, x, y, w, h, pressed, shape=None):
@@ -874,6 +996,8 @@ CLUTTER_SLOTS = [("O", 3, 8), ("A", 11, 7), ("I", 18, 7), ("D", 25, 8), ("V", 33
 
 def clutter_bar(lit_letters, bg):
     """The clutter bar as a column of WMP taskbar buttons (the chosen one lit)."""
+    if T.look in NEW:
+        return xclutter(lit_letters, bg)
     a = new(8, 43, bg)
     rbox(a, 0, 0, 8, 43, 2, [T.task_bg, T.task_bg])
     for letter, y, h in CLUTTER_SLOTS:
@@ -888,11 +1012,13 @@ def clutter_bar(lit_letters, bg):
 
 
 def main_titlebar(lit):
+    if T.look in NEW:
+        return xmain_titlebar(lit)
     a = bar_frame(275, 14, lit, left_edge=True, right_edge=True)
-    if T.name == "wmp10":
+    if T.look == "w11":
         wmp10_tabs(a, 19, 2, 12, lit, T.tabs)
     else:
-        title_text(a, T.main_title, 128, 3 if T.name != "wmp7" else 3, lit, getattr(T, "main_series", None))
+        title_text(a, T.main_title, 128, 3 if T.look != "v7" else 3, lit, getattr(T, "main_series", None))
     caption_button(a, 6, 3, "options", lit)
     caption_button(a, 244, 3, "minimize", lit)
     caption_button(a, 254, 3, "shade", lit)
@@ -913,8 +1039,9 @@ def make_titlebar(main):
     a[15:29, 27:302] = main_titlebar(False)
     a[29:43, 27:302] = main_titlebar(True)
     a[42:56, 27:302] = main_titlebar(False)
-    unlit = clutter_bar("", main[30, 9])
-    lit = clutter_bar("OAIDV", main[30, 9])
+    cbg = main_bg()[22:65, 10:18] if T.look in NEW else main[30, 9]
+    unlit = clutter_bar("", cbg)
+    lit = clutter_bar("OAIDV", cbg)
     a[0:43, 304:312] = unlit
     a[0:43, 312:320] = unlit
     for (letter, y, h), sx, sy in zip(CLUTTER_SLOTS, [304, 312, 320, 328, 336], [47, 55, 62, 69, 77]):
@@ -940,6 +1067,8 @@ PLAY_C = (50.5, 97.0)
 
 
 def main_bg():
+    if T.look in NEW:
+        return xmain_bg()
     a = new(275, 116)
     vfill(a, 0, 14, 275, 102, T.body)
     brushed(a, 0, 14, 275, 102, T.brushed)
@@ -1007,6 +1136,8 @@ def centres():
 def transport(a, pressed=None):
     """The transport on the deck (whole-window canvas a): WMP's big round play button in its
     recess, the smaller round buttons in a shared groove, eject apart; one button pressed."""
+    if T.look in NEW:
+        return xtransport(a, pressed)
     W, H = a.shape[1], a.shape[0]
     C = centres()
     # the groove the small buttons sit in (prev .. next), and eject's own
@@ -1024,9 +1155,9 @@ def transport(a, pressed=None):
         else:
             d, stops, ink, s = 13, T.btn, T.glyph, 0.68
         if k == pressed:
-            stops = T.btn_down if k != "play" or T.name != "wmp10" else [lerp(c, BLACK, 0.3) for c in T.play]
+            stops = T.btn_down if k != "play" or T.look != "w11" else [lerp(c, BLACK, 0.3) for c in T.play]
             ink = T.glyph_down if k != "play" else lerp(T.play_glyph, T.glyph_down, 0.5)
-        gl = 0.0 if k == pressed else (0.2 if (T.name == "wmp10" and k != "play") else 0.5)
+        gl = 0.0 if k == pressed else (0.2 if (T.look == "w11" and k != "play") else 0.5)
         sphere(a, cx, cy, d, stops, T.btn_rim, gloss=gl)
         o = 0.5 if k == pressed else 0
         gx = cx + (0.8 if k == "play" else 0) + o
@@ -1034,6 +1165,8 @@ def transport(a, pressed=None):
 
 
 def make_main():
+    if T.look in NEW:
+        return xmake_main()
     a = main_bg()
     bg = a[30, 9]
     a[22:65, 10:18] = clutter_bar("", bg)
@@ -1134,7 +1267,7 @@ def make_monoster():
 def make_playpaus():
     a = new(48, 9, T.pane)
     col = T.ink
-    tri(a, [(2, 1), (8, 4.5), (2, 8)], col)
+    tri(a, [(2, 1), (8, 4.5), (2, 8)], getattr(T, "play_ind", col))
     rect(a, 9 + 2, 1, 2, 7, col)
     rect(a, 9 + 5, 1, 2, 7, col)
     rect(a, 18 + 2, 2, 5, 5, col)
@@ -1200,7 +1333,7 @@ def volume_frame(seat, level):
     x0, x1, yb = 3, 65, 10
     pts = [(x0, yb), (x1, yb), (x1, yb - 7), (x0, yb - 1.2)]
     paint(t, 0, 0, poly_mask(W, H, [(x, y + 1) for x, y in pts]), T.track_hi, 0.8)
-    paint(t, 0, 0, poly_mask(W, H, pts), T.track)
+    paint(t, 0, 0, poly_mask(W, H, pts), getattr(T, "groove", T.track))
     if level > 0:
         m = poly_mask(W, H, [(x0 + 1, yb - 0.6), (x1 - 1, yb - 0.6), (x1 - 1, yb - 6.2), (x0 + 1, yb - 1.4)])
         m[:, int(x0 + 1 + level * (x1 - x0 - 2)):] = 0
@@ -1264,8 +1397,10 @@ EQ_BANDS = ["60", "170", "310", "600", "1K", "3K", "6K", "12K", "14K", "16K"]
 
 
 def eq_titlebar(lit):
+    if T.look in NEW:
+        return xeq_titlebar(lit)
     a = bar_frame(275, 14, lit, left_edge=True, right_edge=True)
-    if T.name == "wmp10":
+    if T.look == "w11":
         wmp10_tabs(a, 6, 2, 12, lit, [T.eq_title])
     else:
         title_text(a, T.eq_title, 137, 3, lit)
@@ -1284,6 +1419,9 @@ def eq_frame_bg():
     rect(a, 1, 14, 273, 1, T.hi if not light_frame() else lerp(T.body[0], WHITE, 0.5))
     rect(a, 273, 15, 1, 100, T.lo)
     rect(a, 1, 114, 273, 1, T.lo)
+    if T.look in NEW:
+        # the enhancement pane's header band (WMP's info-bar colour) behind ON/AUTO/graph/PRESETS
+        rbox(a, 4, 16, 267, 17, 3, [lerp(T.info, WHITE, 0.08), T.info], lerp(T.info, BLACK, 0.3))
     # the slider bay: a pane like WMP's Now Playing enhancements panel
     rbox(a, 15, 35, 246, 77, 4, [lerp(T.pane, T.pane_edge, 0.12), T.pane], T.pane_edge)
     return a
@@ -1401,7 +1539,7 @@ def side_tile(w, h, left):
 
 
 def scroll_groove_col():
-    return lerp(T.pane, T.pane_edge, 0.25)
+    return getattr(T, "scroll", None) or lerp(T.pane, T.pane_edge, 0.25)
 
 
 def scroll_handle(pressed):
@@ -1455,8 +1593,10 @@ def combo(t, x, y, w, h, text, lit):
 
 
 def title_piece_pl(lit):
+    if T.look in NEW:
+        return xtitle_piece_pl(lit)
     t = bar20(100, lit)
-    if T.name == "wmp10":
+    if T.look == "w11":
         tw = text_w(UI, T.pl_title) + 10
         wmp10_tabs(t, 50 - tw // 2, 4, 15, lit, [T.pl_title], right_limit=100)
     else:
@@ -1595,7 +1735,7 @@ def make_gen():
         rect(a, 0, y, 194, 7, SEP)
         centre = a[(0 if lit else 21) + 4:(0 if lit else 21) + 11, 60].copy()
         col = T.title_lit if lit else T.title_dim
-        shadow = T.title_shadow if (T.name == "wmp8" and lit) else None
+        shadow = T.title_shadow if (T.look == "blue" and lit) else None
         x = 1
         for c in GEN_LETTERS:
             w = glyph_w(FONT5, c) + 1
@@ -1651,8 +1791,18 @@ def write_text_files():
     with open(os.path.join(OUT, "pledit.txt"), "w", newline="\r\n") as f:
         f.write(f"[Text]\nNormal={p['Normal']}\nCurrent={p['Current']}\nNormalBG={p['NormalBG']}\n"
                 f"SelectedBG={p['SelectedBG']}\nMbBG={p['NormalBG']}\nMbFG={p['Normal']}\nFont=Tahoma\n")
-    name = f"WMP {T.version}"
+    name = T.label
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n", encoding="utf-8") as f:
+        if T.look in NEW:
+            spot = "the titlebar's menu button" if T.look == "x10" else "the About spot"
+            f.write(
+                f"{name} - a skin in the style of {T.era}.\n"
+                "Windows logo (c) Microsoft Corporation.\n\n"
+                "A classic (Winamp 2.x format) skin. Every bitmap was drawn by a script (gen_skin.py) from\n"
+                "gradients, shapes and hand-made pixel fonts, after screenshots of the real player; the\n"
+                f"Windows flag in {spot} is the real logo.\n"
+            )
+            return
         f.write(
             f"{name} — a skin in the style of {T.era}.\n"
             "Windows Media Player logo © Microsoft Corporation.\n\n"
@@ -1660,6 +1810,378 @@ def write_text_files():
             "gradients, shapes and hand-made pixel fonts; the logo in the About spot is redrawn from\n"
             "shapes too.\n"
         )
+
+
+# ------------------------------------------------------------------------------------------
+# Accurate looks: WMP 8 (x8), WMP 9 Series (x9) and WMP 10 (x10), after screenshots
+#
+# How the real players' parts sit on Winamp's fixed layout:
+# - titlebar: 8's silver bar with the round blue menu button (options), 9's silver-white frame
+#   with its "Now Playing" drop-down by the window buttons, 10's task tabs (the Windows flag,
+#   10's window icon, as the options button);
+# - the clutter bar: the left taskbar in miniature (8, 9), or a column of 10's info-bar buttons;
+# - one black display: the status line on top (play indicator, time, the song title in the
+#   status text's colour: text.bmp's ink), a separator, the visualisation and stream info below,
+#   and the info bar ("Ambience: Random") as its own strip under the visualisation;
+# - the green seek bar and volume, the round glass transport (play the big one in its well,
+#   previous/next as pills), 8's silver foot, 10's slanted status panel round shuffle/repeat;
+# - the Windows flag once: the About spot (8, 9) or the titlebar's menu button (10).
+# ------------------------------------------------------------------------------------------
+
+_flag_cache = {}
+
+
+def flag(h):
+    """The 2002-2012 Windows flag (source/logo-windows-flag), h px tall: (rgb, alpha) arrays."""
+    if h not in _flag_cache:
+        svg = os.path.join(HERE, "source", "logo-windows-flag", "flag-multicolored.svg")
+        png = os.path.join(OUT_ROOT, "scratch", "flag-600.png")
+        if not os.path.exists(png):
+            subprocess.run(["/usr/bin/rsvg-convert", "-h", "600", svg, "-o", png], check=True)
+        im = Image.open(png).convert("RGBA")
+        w = max(1, round(h * im.width / im.height))
+        arr = np.asarray(im.resize((w, h), Image.LANCZOS), dtype=np.float32)
+        _flag_cache[h] = (arr[..., :3], np.clip(arr[..., 3] / 255.0, 0, 1))
+    return _flag_cache[h]
+
+
+def draw_flag(a, x, y, h, alpha=1.0):
+    col, al = flag(h)
+    paint(a, x, y, al, col, alpha)
+
+
+def xbar(w, h, lit, left_edge=False, right_edge=False):
+    """A titlebar strip for the accurate looks (8: periwinkle with the silver bar inset)."""
+    a = new(w, h)
+    st = frame_stops(lit)
+    vfill(a, 0, 0, w, h, st)
+    rect(a, 0, 0, w, 1, T.rim)
+    rect(a, 0, 1, w, 1, lerp(st[0], WHITE, 0.6))
+    if left_edge:
+        rect(a, 0, 0, 1, h, T.rim)
+        rect(a, 1, 1, 1, h - 1, lerp(st[0], WHITE, 0.5))
+    if right_edge:
+        rect(a, w - 1, 0, 1, h, T.rim)
+        rect(a, w - 2, 1, 1, h - 1, T.lo)
+    if T.look == "x8":
+        y0, bh = (2, 11) if h == 14 else (3, 14)
+        x0 = 3 if left_edge else -12
+        x1 = w - 3 if right_edge else w + 12
+        stops = T.silver if lit else [lerp(c, (200, 200, 212), 0.55) for c in T.silver]
+        rbox(a, x0, y0, x1 - x0, bh, bh / 2 - 0.01, stops, T.silver_edge if lit else (136, 138, 168))
+    elif T.look == "x10" and h == 14:
+        rect(a, 0, h - 1, w, 1, (150, 180, 226) if lit else (176, 188, 210))
+    return a
+
+
+def chevrons(a, x, y, ink):
+    W, H = a.shape[1], a.shape[0]
+    paint(a, 0, 0, line_mask(W, H, [(x + 2.3, y + 4.0), (x + 4.5, y + 1.9), (x + 6.7, y + 4.0)], 1.1), ink)
+    paint(a, 0, 0, line_mask(W, H, [(x + 2.3, y + 5.0), (x + 4.5, y + 7.1), (x + 6.7, y + 5.0)], 1.1), ink)
+
+
+def xcaption(a, x, y, kind, lit, pressed):
+    """9x9 titlebar buttons of the accurate looks."""
+    W, H = a.shape[1], a.shape[0]
+    st = T.caption
+    if kind == "options":
+        if st == "x8":
+            # 8's round blue button (it shows the menu bar) with white chevrons
+            stops = ([(150, 186, 255), (40, 88, 220), (18, 46, 170)] if lit else
+                     [(196, 204, 230), (140, 150, 196), (120, 128, 176)])
+            if pressed:
+                stops = [(20, 50, 160), (40, 80, 200), (90, 130, 240)]
+            sphere(a, x + 4.5, y + 4.5, 9, stops, (10, 26, 100) if lit else (100, 106, 150), gloss=0.0 if pressed else 0.45)
+            chevrons(a, x, y, WHITE)
+        elif st == "x9":
+            stops = T.btn_down if pressed else ([(255, 255, 255), (236, 240, 248), (200, 208, 226)] if lit else
+                                                [(246, 246, 250), (230, 232, 238), (214, 216, 226)])
+            sphere(a, x + 4.5, y + 4.5, 9, stops, (110, 124, 170) if lit else (160, 166, 186), gloss=0.0)
+            chevrons(a, x, y, T.title_lit if lit else T.title_dim)
+        else:
+            # 10's window icon, the Windows flag (it opens the window menu, as options does)
+            if pressed:
+                rbox(a, x - 0, y, 9, 9, 2, [(200, 220, 248), (150, 184, 236)], (90, 130, 196))
+            draw_flag(a, x + (1 if pressed else 0), y + 1, 8, 1.0 if lit else 0.55)
+        return
+    if st == "x8":
+        stops = T.btn_down if pressed else ([(255, 255, 255), (228, 230, 242), (186, 188, 210)] if lit else
+                                            [(238, 238, 244), (216, 216, 226), (198, 198, 212)])
+        sphere(a, x + 4.5, y + 4.5, 9, stops, (90, 94, 132) if lit else (150, 152, 178), gloss=0.0 if pressed else 0.4)
+        ink = (34, 40, 96) if lit else (128, 130, 156)
+    else:
+        if pressed:
+            rbox(a, x, y, 9, 9, 2, [(255, 255, 255), (206, 220, 242)], (110, 136, 190))
+        ink = T.title_lit if lit else T.title_dim
+    if kind == "minimize":
+        rect(a, x + 2, y + 6, 5, 2, ink)
+    elif kind == "shade":
+        if st == "x8":
+            rect(a, x + 2, y + 2, 5, 2, ink)
+            rect(a, x + 2, y + 6, 5, 1, lerp(ink, WHITE, 0.4))
+        else:
+            rect(a, x + 2, y + 2, 5, 2, ink)
+            rect(a, x + 2, y + 2, 1, 5, ink)
+            rect(a, x + 6, y + 2, 1, 5, ink)
+            rect(a, x + 2, y + 6, 5, 1, ink)
+    elif kind == "close":
+        paint(a, 0, 0, line_mask(W, H, [(x + 2.2, y + 2.2), (x + 6.8, y + 6.8)], 1.5), ink)
+        paint(a, 0, 0, line_mask(W, H, [(x + 6.8, y + 2.2), (x + 2.2, y + 6.8)], 1.5), ink)
+
+
+def down_tri(a, cx, cy, col, s=1.0):
+    tri(a, [(cx - 2.5 * s, cy - 1.2 * s), (cx + 2.5 * s, cy - 1.2 * s), (cx, cy + 1.6 * s)], col)
+
+
+def x10_tab(a, x, y, w, h, label, lit, arrow=False):
+    """WMP 10's raised, lighter active tab (its foot runs off the strip's bottom)."""
+    W, H = a.shape[1], a.shape[0]
+    stops = T.task_sel if lit else [lerp(c, (196, 204, 218), 0.6) for c in T.task_sel]
+    rbox(a, x, y, w, h + 4, 3, stops, (70, 110, 180) if lit else (150, 160, 182))
+    paint(a, 0, 0, rr_mask(W, H, 2.5, x + 1.5, y + 1, w - 3, h * 0.45), WHITE, 0.30 if lit else 0.15)
+    ink = WHITE if lit else (236, 240, 246)
+    tw = text_w(UI, label)
+    lx = x + 4 if arrow else x + (w - tw) // 2
+    draw_text(a, UI, label, lx, y + 2, ink, shadow=(50, 90, 160) if lit else None, sh=(0, 1))
+    if arrow:
+        down_tri(a, x + w - 6, y + 6, ink)
+
+
+def xtabs(a, lit):
+    """WMP 10's task tabs across the main titlebar: Now Playing raised, its drop-down arrow, then
+    Library, Rip, Burn, Sync, Guide between hairline separators."""
+    x = 18
+    w = text_w(UI, "Now Playing") + 8
+    x10_tab(a, x, 1, w, 13, "Now Playing", lit)
+    x += w
+    ink = T.tab_txt if lit else T.title_dim
+    down_tri(a, x + 5, 7, ink)
+    x += 10
+    for lab in T.tabs[1:]:
+        rect(a, x, 3, 1, 9, T.tab_sep if lit else lerp(T.tab_sep, (220, 224, 232), 0.5))
+        rect(a, x + 1, 3, 1, 9, WHITE if lit else (236, 238, 242))
+        tw = text_w(UI, lab)
+        draw_text(a, UI, lab, x + 6, 3, ink)
+        x += tw + 12
+    assert x <= 242, x
+    return x
+
+
+def x9_combo(a, x, y, w, h, text, lit):
+    """WMP 9's drop-down: a white box, the now-playing page icon, the label, a chevron."""
+    W, H = a.shape[1], a.shape[0]
+    stops = T.combo if lit else [lerp(c, (226, 228, 236), 0.5) for c in T.combo]
+    rbox(a, x, y, w, h, 2, stops, T.combo_edge if lit else (170, 176, 196))
+    ink = T.combo_txt if lit else (120, 124, 140)
+    # the page icon with its play arrow
+    rect(a, x + 2, y + 2, 7, h - 4, (120, 136, 180) if lit else (170, 176, 196))
+    rect(a, x + 3, y + 3, 5, h - 6, WHITE)
+    tri(a, [(x + 4, y + 4), (x + 7, y + h / 2), (x + 4, y + h - 4)], (40, 70, 160) if lit else (150, 156, 176))
+    draw_text(a, UI, text, x + 12, y + (h - 9) // 2 + 1, ink)
+    cx, cy = x + w - 6, y + h / 2
+    paint(a, 0, 0, line_mask(W, H, [(cx - 2.6, cy - 1.4), (cx, cy + 1.2), (cx + 2.6, cy - 1.4)], 1.4), ink)
+
+
+def xmain_titlebar(lit):
+    a = xbar(275, 14, lit, left_edge=True, right_edge=True)
+    if T.look == "x10":
+        xtabs(a, lit)
+    elif T.look == "x9":
+        x9_combo(a, 146, 1, 92, 12, "Now Playing", lit)
+    caption_button(a, 6, 3, "options", lit)
+    caption_button(a, 244, 3, "minimize", lit)
+    caption_button(a, 254, 3, "shade", lit)
+    caption_button(a, 264, 3, "close", lit)
+    return a
+
+
+def xclutter(lit_letters, bg):
+    """The clutter bar: 8's taskbar (the chosen item darker, underlined orange), 9's (lighter,
+    navy labels), or 10's little info-bar buttons."""
+    a = np.array(bg, dtype=np.int32).copy()
+    for letter, y, h in CLUTTER_SLOTS:
+        on = letter in lit_letters
+        gy = y + (h - 5) // 2
+        if T.look == "x8":
+            if on:
+                vfill(a, 0, y, 8, h, T.task_sel)
+                rect(a, 0, y + h - 1, 8, 1, T.accent)
+            else:
+                rect(a, 0, y + h - 1, 8, 1, lerp(a[y + h - 1, 4], WHITE, 0.45))
+            draw_text(a, TINY, letter, 2, gy, T.task_txt)
+        elif T.look == "x9":
+            if on:
+                vfill(a, 0, y, 8, h - 1, T.task_sel)
+                rect(a, 7, y, 1, h - 1, (170, 186, 220))
+            rect(a, 0, y + h - 1, 8, 1, lerp(a[y + h - 1, 4], WHITE, 0.6))
+            draw_text(a, TINY, letter, 2, gy, T.task_txt)
+        else:
+            stops = T.task_sel if on else [lerp(c, WHITE, 0.12) for c in T.task]
+            rbox(a, 0, y, 8, h - 1, 1.5, stops, (34, 70, 130))
+            rect(a, 1, y + 1, 6, 1, lerp(stops[0], WHITE, 0.4))
+            draw_text(a, TINY, letter, 2, y + (h - 1 - 5) // 2, WHITE)
+    return a
+
+
+def xmain_bg():
+    a = new(275, 116)
+    vfill(a, 0, 14, 275, 102, T.body)
+    a[0:14] = main_titlebar(True)
+    W, H = 275, 116
+    rect(a, 0, 0, 1, 116, T.rim)
+    rect(a, 274, 0, 1, 116, T.rim)
+    rect(a, 0, 115, 275, 1, T.rim)
+    rect(a, 1, 14, 1, 101, T.hi)
+    rect(a, 273, 15, 1, 100, T.lo)
+    rect(a, 1, 114, 273, 1, T.lo)
+    if T.look == "x8":
+        # the taskbar column (it sweeps down into the transport chin)
+        rbox(a, 3, 15, 19, 74, 4, T.task)
+        rect(a, 21, 18, 1, 66, lerp(T.task[1], WHITE, 0.25))
+        # the silver foot to the right of the chin, where WMP 8's playlist ends
+        paint(a, 0, 0, rr_mask(W, H, 7, 158, 87, 114, 24), T.lo, 0.6)
+        rbox(a, 158, 86, 114, 24, 7, T.silver, T.silver_edge)
+        # the rounded transport chin
+        paint(a, 0, 0, rr_mask(W, H, 14, 2, 84, 164, 31), T.rim, 0.5)
+        rbox(a, 2, 83, 164, 31, 14, T.deck, T.deck_rim)
+        paint(a, 0, 0, rr_mask(W, H, 12, 10, 84.5, 146, 2), T.deck_hi, 0.7)
+    elif T.look == "x9":
+        rbox(a, 3, 15, 19, 72, 3, T.task, lerp(T.task[2], (60, 80, 140), 0.3))
+        paint(a, 0, 0, rr_mask(W, H, 14, 2, 84, 271, 31), T.lo, 0.6)
+        rbox(a, 2, 83, 271, 31, 14, T.deck, T.deck_rim)
+        paint(a, 0, 0, rr_mask(W, H, 12, 10, 84.5, 255, 2), WHITE, 0.9)
+    else:
+        # the info bar, wrapped round the display's left side and under the visualisation
+        info = [lerp(T.info, WHITE, 0.10), T.info, lerp(T.info, BLACK, 0.08)]
+        edge = lerp(T.info, BLACK, 0.35)
+        m = np.maximum(rr_mask(W, H, 3, 2, 14, 271, 45), rr_mask(W, H, 3, 2, 14, 19, 58))
+        m = np.maximum(m, rr_mask(W, H, 3, 2, 57, 105, 15))
+        paint(a, 0, 0, m, edge)
+        m2 = np.maximum(rr_mask(W, H, 2, 3, 15, 269, 43), rr_mask(W, H, 2, 3, 15, 17, 56))
+        m2 = np.maximum(m2, rr_mask(W, H, 2, 3, 57, 103, 14))
+        paint(a, 0, 0, m2, gcanvas(H, W, 14, 58, info))
+        rect(a, 3, 15, 269, 1, lerp(T.info, WHITE, 0.3))
+        # the pale glass transport bar
+        paint(a, 0, 0, rr_mask(W, H, 14, 2, 84, 271, 31), T.lo, 0.6)
+        rbox(a, 2, 83, 271, 31, 14, T.deck, T.deck_rim)
+        paint(a, 0, 0, rr_mask(W, H, 12, 10, 84.5, 255, 2), WHITE, 0.9)
+        # the recessed, slanted status panel (shuffle and repeat sit in it)
+        pts = [(166, 86.5), (241, 86.5), (241, 109.5), (157, 109.5)]
+        paint(a, 0, 0, poly_mask(W, H, [(x + 0.0, y + 1) for x, y in pts]), WHITE, 0.8)
+        paint(a, 0, 0, poly_mask(W, H, pts), (150, 178, 218))
+        inner = [(166.8, 87.5), (240, 87.5), (240, 108.5), (158.6, 108.5)]
+        paint(a, 0, 0, poly_mask(W, H, inner), gcanvas(H, W, 87, 22, [(196, 214, 238), (218, 230, 246)]))
+    return a
+
+
+def pill(a, cx, cy, w, h, stops, rim, gloss=0.5):
+    W, H = a.shape[1], a.shape[0]
+    rbox(a, cx - w / 2, cy - h / 2, w, h, h / 2 - 0.01, stops, rim)
+    if gloss:
+        paint(a, 0, 0, rr_mask(W, H, h / 2 - 1.5, cx - w / 2 + 2, cy - h / 2 + 1, w - 4, h * 0.42), WHITE, gloss)
+
+
+def xtransport(a, pressed=None):
+    """WMP's round glass transport: play the big button in its well, pause/stop/eject round,
+    previous and next as pills."""
+    W, H = a.shape[1], a.shape[0]
+    C = centres()
+    cx, cy = C["play"]
+    paint(a, 0, 0, ellipse_mask(W, H, cx - 11.5, cy - 11.5 + 1, 23, 23), T.deck_hi, 0.8)
+    paint(a, 0, 0, ellipse_mask(W, H, cx - 11.5, cy - 11.5, 23, 23), lerp(T.deck[2], BLACK, 0.18))
+    for k, (cx, cy) in C.items():
+        down = k == pressed
+        stops = T.btn_down if down else (T.play if k == "play" else T.btn)
+        ink = T.glyph_down if down else (T.play_glyph if k == "play" else T.glyph)
+        gl = 0.0 if down else 0.5
+        o = 0.5 if down else 0
+        if k == "play":
+            sphere(a, cx, cy, 19, stops, T.btn_rim, gloss=gl)
+            glyph(a, k, cx + 0.8 + o, cy + o, ink, 0.95)
+        elif k in ("previous", "next"):
+            pill(a, cx, cy, 19, 12, stops, T.btn_rim, gl)
+            glyph(a, k, cx + o, cy + o, ink, 0.68)
+        else:
+            sphere(a, cx, cy, 14, stops, T.btn_rim, gloss=gl)
+            glyph(a, k, cx + o, cy + o, ink, 0.62)
+
+
+def xmake_main():
+    a = main_bg()
+    W, H = 275, 116
+    a[22:65, 10:18] = clutter_bar("", a[22:65, 10:18])
+    # the display: status line (indicator, time, title) over the visualisation and stream info
+    rbox(a, 20, 16, 251, 42, 3, T.pane, T.pane_edge)
+    rect(a, 22, 40, 247, 1, T.sep)
+    for yy in (29, 34):
+        rect(a, 73, yy, 2, 2, T.ink)
+    # the info bar under the visualisation ("Ambience: Random")
+    if T.look != "x10":
+        rbox(a, 20, 58, 86, 13, 2.5, [lerp(T.info, WHITE, 0.06), T.info], T.pane_edge)
+    bold = False
+    tw = text_w(UI, T.info_label, 1, bold)
+    assert tw <= 80, tw
+    draw_text(a, UI, T.info_label, 24, 60, T.info_txt, bold=bold)
+    draw_text(a, TINY, "KBPS", 129, 44, T.pane_label)
+    draw_text(a, TINY, "KHZ", 169, 44, T.pane_label)
+    a[57:70, 107:175] = volume_frame(a[57:70, 107:175], 0)
+    a[57:70, 177:215] = balance_frame(a[57:70, 177:215], 0)
+    # the seek bar: 8's and 10's green tube, 9's pale groove; WMP's rewind / fast-forward caps
+    if T.look == "x9":
+        groove(a, 17, 75, 246, 4, T.track)
+    else:
+        paint(a, 0, 0, rr_mask(W, H, 2.5, 17, 75, 246, 5), T.track_hi, 0.8)
+        paint(a, 0, 0, rr_mask(W, H, 2.5, 17, 74, 246, 5), gcanvas(H, W, 74, 5, T.seek))
+    for x0, d in ((9, -1), (266, 1)):
+        rbox(a, x0 - 1, 73, 9, 8, 3.5, T.btn, T.btn_rim)
+        cx = x0 + 3.5
+        tri(a, [(cx - 1.8 * d, 75), (cx + 0.2 * d, 77), (cx - 1.8 * d, 79)], T.glyph)
+        tri(a, [(cx + 0.2 * d, 75), (cx + 2.2 * d, 77), (cx + 0.2 * d, 79)], T.glyph)
+    transport(a)
+    if T.look == "x10":
+        # the About spot: WMP 10's round "switch to skin mode" button
+        cx, cy = 257.5, 98
+        sphere(a, cx, cy, 16, T.btn, T.btn_rim, gloss=0.5)
+        paint(a, 0, 0, line_mask(W, H, [(cx - 3.2, cy - 3.2), (cx + 1.6, cy + 1.6)], 1.5), T.glyph)
+        tri(a, [(cx + 3.2, cy + 3.2), (cx - 1.2, cy + 3.2), (cx + 3.2, cy - 1.2)], T.glyph)
+        rect(a, round(cx - 4), round(cy + 4), 8, 1, T.glyph)
+    else:
+        # the Windows flag, once, in the About spot (at the foot of the real taskbar)
+        draw_flag(a, 249, 90, 15)
+    return a
+
+
+def xeq_titlebar(lit):
+    a = xbar(275, 14, lit, left_edge=True, right_edge=True)
+    if T.look == "x10":
+        x10_tab(a, 6, 1, text_w(UI, T.eq_title) + 10, 13, T.eq_title, lit)
+    else:
+        title_text(a, T.eq_title, 137, 3, lit)
+    caption_button(a, 264, 3, "close", lit)
+    return a
+
+
+def xtitle_piece_pl(lit):
+    t = bar20(100, lit)
+    W, H = t.shape[1], t.shape[0]
+    if T.look == "x8":
+        combo(t, 2, 4, 96, 13, T.pl_title, lit)
+    elif T.look == "x9":
+        # the playlist pane's periwinkle header (where "Find Album Info" sits)
+        stops = [(120, 136, 210), (96, 113, 191)] if lit else [(170, 176, 206), (150, 156, 190)]
+        rbox(t, 4, 4, 92, 13, 2, stops, (70, 84, 160) if lit else (140, 146, 176))
+        text_center(t, UI, T.pl_title, 50, 6, WHITE if lit else (236, 238, 246))
+    else:
+        # WMP 10's "All Music" drop-down
+        stops = T.combo if lit else [lerp(c, (196, 204, 218), 0.6) for c in T.combo]
+        rbox(t, 12, 4, 76, 13, 2, stops, T.combo_edge if lit else (150, 160, 182))
+        paint(t, 0, 0, rr_mask(W, H, 1.5, 13.5, 5, 73, 5), WHITE, 0.28 if lit else 0.14)
+        ink = WHITE if lit else (236, 240, 246)
+        tw = text_w(UI, T.pl_title) + 10
+        x = 50 - tw // 2
+        draw_text(t, UI, T.pl_title, x, 6, ink, shadow=(50, 90, 160) if lit else None, sh=(0, 1))
+        down_tri(t, x + tw - 4, 10, ink)
+    return t
 
 
 # ------------------------------------------------------------------------------------------
@@ -1805,9 +2327,10 @@ def preview_main(lit, state):
     # the title box blanked with text.bmp's space, then the title in TrueType in text.bmp's ink
     for x in range(0, 154, 5):
         w = min(5, 154 - x)
-        blit(img, S["text"], (150, 0, w, 6), 111 + x, 24)
-    box = img.crop((111, 22, 265, 36))
-    ImageDraw.Draw(box).text((0, 7), state["title"], fill=text_ink(), font=tt_font(11), anchor="lm")
+        blit(img, S["text"], (150, 0, w, 6), 111 + x, 27)
+    # (Winamp/WACUP's text row is y 27-32; the TrueType capitals stand on its bottom)
+    box = img.crop((111, 22, 265, 40))
+    ImageDraw.Draw(box).text((0, 33 - 22), state["title"], fill=text_ink(), font=tt_font(11), anchor="ls")
     img.paste(box, (111, 22))
     draw_bitmap_text(img, "192", 111, 43)
     draw_bitmap_text(img, "44", 156, 43)
@@ -1994,7 +2517,7 @@ def preview():
     bars = [12, 15, 14, 11, 13, 10, 9, 11, 8, 7, 9, 6, 5, 6, 4, 3, 4, 2, 3]
     A = dict(pressed=None, eq=True, pl=True, clutter="AV", shuffle=True, repeat=False, playing=True, stereo=True,
              pos=0.38, seek=False, volume=72, vdrag=False, balance=0, time=207, remaining=False,
-             title=f"WMP {T.version} - a personal skin", bars=bars)
+             title=f"{T.label} - a personal skin", bars=bars)
     B = dict(pressed="play", eq=False, pl=True, clutter="", shuffle=False, repeat=True, playing=False, stereo=False,
              pos=0.8, seek=True, volume=25, vdrag=True, balance=-60, time=95, remaining=True,
              title="Paused: Quiet Hours (Live)", bars=[3, 2, 4, 1, 2, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -2033,7 +2556,7 @@ def check_bounds():
 if __name__ == "__main__":
     if "--list" in sys.argv:
         for k, t in THEMES.items():
-            print(f"{k:6s} {t.wsz:11s} {t.era}")
+            print(f"{k:9s} {t.wsz:13s} {t.era}")
         sys.exit(0)
     for theme in (sys.argv[1:] or list(THEMES)):
         use_theme(theme)

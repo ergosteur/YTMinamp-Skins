@@ -623,11 +623,16 @@
  {
   "family": "Operating systems",
   "folder": "skins/os/mobile-classic",
-  "title": "Mobile Classic: BlackBerry OS 5, BlackBerry OS 6, BlackBerry 10, Windows Mobile 6",
+  "title": "Mobile Classic: BlackBerry OS 4.5, BlackBerry OS 5, BlackBerry OS 6, BlackBerry 10, Windows Mobile 6",
   "previews": [
    {
     "file": "preview-bb10.png",
     "label": "bb10",
+    "wsz": null
+   },
+   {
+    "file": "preview-bb45.png",
+    "label": "bb45",
     "wsz": null
    },
    {
@@ -648,6 +653,7 @@
   ],
   "wsz": [
    "BlackBerry-10.wsz",
+   "BlackBerry-OS-4.5.wsz",
    "BlackBerry-OS-5.wsz",
    "BlackBerry-OS-6.wsz",
    "Windows-Mobile-6.wsz"
@@ -1379,12 +1385,27 @@
  {
   "family": "Apps",
   "folder": "skins/apps/wmp",
-  "title": "WMP: Windows Media Player 7, 8, 9 Series and 10",
+  "title": "WMP: Windows Media Player 7, 8, 9 Series, 10 and 11, plus WMP Blue and WMP Dark",
   "previews": [
+   {
+    "file": "preview-wmp-blue.png",
+    "label": "wmp blue",
+    "wsz": "WMP-Blue.wsz"
+   },
+   {
+    "file": "preview-wmp-dark.png",
+    "label": "wmp dark",
+    "wsz": "WMP-Dark.wsz"
+   },
    {
     "file": "preview-wmp10.png",
     "label": "wmp10",
     "wsz": "WMP-10.wsz"
+   },
+   {
+    "file": "preview-wmp11.png",
+    "label": "wmp11",
+    "wsz": "WMP-11.wsz"
    },
    {
     "file": "preview-wmp7.png",
@@ -1404,9 +1425,12 @@
   ],
   "wsz": [
    "WMP-10.wsz",
+   "WMP-11.wsz",
    "WMP-7.wsz",
    "WMP-8.wsz",
-   "WMP-9.wsz"
+   "WMP-9.wsz",
+   "WMP-Blue.wsz",
+   "WMP-Dark.wsz"
   ]
  },
  {
