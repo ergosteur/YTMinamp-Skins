@@ -1707,7 +1707,7 @@ def preview_eq(lit, state):
     return img
 
 
-def preview_playlist(lit, w, h, rows, pressed_close=False, drag=False):
+def preview_playlist(lit, w, h, rows, pressed_close=False, drag=False, elapsed=207, current=1):
     S = SHEETS
     sheet = S["pledit"]
     img = Image.new("RGB", (w, h))
@@ -1743,12 +1743,23 @@ def preview_playlist(lit, w, h, rows, pressed_close=False, drag=False):
             break
         if i == 2:
             d.rectangle((lx, y, lx + lw - 1, y + 14), fill=c["SelectedBG"])
-        col = c["Current"] if i == 1 else c["Normal"]
-        d.text((lx + 2, y + 2), f"{i + 1}. {txt}", fill=col, font=font)
+        col = c["Current"] if i == current else c["Normal"]
+        # a title too long for the row is cut short of the duration, as Winamp does
+        label, room = f"{i + 1}. {txt}", lw - 10 - d.textlength(dur, font=font)
+        if d.textlength(label, font=font) > room:
+            while d.textlength(label + "...", font=font) > room:
+                label = label[:-1]
+            label = label.rstrip() + "..."
+        d.text((lx + 2, y + 2), label, fill=col, font=font)
         d.text((lx + lw - 3 - d.textlength(dur, font=font), y + 2), dur, fill=col, font=font)
     blit(img, sheet, (61 if drag else 52, 53, 8, 18), w - 15, 20 + 30)
-    draw_bitmap_text(img, "3:27/41:10", w - 150 + 7, h - 38 + 10)
-    for dx, ch in zip([1, 7, 12, 20, 25], " 0327"):
+    # the footer: the selected row's length / the whole list's, and the elapsed time
+    def secs(t):
+        m, s_ = t.split(":")
+        return int(m) * 60 + int(s_)
+    total = sum(secs(dur) for _, dur in rows)
+    draw_bitmap_text(img, f"{rows[2][1]}/{total // 60}:{total % 60:02d}", w - 150 + 7, h - 38 + 10)
+    for dx, ch in zip([1, 7, 12, 20, 25], f" {elapsed // 60:02d}{elapsed % 60:02d}"):
         draw_bitmap_text(img, ch, w - 150 + 66 + dx, h - 38 + 23)
     return img
 
@@ -1827,21 +1838,37 @@ def preview_gen(lit, w, h, title, pressed_close=False):
     return img
 
 
+# each member's ARTMS-era solo (MODHAUS), with the length YouTube Music lists
+SOLOS = {"heejin": ("Algorithm", "3:09"), "haseul": ("Plastic Candy", "3:35"),
+         "kimlip": ("Can You Entertain?", "2:49"), "jinsoul": ("Ring of Chaos", "2:42"),
+         "choerry": ("Pressure", "2:42")}
+
+
 def preview():
-    rows = [("ARTMS - Virtual Angel", "3:12"), ("ARTMS - Club Icarus", "2:58"),
-            ("ARTMS - Burn", "3:05"), ("ARTMS - Verified Beauty", "2:51"),
-            ("ARTMS - Pre-Ending", "3:40"), ("ARTMS - Birth", "3:21"),
-            ("ARTMS - Air", "3:33"), ("ARTMS - Flower Rhythm", "3:09"),
-            ("ARTMS - Sparkle", "3:28"), ("ARTMS - Icarus", "2:47"),
-            ("ARTMS - Butterfly Effect", "3:16")]
+    # real ARTMS songs from DALL (2024), Club Icarus (2025) and Hyper-Ego (2026), with the lengths
+    # YouTube Music lists; the group themes play Virtual Angel (row 2), each member's themes play
+    # one of her ARTMS-era solos, put first
+    rows = [("ARTMS - Birth", "2:43"), ("ARTMS - Virtual Angel", "2:54"), ("ARTMS - Flower Rhythm", "2:40"),
+            ("ARTMS - Candy Crush", "3:01"), ("ARTMS - Air", "2:28"), ("ARTMS - Butterfly Effect", "3:27"),
+            ("ARTMS - Icarus", "2:54"), ("ARTMS - Verified Beauty", "2:48"), ("ARTMS - BURN", "3:20"),
+            ("ARTMS - Born Stunner", "2:30"), ("ARTMS - Blue Blood", "2:27")]
     bars = [12, 15, 14, 11, 13, 10, 9, 11, 8, 7, 9, 6, 5, 6, 4, 3, 4, 2, 3]
-    title = "ARTMS - VIRTUAL ANGEL  ***" if T["member"] is None else f"{T['readme_who'].upper()}  ***  ARTMS"
+    current = 1
+    if T["member"] is not None:
+        rows = [(f"{T['readme_who']} - {SOLOS[T['member']][0]}", SOLOS[T["member"]][1])] + rows[:10]
+        current = 0
+    song = rows[current][0]
+    title = f"{song.upper()}  ***"
+    # the timers follow it: elapsed at the seek bar's 0.38, remaining at its 0.8
+    m, s_ = rows[current][1].split(":")
+    length = int(m) * 60 + int(s_)
+    played, left = round(length * 0.38), length - round(length * 0.8)
     A = dict(pressed=None, eq=True, pl=True, clutter="AV", shuffle=True, repeat=False, playing=True, stereo=True,
-             pos=0.38, seek=False, volume=72, vdrag=False, balance=0, time=207, remaining=False,
+             pos=0.38, seek=False, volume=72, vdrag=False, balance=0, time=played, remaining=False,
              title=title, bars=bars)
     B = dict(pressed="play", eq=False, pl=True, clutter="", shuffle=False, repeat=True, playing=False, stereo=False,
-             pos=0.8, seek=True, volume=25, vdrag=True, balance=-60, time=95, remaining=True,
-             title="PAUSED: CLUB ICARUS (LIVE)", bars=[3, 2, 4, 1, 2, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
+             pos=0.8, seek=True, volume=25, vdrag=True, balance=-60, time=left, remaining=True,
+             title=f"PAUSED: {song.upper()}", bars=[3, 2, 4, 1, 2, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
     EA = dict(pressed=None, on=True, auto=False, preamp=50, drag=None,
               bands=[75, 68, 56, 49, 49, 33, 30, 30, 49, 49])
     EB = dict(pressed="close", on=False, auto=True, preamp=70, drag=3,
@@ -1852,7 +1879,8 @@ def preview():
         col = Image.new("RGB", (275, h))
         col.paste(preview_main(lit, st), (0, 0))
         col.paste(preview_eq(lit, est), (0, 116))
-        col.paste(preview_playlist(lit, 275, 232, rows, pressed_close=not lit, drag=not lit), (0, 232))
+        col.paste(preview_playlist(lit, 275, 232, rows, pressed_close=not lit, drag=not lit, elapsed=played,
+                                     current=current), (0, 232))
         col.paste(preview_gen(lit, 275, 140, "album art", pressed_close=not lit), (0, 464))
         cols.append(col)
     gap = 12
