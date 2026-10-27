@@ -25,6 +25,13 @@ All of them share:
 - **Display**: the main window's two displays are one L-shaped screen behind a black bezel, with
   the iPod's title strip along the top ("NOW PLAYING" and a battery glyph). The clock uses a bold
   sans pixel font instead of seven-segment digits.
+- **text.bmp** (the bitmap title, kbps/kHz, the playlist timers): bold pixel lettering in the
+  style of Apple's Chicago, the 1st-4th generation iPods' screen face: wide, rounded-square bowls,
+  a flat-topped A, a straight-legged R, a boxy S, a slashed zero, 2x2 dots. Glyphs are 4x5 in the
+  5x6 cells (row 6 only for descenders); the weight comes from a doubled left stem, since two 2px
+  stems don't fit in four columns. The iPod classic uses it too: its own Helvetica Bold can't be
+  told apart from a generic bold sans at this size. The previews' right-hand main window draws its
+  title from text.bmp (Options > "Use bitmap font for main title display").
 - **Transport**: previous/play/pause/stop/next form one strip of the click wheel, with the
   wheel's thin grey labels (previous, play/pause, next) and play as the round centre button.
   Eject is drawn as the wheel's MENU key.

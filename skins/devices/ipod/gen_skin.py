@@ -965,14 +965,90 @@ FONT_GRID = [
 ]
 
 
+# text.bmp's lettering, in the style of Apple's Chicago (the 1st-4th generation iPods' screen
+# face): heavy and wide, rounded-square bowls, a flat-topped A, a straight-legged R, a boxy S,
+# a slashed zero and 2x2 dots. Glyphs keep to columns 0-3 of the 5x6 cell (column 4 is the gap
+# between letters) and rows 0-4 (row 5 only for descenders: Q's tail, the comma, the underscore).
+# There's no room for two 2px stems in four columns, so the weight is suggested by a doubled
+# left stem (single-stem letters and punctuation are 2px throughout); M, N and W keep 1px sides
+# with filled diagonals, which reads as heavy and keeps them distinct from H and K.
+CHICAGO = {
+    "A": G(".##.", "##.#", "##.#", "####", "##.#"),
+    "B": G("###.", "##.#", "###.", "##.#", "###."),
+    "C": G(".###", "##..", "##..", "##..", ".###"),
+    "D": G("###.", "##.#", "##.#", "##.#", "###."),
+    "E": G("####", "##..", "###.", "##..", "####"),
+    "F": G("####", "##..", "###.", "##..", "##.."),
+    "G": G(".###", "##..", "##.#", "##.#", ".###"),
+    "H": G("##.#", "##.#", "####", "##.#", "##.#"),
+    "I": G(".##.", ".##.", ".##.", ".##.", ".##."),
+    "J": G("..##", "..##", "..##", "#.##", ".##."),
+    "K": G("##.#", "###.", "##..", "###.", "##.#"),
+    "L": G("##..", "##..", "##..", "##..", "####"),
+    "M": G("#..#", "####", "####", "#..#", "#..#"),
+    "N": G("#..#", "##.#", "####", "#.##", "#..#"),
+    "O": G(".##.", "##.#", "##.#", "##.#", ".##."),
+    "P": G("###.", "##.#", "###.", "##..", "##.."),
+    "Q": G(".##.", "##.#", "##.#", "##.#", ".##.", "..##"),
+    "R": G("###.", "##.#", "###.", "##.#", "##.#"),
+    "S": G(".###", "##..", ".##.", "..##", "###."),
+    "T": G("####", ".##.", ".##.", ".##.", ".##."),
+    "U": G("##.#", "##.#", "##.#", "##.#", ".##."),
+    "V": G("##.#", "##.#", "##.#", ".##.", ".##."),
+    "W": G("#..#", "#..#", "####", "####", "#..#"),
+    "X": G("##.#", "##.#", ".##.", "##.#", "##.#"),
+    "Y": G("##.#", "##.#", ".##.", ".##.", ".##."),
+    "Z": G("####", "..##", ".##.", "##..", "####"),
+    "0": G(".##.", "##.#", "####", "#.##", ".##."),
+    "1": G(".##.", "###.", ".##.", ".##.", ".##."),
+    "2": G("###.", "..##", ".##.", "##..", "####"),
+    "3": G("###.", "..##", ".##.", "..##", "###."),
+    "4": G("##.#", "##.#", "####", "...#", "...#"),
+    "5": G("####", "##..", "###.", "..##", "###."),
+    "6": G(".##.", "##..", "###.", "##.#", ".##."),
+    "7": G("####", "..##", ".##.", ".##.", ".##."),
+    "8": G(".##.", "##.#", ".##.", "##.#", ".##."),
+    "9": G(".##.", "##.#", ".###", "..##", ".##."),
+    '"': G("##.#", "##.#"),
+    "@": G(".##.", "#.##", "#.##", "#...", ".###"),
+    "…": G(".....", ".....", ".....", "#.#.#", "#.#.#"),
+    ".": G("....", "....", "....", ".##.", ".##."),
+    ":": G(".##.", ".##.", "....", ".##.", ".##."),
+    "(": G("..##", ".##.", ".##.", ".##.", "..##"),
+    ")": G("##..", ".##.", ".##.", ".##.", "##.."),
+    "-": G("....", "....", ".###"),
+    "'": G(".##.", ".##."),
+    "!": G(".##.", ".##.", ".##.", "....", ".##."),
+    "_": G("....", "....", "....", "....", "....", "####"),
+    "+": G("....", ".##.", "####", ".##.", "...."),
+    "\\": G("##..", "##..", ".##.", "..##", "..##"),
+    "/": G("..##", "..##", ".##.", "##..", "##.."),
+    "[": G(".###", ".##.", ".##.", ".##.", ".###"),
+    "]": G("###.", ".##.", ".##.", ".##.", "###."),
+    "^": G(".##.", "##.#"),
+    "&": G(".##.", "##..", ".##.", "##.#", ".###"),
+    "%": G("##.#", "#.##", ".##.", "##.#", "#.##"),
+    ",": G("....", "....", "....", ".##.", ".##.", ".#.."),
+    "=": G("....", "####", "....", "####", "...."),
+    "$": G(".###", "###.", ".##.", ".###", "###."),
+    "#": G(".#.#", "####", ".#.#", "####", ".#.#"),
+    "å": G(".##.", ".##.", "##.#", "####", "##.#"),
+    "ö": G("#..#", ".##.", "##.#", "##.#", ".##."),
+    "ä": G("#..#", ".##.", "##.#", "####", "##.#"),
+    "?": G("###.", "..##", ".##.", "....", ".##."),
+    "*": G("#..#", ".##.", "####", ".##.", "#..#"),
+}
+
+
 def make_text():
     a = new(155, 18, T["scr"])
     for row, chars in enumerate(FONT_GRID):
         for col, ch in enumerate(chars):
             if ch is None or ch == " ":
                 continue
-            key = ch if ch in FONT5 else ch.upper()
-            draw_text(a, FONT5, key, col * 5, row * 6, T["ink"])
+            key = ch if ch in CHICAGO else ch.upper()
+            assert all(len(r) <= (5 if ch == "…" else 4) for r in CHICAGO[key]) and len(CHICAGO[key]) <= 6, ch
+            draw_text(a, CHICAGO, key, col * 5, row * 6, T["ink"])
     return a
 
 
@@ -1542,11 +1618,15 @@ for _row, _chars in enumerate(FONT_GRID):
             FONT_LOOKUP[_ch] = (_row, _col)
 
 
-def draw_bitmap_text(dst, s, x, y):
+def draw_bitmap_text(dst, s, x, y, max_w=None):
+    """text.bmp's cells, side by side, as Winamp draws them (clipped to max_w px if given)."""
     text = SHEETS["text"]
+    end = None if max_w is None else x + max_w
     for ch in s:
+        if end is not None and x >= end:
+            break
         row, col = FONT_LOOKUP.get(ch.lower(), FONT_LOOKUP[" "])
-        blit(dst, text, (col * 5, row * 6, 5, 6), x, y)
+        blit(dst, text, (col * 5, row * 6, 5, 6), x, y, None if end is None else min(5, end - x))
         x += 5
 
 
@@ -1606,10 +1686,14 @@ def preview_main(lit, state):
     for x in range(0, 154, 5):
         w = min(5, 154 - x)
         blit(img, S["text"], (150, 0, w, 6), 111 + x, 24)
-    box = img.crop((111, 22, 265, 36))
-    d = ImageDraw.Draw(box)
-    d.text((0, 29 - 22), state["title"], fill=T["pl_normal"], font=ttf(11), anchor="lm")
-    img.paste(box, (111, 22))
+    if state.get("bitmap_title"):
+        # Options > "Use bitmap font for main title display": the title in text.bmp's cells
+        draw_bitmap_text(img, state["title"], 111, 24, 154)
+    else:
+        box = img.crop((111, 22, 265, 36))
+        d = ImageDraw.Draw(box)
+        d.text((0, 29 - 22), state["title"], fill=T["pl_normal"], font=ttf(11), anchor="lm")
+        img.paste(box, (111, 22))
     draw_bitmap_text(img, "192", 111, 43)
     draw_bitmap_text(img, "44", 156, 43)
     cols = [c for c, _ in viscolor()]
@@ -1794,7 +1878,7 @@ def preview():
              title=f"Now Playing - iPod {T['model']} {T['name']}", bars=bars)
     B = dict(pressed="play", eq=False, pl=True, clutter="", shuffle=False, repeat=True, playing=False, stereo=False,
              pos=0.8, seek=True, volume=25, vdrag=True, balance=-60, time=95, remaining=True,
-             title="Paused: Quiet Hours (Live)", bars=[3, 2, 4, 1, 2, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
+             title="Paused: Quiet Hours (Live) 3:27", bitmap_title=True, bars=[3, 2, 4, 1, 2, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
     EA = dict(pressed=None, on=True, auto=False, preamp=50, drag=None,
               bands=[75, 68, 56, 49, 49, 33, 30, 30, 49, 49])
     EB = dict(pressed="close", on=False, auto=True, preamp=70, drag=3,

@@ -1,20 +1,22 @@
-# Car Audio: VW MIB II (two takes), Clarion, Clarion ADX5655z (two takes)
+# Car Audio: VW MIB II (two takes), Clarion, Clarion ADX5655z (three takes)
 
-Five classic skins from one generator (`gen_skin.py`, based on `skins/ember/gen_skin.py`, whose
+Six classic skins from one generator (`gen_skin.py`, based on `skins/ember/gen_skin.py`, whose
 sheet layouts it keeps), a theme each. The real marks used are the Volkswagen roundel (both MIB II
-skins); the Clarion wordmark is hand-drawn pixel lettering. Everything else is drawn by the script.
+skins) and the Clarion wordmark (the four Clarion skins). Everything else is drawn by the script.
 The v2 and ADX themes have their own sheet makers (`V2_MAKERS`, `AX_MAKERS`, and `AXS_MAKERS` for
-the silver ADX, which reuses the `AX_MAKERS` VFD sprites) so the earlier skins stay byte-identical.
+the silver ADX, which reuses the `AX_MAKERS` VFD sprites; `AXW_MAKERS` for the swoop, the dark
+ADX's with its own main window) so the earlier skins stay byte-identical.
 
 ```sh
 /usr/bin/python3 -I gen_skin.py                # all of them
 /usr/bin/python3 -I gen_skin.py clarion        # some (vw-mib2, vw-mib2-v2, clarion,
-                                               #   clarion-adx5655z, clarion-adx5655z-silver)
+                                               #   clarion-adx5655z, clarion-adx5655z-silver,
+                                               #   clarion-adx5655z-swoop)
 /usr/bin/python3 -I gen_skin.py --list
 ```
 
 Outputs: `VW-MIB-II.wsz`, `VW-MIB-II-v2.wsz`, `Clarion.wsz`, `Clarion-ADX5655z.wsz`,
-`Clarion-ADX5655z-Silver.wsz` and `preview-<theme>.png` here; sheets in `out/<theme>/` (`out/` is ignored). Each .wsz is finished by
+`Clarion-ADX5655z-Silver.wsz`, `Clarion-ADX5655z-Swoop.wsz` and `preview-<theme>.png` here; sheets in `out/<theme>/` (`out/` is ignored). Each .wsz is finished by
 `skins/genex_wacup.py`.
 
 ## Themes
@@ -47,7 +49,7 @@ Outputs: `VW-MIB-II.wsz`, `VW-MIB-II-v2.wsz`, `Clarion.wsz`, `Clarion-ADX5655z.w
   (falls back to Arial where missing).
 - **Clarion** (`clarion`): a representative 2000s single-DIN Clarion MP3 CD receiver, styled after
   the DXZ-series (c. 2003-2005: DXZ5xx/6xx/7xxMP).
-  - Brushed silver faceplate, the Clarion wordmark top left (hand-drawn pixel lettering, the only
+  - Brushed silver faceplate, the Clarion wordmark top left (Clarion's own logo, the only
     logo), "MP3/WMA CD RECEIVER" and "50W X 4" silkscreen.
   - One black smoked display window holding everything down to the sliders: cyan seven-segment
     time with ghost segments, a dot-matrix-style title, lit/ghost indicator labels (MP3, TRK,
@@ -60,8 +62,9 @@ Outputs: `VW-MIB-II.wsz`, `VW-MIB-II-v2.wsz`, `Clarion.wsz`, `Clarion-ADX5655z.w
 - **Clarion ADX5655z** (`clarion-adx5655z`): after the Clarion ADX5655z (double-DIN tuner / CD /
   cassette with spectrum analyzer, c. 2002), from the photos in `source/ref-adx5655z/`
   (user-supplied: a product shot and a lit unit). Black gloss faceplate in a sculpted silver
-  surround (side frames waisted in the middle); titlebar prints "HIGH POWER 45Wx4" (yellow
-  italic) and "ADX5655z" (white italic). One VFD window (dark violet-black) holds: the analyzer as
+  surround (side frames waisted in the middle); titlebar prints "HIGH POWER 45Wx4" and
+  "ADX5655z" in light gold italic (#DED8BF, the brightest fifth of the print's pixels in the
+  product photo; the unit prints both in the same light gold). One VFD window (dark violet-black) holds: the analyzer as
   the spectrum bank (viscolor: three orange/amber top rows over cyan to blue, orange peaks, violet
   dot grid), a white bracket at its outer end, 5x7 dot-matrix time digits in pale blue-white, the
   pale blue-white title, ghost labels TP TA INFO AF PTY REG, orange outlined lozenges "FUNCTION"
@@ -70,7 +73,9 @@ Outputs: `VW-MIB-II.wsz`, `VW-MIB-II-v2.wsz`, `Clarion.wsz`, `Clarion-ADX5655z.w
   clutterbar and RDM / RPT (orange LED when on), grey rubber pill keys the transport, a silver
   eject, "CENET" and "MAGI-TUNE" print, the Clarion wordmark centred under the keys, the round
   silver four-way rocker in the About spot. EQ: the spectrum display with blue segment columns
-  and an orange cap cursor, between white brackets. Playlist: pale-blue VFD text on violet-black,
+  and an orange cap cursor, between white brackets; the graph sits in a tab with chamfered top
+  corners whose sides flare out into the slider window, like the faceplate's angled cut-outs
+  (Winamp's curve area, x 86-198, y 17-35, is untouched; all three ADX takes). Playlist: pale-blue VFD text on violet-black,
   orange current track, with the "FULL LOGIC CASSETTE SYSTEM" cassette door behind the ADD / REM
   / SEL / MISC keys.
 - **Clarion ADX5655z Silver** (`clarion-adx5655z-silver`): the same unit and the same VFD content,
@@ -99,6 +104,14 @@ Outputs: `VW-MIB-II.wsz`, `VW-MIB-II-v2.wsz`, `Clarion.wsz`, `Clarion-ADX5655z.w
     displays as VFD glass, and a smoked "FULL LOGIC CASSETTE SYSTEM" slot; the scrollbar is a
     dark groove with a silver thumb.
   Playlist: #96C8FF on #100A16, #FF9224 current, #34244E selection. Font: Arial.
+- **Clarion ADX5655z Swoop** (`clarion-adx5655z-swoop`): the dark ADX5655z (same VFD content,
+  keys, EQ, playlist and gen sheets) with the real faceplate's silver swoop on the main window,
+  after `source/ref-adx5655z/user-crop-transport-silver.png`: the silver skin's satin brushed
+  silver climbs from the left edge in two angled steps to surround the transport keys and the
+  eject, drops steeply past them to a low band under RDM / RPT (left on the black, as TITLE is on
+  the unit), then dips round the bottom of the four-way pad and rises into the right edge, with a
+  dark seam above and a lit top edge. "CENET" and the Clarion wordmark sit on it in dark print.
+  Only main.bmp and the sheets cut from it (cbuttons, posbar) differ from the dark take.
 
 ## Limits
 
@@ -118,8 +131,12 @@ Outputs: `VW-MIB-II.wsz`, `VW-MIB-II-v2.wsz`, `Clarion.wsz`, `Clarion-ADX5655z.w
 - Volkswagen roundel: Simple Icons' `volkswagen.svg`
   (https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/volkswagen.svg), in
   `source/vw-logo/`, rasterised with rsvg-convert at generation time and composited once.
-- Clarion wordmark: no downloadable file used (Wikimedia was rate-limiting and no clean source
-  was found); drawn by hand as pixel lettering in `gen_skin.py` (`CLARION`).
+- Clarion wordmark: Clarion's own logo (Clarion Co., Ltd.), supplied by the user as a PNG,
+  `source/clarion-wordmark.png` (2400x965, black on transparent). Only the word "clarion" is used:
+  the "CAR AUDIO & BEYOND" tagline is cropped off and the (R) dropped (illegible at these sizes).
+  Loaded at generation time (`clarion_mask`), area-averaged down (10 px tall in the Clarion
+  titlebar, 8 px on the ADX5655z faceplates) with each letter hinted to the pixel grid, and
+  painted in each skin's colour. It replaces the earlier hand-drawn pixel lettering.
 - Reference photos supplied by the user: `source/ref-mib2-ui/` (MIB II radio screens) and
   `source/ref-adx5655z/` (ADX5655z); reference only, not used in any sheet.
 - Noto Sans / Noto Sans Condensed (OFL, system fonts) for the v2 text and digits; Liberation Sans

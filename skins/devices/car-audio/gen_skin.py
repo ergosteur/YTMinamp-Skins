@@ -3,10 +3,11 @@
 
 One procedural generator, a theme each (based on skins/ember/gen_skin.py, whose sheet layouts it
 keeps). Everything is drawn here from code (gradients, anti-aliased shapes, hand-made pixel
-fonts, digits rendered from Open Sans for the MIB screen), except the Volkswagen roundel, loaded
-from source/ at generation time. The Clarion wordmark is hand-drawn pixel lettering. Private use only.
+fonts, digits rendered from Open Sans for the MIB screen), except the Volkswagen roundel and the
+Clarion wordmark (Clarion's own logo, a PNG), both loaded from source/ at generation time.
+Private use only.
 
-    /usr/bin/python3 -I gen_skin.py [vw-mib2|clarion ...]   (no argument builds both)
+    /usr/bin/python3 -I gen_skin.py [vw-mib2|clarion ...]   (no argument builds them all)
     /usr/bin/python3 -I gen_skin.py --list
 
 Per theme: the bitmaps and text files in out/<theme>/, zipped flat into <Name>.wsz beside this
@@ -73,7 +74,8 @@ THEMES = {
     # segment/dot-matrix display, small rubber keys (RDM / RPT), a big rotary volume knob.
     "clarion": SimpleNamespace(
         name="clarion", title="Clarion", wsz="Clarion.wsz", subject="a 2000s Clarion car CD receiver",
-        owner="Clarion Co., Ltd.", logo_note="Clarion wordmark (hand-drawn pixel lettering)",
+        owner="Clarion Co., Ltd.", logo_note="Clarion wordmark (Clarion's own logo, source/clarion-wordmark.png)",
+        logo_credit="Clarion wordmark: Clarion's own logo (c) Clarion Co., Ltd., supplied as a PNG.",
         disp=(5, 10, 13),
         ink=(70, 222, 255),
         accent=(70, 222, 255), accent_hi=(190, 246, 255), accent_lo=(14, 52, 64),
@@ -88,7 +90,8 @@ THEMES = {
     "clarion-adx5655z": SimpleNamespace(
         name="clarion-adx5655z", title="Clarion ADX5655z", wsz="Clarion-ADX5655z.wsz",
         subject="the Clarion ADX5655z car stereo", owner="Clarion Co., Ltd.",
-        logo_note="Clarion wordmark (hand-drawn pixel lettering)",
+        logo_note="Clarion wordmark (Clarion's own logo, source/clarion-wordmark.png)",
+        logo_credit="Clarion wordmark: Clarion's own logo (c) Clarion Co., Ltd., supplied as a PNG.",
         disp=(16, 10, 22), ink=(214, 230, 255),
         accent=(255, 146, 36), accent_hi=(255, 196, 70), accent_lo=(80, 40, 10),
         dim=(44, 32, 58), line=(44, 32, 58),
@@ -105,7 +108,26 @@ THEMES = {
     "clarion-adx5655z-silver": SimpleNamespace(
         name="clarion-adx5655z-silver", title="Clarion ADX5655z Silver", wsz="Clarion-ADX5655z-Silver.wsz",
         subject="the Clarion ADX5655z car stereo (silver faceplate)", owner="Clarion Co., Ltd.",
-        logo_note="Clarion wordmark (hand-drawn pixel lettering)",
+        logo_note="Clarion wordmark (Clarion's own logo, source/clarion-wordmark.png)",
+        logo_credit="Clarion wordmark: Clarion's own logo (c) Clarion Co., Ltd., supplied as a PNG.",
+        disp=(16, 10, 22), ink=(214, 230, 255),
+        accent=(255, 146, 36), accent_hi=(255, 196, 70), accent_lo=(80, 40, 10),
+        dim=(44, 32, 58), line=(44, 32, 58),
+        pledit=dict(Normal="#96C8FF", Current="#FF9224", NormalBG="#100A16", SelectedBG="#34244E"),
+        vis=[(255, 190, 70), (150, 225, 255), (40, 74, 196)],
+        vis_rows=[(255, 196, 70), (255, 166, 50), (255, 140, 36), (150, 226, 255), (132, 214, 255),
+                  (116, 202, 255), (102, 188, 255), (90, 174, 255), (80, 160, 252), (72, 146, 246),
+                  (64, 132, 240), (58, 118, 232), (52, 106, 224), (48, 96, 216), (44, 86, 206), (40, 76, 196)],
+        vis_dots=(38, 26, 50), vis_peak=(255, 146, 36),
+        genex=None,
+    ),
+    # The dark ADX5655z with the faceplate's silver swoop: brushed silver rising in angled steps
+    # round the transport keys, then dipping under the round four-way pad at the right.
+    "clarion-adx5655z-swoop": SimpleNamespace(
+        name="clarion-adx5655z-swoop", title="Clarion ADX5655z Swoop", wsz="Clarion-ADX5655z-Swoop.wsz",
+        subject="the Clarion ADX5655z car stereo", owner="Clarion Co., Ltd.",
+        logo_note="Clarion wordmark (Clarion's own logo, source/clarion-wordmark.png)",
+        logo_credit="Clarion wordmark: Clarion's own logo (c) Clarion Co., Ltd., supplied as a PNG.",
         disp=(16, 10, 22), ink=(214, 230, 255),
         accent=(255, 146, 36), accent_hi=(255, 196, 70), accent_lo=(80, 40, 10),
         dim=(44, 32, 58), line=(44, 32, 58),
@@ -270,7 +292,7 @@ def rgrad_arr(w, h, cx, cy, r, stops):
 
 
 # ------------------------------------------------------------------------------------------
-# Pixel fonts (Ember's, plus the Clarion wordmark)
+# Pixel fonts (Ember's), and the Clarion wordmark
 # ------------------------------------------------------------------------------------------
 
 def G(*rows):
@@ -427,23 +449,63 @@ for _c, _g in {
 }.items():
     TINY[_c] = _g
 
-# The Clarion wordmark: bold rounded sans, capital C and lowercase "larion" (7 rows, x-height 5).
-CLARION = {
-    "C": G(".####", "##...", "##...", "##...", "##...", "##...", ".####"),
-    "l": G("##", "##", "##", "##", "##", "##", "##"),
-    "a": G(".....", ".....", "####.", "...##", ".####", "##.##", ".####"),
-    "r": G("....", "....", "##.#", "####", "##..", "##..", "##.."),
-    "i": G("##", "..", "##", "##", "##", "##", "##"),
-    "o": G(".....", ".....", ".###.", "##.##", "##.##", "##.##", ".###."),
-    "n": G(".....", ".....", "####.", "##.##", "##.##", "##.##", "##.##"),
-}
+# The Clarion wordmark: Clarion's own logo (source/clarion-wordmark.png, 2400x965, black on
+# transparent, supplied by the user), loaded at generation time. Only the word "clarion" is used:
+# rows 0-629 (the "CAR AUDIO & BEYOND" tagline below is cropped off) without the (R) mark at top
+# right (x 2316-2399, y 100-185, on its own: illegible at these sizes). Its coverage is
+# area-averaged down to the size drawn, then painted in each skin's colour. At 8 px the stems are
+# 1.5 px wide, so each letter is nudged (by at most half a pixel, in eighths) to the offset that
+# keeps it sharpest: hinting, the letters' sizes and the word's proportions unchanged. The
+# coverage is then darkened a little (^0.7), as small text renderers do, so the bold logo stays bold.
+CLARION_H = 8   # x-height 6 px exactly (472 of the logo's 630 rows); 10 in the titlebar
+_CLARION_MASKS = {}
 
 
-def clarion_wordmark(a, x, y, col, shadow=None):
-    return draw_text(a, CLARION, "Clarion", x, y, col, gap=1, shadow=shadow)
+def clarion_mask(h=CLARION_H):
+    if h in _CLARION_MASKS:
+        return _CLARION_MASKS[h]
+    im = Image.open(os.path.join(SRC, "clarion-wordmark.png")).convert("RGBA")
+    al = np.asarray(im, dtype=np.uint8)[:630, :, 3].copy()   # the word, not the tagline
+    al[100:186, 2316:] = 0                                      # the (R)
+    cols = np.where(al.max(0) > 0)[0]
+    rows = np.where(al.max(1) > 0)[0]
+    al = al[rows[0]:rows[-1] + 1, cols[0]:cols[-1] + 1]
+    ss = 8                                       # supersampling: eighths of a pixel
+    k = h * ss / al.shape[0]
+    W = round(al.shape[1] * k / ss) + 1
+    big = np.zeros((h * ss, W * ss), np.float32)
+    on = al.max(0) > 0                           # the letters: runs of non-empty columns
+    edges = np.flatnonzero(np.diff(np.r_[0, on.astype(np.int8), 0]))
+    for c0, c1 in zip(edges[::2], edges[1::2]):
+        x0, x1 = round(c0 * k), round(c1 * k)
+        g = np.asarray(Image.fromarray(al[:, c0:c1]).resize((x1 - x0, h * ss), Image.BOX),
+                       np.float32) / 255
+        best = None
+        for d in range(-ss // 2, ss // 2 + 1):  # the shift that leaves the fewest grey pixels
+            if x0 + d < 0 or x1 + d > big.shape[1]:
+                continue
+            t = np.zeros_like(big)
+            t[:, x0 + d:x1 + d] = g
+            m = t.reshape(h, ss, W, ss).mean(axis=(1, 3))
+            blur = float((m * (1 - m)).sum())
+            if best is None or blur < best[0] - 1e-6:
+                best = (blur, d)
+        big[:, x0 + best[1]:x1 + best[1]] = np.maximum(big[:, x0 + best[1]:x1 + best[1]], g)
+    m = big.reshape(h, ss, W, ss).mean(axis=(1, 3))
+    m = m[:, :np.flatnonzero(m.max(0) > 0)[-1] + 1]
+    _CLARION_MASKS[h] = np.clip(m, 0, 1) ** 0.7
+    return _CLARION_MASKS[h]
 
 
-CLARION_W = text_w(CLARION, "Clarion")
+def clarion_wordmark(a, x, y, col, shadow=None, h=CLARION_H):
+    m = clarion_mask(h)
+    if shadow is not None:
+        paint(a, x + 1, y + 1, m, shadow)
+    paint(a, x, y, m, col)
+    return x + m.shape[1]
+
+
+CLARION_W = clarion_mask().shape[1]   # 31 px at CLARION_H (the word is 2382 x 630 in the PNG)
 
 
 # ------------------------------------------------------------------------------------------
@@ -738,7 +800,7 @@ def main_titlebar(lit, which="main"):
         rect(a, 274, 0, 1, 14, (104, 108, 114))
         ink = (14, 16, 20) if lit else (122, 126, 132)
         if which == "main":
-            clarion_wordmark(a, 20, 4 - 1, ink, shadow=None if not lit else (226, 229, 233))
+            clarion_wordmark(a, 20, 2, ink, shadow=None if not lit else (226, 229, 233), h=10)
             draw_text(a, TINY, "MP3/WMA CD RECEIVER", 70, 5, CL_PRINT if lit else (140, 144, 150))
             s = "50W X 4"
             draw_text(a, TINY, s, 238 - text_w(TINY, s), 5, CL_PRINT if lit else (140, 144, 150))
@@ -1607,7 +1669,7 @@ def write_text_files():
                 f"Font={getattr(T, 'font', 'Arial')}\n")
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n") as f:
         f.write(f"{T.title} — a skin in the style of {T.subject}.\n"
-                f"{T.owner} logo © {T.owner}.\n\n"
+                f"{getattr(T, 'logo_credit', f'{T.owner} logo © {T.owner}.')}\n\n"
                 "A classic (Winamp 2.x format) skin drawn by a script (gen_skin.py) from gradients,\n"
                 "shapes and hand-made pixel fonts.\n")
 
@@ -2171,7 +2233,7 @@ AX_PALE_INK = (16, 34, 70)
 AX_RUBBER = [(186, 188, 192), (146, 148, 154), (112, 114, 120)]
 AX_RUBBER_DN = [(104, 106, 112), (124, 126, 132), (140, 142, 148)]
 AX_PRINT = (172, 176, 184)
-AX_YELLOW = (255, 204, 44)
+AX_GOLD = (222, 216, 191)   # #DED8BF: the titlebar print's light gold, picked from the product photo
 
 DOT57 = {
     "0": G(".###.", "#...#", "#..##", "#.#.#", "##..#", "#...#", ".###."),
@@ -2230,6 +2292,35 @@ def ax_vfd(a, x, y, w, h, r=3):
     rect(a, x + r, y + 1, w - 2 * r, 1, (36, 28, 46))
 
 
+def poly_inset(pts, d):
+    """A convex polygon (clockwise on screen) with every edge moved inward by d."""
+    n = len(pts)
+    lines = []
+    for i in range(n):
+        (x0, y0), (x1, y1) = pts[i], pts[(i + 1) % n]
+        dx, dy = x1 - x0, y1 - y0
+        ln = (dx * dx + dy * dy) ** 0.5
+        nx, ny = -dy / ln, dx / ln               # inward normal for clockwise points (y down)
+        lines.append(((x0 + nx * d, y0 + ny * d), (dx, dy)))
+    out = []
+    for i in range(n):
+        (p, u), (q, v) = lines[i - 1], lines[i]
+        den = u[0] * v[1] - u[1] * v[0]
+        t = ((q[0] - p[0]) * v[1] - (q[1] - p[1]) * v[0]) / den
+        out.append((p[0] + u[0] * t, p[1] + u[1] * t))
+    return out
+
+
+# The EQ's graph window: a tab with chamfered top corners and sides that flare out as they run
+# down into the big EQ window, like the faceplate's angled cut-outs. Winamp draws the curve at
+# x 86-198, y 17-35, which stays inside its glass.
+AX_EQ_TAB = [(84, 15), (201, 15), (205, 19), (211, 41), (74, 41), (80, 19)]
+
+
+def ax_eq_tab_m(w, h, d):
+    return poly_m(w, h, poly_inset(AX_EQ_TAB, d))
+
+
 def ax_key(a, x, y, w, h, pressed=False, kind="rubber", r=None):
     """Rubber (grey pill), pale (the translucent blue preset keys) or silver."""
     r = (min(w, h) / 2 - 0.5) if r is None and kind == "rubber" else (2.0 if r is None else r)
@@ -2285,8 +2376,8 @@ def ax_titlebar(lit, which="main"):
     ax_silver_sides(a, 0, 116)
     dim = (96, 98, 104)
     if which == "main":
-        ax_italic(a, "HIGH POWER 45W×4", 19, 11, 9, AX_YELLOW if lit else dim)
-        ax_italic(a, "ADX5655z", 238, 11, 10, (236, 238, 242) if lit else dim, anchor="rs")
+        ax_italic(a, "HIGH POWER 45W×4", 19, 11, 9, AX_GOLD if lit else dim)
+        ax_italic(a, "ADX5655z", 238, 11, 10, AX_GOLD if lit else dim, anchor="rs")
         ax_caption(a, 244, 3, "minimize", lit)
         ax_caption(a, 254, 3, "shade", lit)
     else:
@@ -2379,10 +2470,12 @@ def ax_rocker(a, cx, cy, r):
         paint(a, x0, y0, poly_m(w, h, pts), col)
 
 
-def ax_make_main():
+def ax_make_main(swoop=False):
     a = new(275, 116)
     ax_gloss(a, 0, 0, 275, 116)
     ax_silver_sides(a)
+    if swoop:
+        axw_swoop(a)
     a[0:14, :] = ax_titlebar(True)
     a[22:65, 10:18] = ax_clutter("")
     ax_vfd(a, 20, 17, 248, 54)
@@ -2401,8 +2494,8 @@ def ax_make_main():
     draw_text(a, AX_TINY, "KHZ", 191, 44, AX_LABEL)
     # below the window: the seek slot, MAGI-TUNE, the wordmark, the rocker
     draw_text(a, AX_TINY, "MAGI-TUNE", 226, 83, AX_PRINT)
-    draw_text(a, AX_TINY, "CENET", 16, 83, AX_PRINT)
-    clarion_wordmark(a, 137 - CLARION_W // 2, 107, (232, 234, 238))
+    draw_text(a, AX_TINY, "CENET", 16, 83, AXS_PRINT if swoop else AX_PRINT)
+    clarion_wordmark(a, 137 - CLARION_W // 2, 106, AXS_INK if swoop else (232, 234, 238))
     ax_rocker(a, 259.5, 98.5, 10.5)
     return a
 
@@ -2581,8 +2674,12 @@ def ax_eq_body():
     ax_gloss(a, 0, 0, 275, 116)
     ax_silver_sides(a)
     a[0:14, :] = ax_titlebar(True, "eq")
-    ax_vfd(a, 84, 15, 117, 23, 2)
-    ax_vfd(a, 9, 36, 257, 77)
+    h, w = a.shape[:2]
+    paint(a, 0, 0, np.maximum(ax_eq_tab_m(w, h, 0), rr_m(w, h, 9, 36, 266, 113, 3)), (2, 2, 3))
+    paint(a, 0, 0, np.maximum(ax_eq_tab_m(w, h, 1), rr_m(w, h, 10, 37, 265, 112, 2)), AX_VFD)
+    rect(a, 85, 16, 115, 1, (36, 28, 46))
+    rect(a, 12, 37, 62, 1, (36, 28, 46))     # the big window's top line, either side of the tab
+    rect(a, 211, 37, 52, 1, (36, 28, 46))
     ax_chevron(a, 12, 40, 58, (226, 230, 240), "left")
     ax_chevron(a, 259, 40, 58, (226, 230, 240), "right")
     for lbl, yy in (("+12", 41), ("0", 66), ("-12", 92)):
@@ -2866,13 +2963,13 @@ def axs_frame_edges(a):
     rect(a, 0, a.shape[0] - 1, w, 1, AXS_EDGE)
 
 
-def axs_glass(a, rects, r=3, top_line=True):
-    """A recessed VFD window (the union of `rects`, x y w h): shadowed silver lip, black gloss rim,
-    the dark violet-black glass."""
+def axs_glass(a, rects, r=3, top_line=True, extra=None):
+    """A recessed VFD window (the union of `rects`, x y w h, and `extra(w, h, inset)` masks):
+    shadowed silver lip, black gloss rim, the dark violet-black glass."""
     h, w = a.shape[:2]
 
     def union(inset, rr):
-        m = np.zeros((h, w), np.float32)
+        m = np.zeros((h, w), np.float32) if extra is None else extra(w, h, inset)
         for (x, y, ww, hh) in rects:
             m = np.maximum(m, rr_m(w, h, x + inset, y + inset, x + ww - inset, y + hh - inset, max(0.5, rr)))
         return m
@@ -3083,8 +3180,8 @@ def axs_eq_body():
     axs_sides(a)
     axs_frame_edges(a)
     a[0:14, :] = axs_titlebar(True, "eq")
-    axs_glass(a, [(84, 15, 117, 23), (13, 37, 249, 76)], 3, top_line=False)
-    rect(a, 87, 16, 111, 1, (38, 30, 48))
+    axs_glass(a, [(13, 37, 249, 76)], 3, top_line=False, extra=ax_eq_tab_m)
+    rect(a, 85, 16, 115, 1, (38, 30, 48))
     ax_chevron(a, 16, 41, 56, (226, 230, 240), "left")
     ax_chevron(a, 255, 41, 56, (226, 230, 240), "right")
     for lbl, yy in (("+12", 41), ("0", 66), ("-12", 92)):
@@ -3359,6 +3456,50 @@ AXS_MAKERS = dict(AX_MAKERS, **{
 
 
 # ------------------------------------------------------------------------------------------
+# clarion-adx5655z-swoop: the dark ADX5655z (the same sheets) with the real faceplate's silver
+# swoop on the main window: brushed silver (the silver skin's satin) climbs from the left edge in
+# two angled steps to surround the transport keys and eject, drops steeply past them to a low band
+# under RDM / RPT (left on the black, as TITLE is on the unit), then dips round the bottom of the
+# four-way pad and rises into the right edge. CENET and the wordmark sit on the silver in dark
+# print. Only the main window changes (and the sheets cut from it); the EQ, playlist and gen
+# windows are the dark ADX5655z's.
+# ------------------------------------------------------------------------------------------
+
+AXW_PAD = (259.5, 98.5, 13.5)   # the rocker's centre, and the radius the silver curves round
+
+
+def axw_swoop_pts():
+    cx, cy, r = AXW_PAD
+    pts = [(-1, 101), (4, 95), (8, 95), (13, 82),        # the angled steps up from the left edge
+           (159, 82), (163, 107),                        # round the transport and eject, then down
+           (cx - np.sqrt(r * r - (107 - cy) ** 2), 107)]  # the low band under RDM / RPT
+    a0 = np.arctan2(107 - cy, -np.sqrt(r * r - (107 - cy) ** 2))
+    for k in range(1, 25):                               # under the pad, and up to the right edge
+        t = a0 + (np.radians(10) - a0) * k / 24
+        pts.append((cx + r * np.cos(t), cy + r * np.sin(t)))
+    pts += [(276, cy + r * np.sin(np.radians(10)) - 4), (276, 117), (-1, 117)]
+    return [(float(x), float(y)) for x, y in pts]
+
+
+def axw_swoop(a):
+    h, w = a.shape[:2]
+    pts = axw_swoop_pts()
+    m = poly_m(w, h, pts)
+    up = poly_m(w, h, [(x, y - 1) for x, y in pts])
+    down = poly_m(w, h, [(x, y + 1) for x, y in pts])
+    paint(a, 0, 0, np.clip(up - m, 0, 1), (4, 4, 6), 0.9)        # the seam where it meets the gloss
+    sat = new(w, h)
+    axs_satin(sat, 0, 0, w, h)
+    paint(a, 0, 0, m, sat)
+    paint(a, 0, 0, np.clip(m - down, 0, 1), AXS_HI, 0.85)       # its lit top edge
+    rect(a, 0, h - 2, w, 1, AXS_SHADOW)
+    rect(a, 0, h - 1, w, 1, AXS_EDGE)
+
+
+AXW_MAKERS = dict(AX_MAKERS, **{"main.bmp": lambda: ax_make_main(swoop=True)})
+
+
+# ------------------------------------------------------------------------------------------
 # Build
 # ------------------------------------------------------------------------------------------
 
@@ -3372,6 +3513,8 @@ def build():
         return build_with(AX_MAKERS)
     if T.name == "clarion-adx5655z-silver":
         return build_with(AXS_MAKERS)
+    if T.name == "clarion-adx5655z-swoop":
+        return build_with(AXW_MAKERS)
     return build_with({})
 
 

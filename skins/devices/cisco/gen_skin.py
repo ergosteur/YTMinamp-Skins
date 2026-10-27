@@ -1,14 +1,17 @@
 #!/usr/bin/python3
 """Cisco classic hardware: Winamp 2.x skins in the style of late-1990s/2000s Cisco gear.
 
-Based on skins/ember/gen_skin.py (its sheet layouts and preview renderer are kept). Two themes:
+Based on skins/ember/gen_skin.py (its sheet layouts and preview renderer are kept). Three themes:
 
   cisco       the teal powder-coat of the Catalyst 2900 XL / 2600 era, green-phosphor console,
               the 1996 "CISCO SYSTEMS" bridge badge (Cisco.wsz)
   cisco-2800  the 2800-series ISR's dark blue-grey, amber console, the 2006 bridge logo
               (Cisco-2800.wsz)
+  catalyst-2960  the Catalyst 2960 compact switch (WS-C2960-8TC-L): steel-blue bezel, charcoal
+              inset panel with its embossed grid, green LED readouts, the ports row as the
+              transport, the 2006 logo on the left LED strip (Cisco-Catalyst-2960.wsz)
 
-    /usr/bin/python3 -I gen_skin.py              # builds both
+    /usr/bin/python3 -I gen_skin.py              # builds all
     /usr/bin/python3 -I gen_skin.py cisco-2800   # one theme
     /usr/bin/python3 -I gen_skin.py --list
 
@@ -57,6 +60,16 @@ THEMES = {
         term=(10, 7, 2), ink=(255, 178, 40), ink_hi=(255, 226, 160), ink_dim=(140, 92, 20),
         ink_ghost=(40, 26, 6), sel=(84, 52, 8),
         logo="2006", prompt="Router#", series="CISCO 2800 SERIES",
+    ),
+    # The Catalyst 2960 compact (WS-C2960-8TC-L, 2006-): the bezel is the 2000s steel blue-teal
+    # (sampled from a product photo: #38647C), the inset panel charcoal (#52565B) with a faint
+    # embossed grid. Its readouts here are green port-LED segments on smoked black.
+    "catalyst-2960": SimpleNamespace(
+        wsz="Cisco-Catalyst-2960.wsz", metal=(56, 100, 124), amp=1.6,
+        silk=(226, 232, 236), silk_dim=(150, 170, 182),
+        term=(13, 15, 16), ink=(118, 236, 92), ink_hi=(214, 255, 196), ink_dim=(50, 122, 42),
+        ink_ghost=(30, 40, 30), sel=(28, 72, 30),
+        logo="2006", prompt="", series="CATALYST 2960 SERIES SI", style="2960",
     ),
 }
 
@@ -395,6 +408,8 @@ def draw_logo(a, x, y, col):
 
 def screw(a, cx, cy):
     """5x5 Phillips pan head."""
+    if getattr(T, "style", None) == "2960":
+        return  # no screws on the 2960's front
     hi, mid, lo, slot = (214, 220, 222), (150, 158, 162), (70, 76, 80), (40, 44, 46)
     pat = [".hhh.", "hmsmh", "hsssl", "hmsml", ".lll."]
     for r, row in enumerate(pat):
@@ -408,6 +423,8 @@ def screw(a, cx, cy):
 
 def vents(a, x, y, w, rows):
     """Punched horizontal vent slots: a dark slot with a lit lower lip, in 10px lengths."""
+    if getattr(T, "style", None) == "2960":
+        return  # the 2960's bezel is unvented
     xx = x
     while xx + 4 <= x + w:
         L = min(10, x + w - xx)
@@ -1285,6 +1302,8 @@ def make_genex():
 
 
 def viscolor():
+    if getattr(T, "style", None) == "2960":
+        return viscolor_2960()
     spec = [(lerp(T.ink_hi, T.ink, i / 6) if i < 6 else lerp(T.ink, T.ink_dim, (i - 6) / 9),
              f"spectrum {i + 1}") for i in range(16)]
     osc = [(lerp(T.ink_hi, T.ink_dim, i / 4), f"oscilloscope {i + 1}") for i in range(5)]
@@ -1299,10 +1318,17 @@ def write_text_files():
     with open(os.path.join(OUT, "viscolor.txt"), "w", newline="\r\n") as f:
         for (r, g, b), note in viscolor():
             f.write(f"{r},{g},{b}, // {note}\n")
+    font = "Arial" if getattr(T, "style", None) == "2960" else "Courier New"
     with open(os.path.join(OUT, "pledit.txt"), "w", newline="\r\n") as f:
         f.write(f"[Text]\nNormal={hexc(T.ink)}\nCurrent={hexc(T.ink_hi)}\nNormalBG={hexc(T.term)}\n"
-                f"SelectedBG={hexc(T.sel)}\nMbBG={hexc(T.term)}\nMbFG={hexc(T.ink)}\nFont=Courier New\n")
+                f"SelectedBG={hexc(T.sel)}\nMbBG={hexc(T.term)}\nMbFG={hexc(T.ink)}\nFont={font}\n")
     name = T.wsz[:-4]
+    if getattr(T, "style", None) == "2960":
+        with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n") as f:
+            f.write(f"{name} - a skin in the style of the Cisco Catalyst 2960 compact switch "
+                    "(WS-C2960-8TC-L).\nCisco logo (c) Cisco Systems, Inc.\n\n"
+                    "Generated procedurally by gen_skin.py.\n")
+        return
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n") as f:
         f.write(
             f"{name} — a skin in the style of Cisco classic hardware.\n"
@@ -1311,10 +1337,577 @@ def write_text_files():
         )
 
 
+# ------------------------------------------------------------------------------------------
+# Catalyst 2960 compact (theme catalyst-2960, style "2960"): its own main window, titlebar,
+# transport, mode keys, seek bar, digits and EQ; the playlist, gen and genex sheets are the shared
+# ones above (unvented, unscrewed for this style).
+# ------------------------------------------------------------------------------------------
+
+PANEL = (80, 84, 89)          # the inset panel's charcoal (sampled: #52565B)
+PANEL_LINE = (97, 101, 107)   # its embossed grid
+PANEL_SHADOW = (72, 76, 81)
+PANEL_EDGE = (38, 41, 45)     # the panel's recessed top/left rim
+PANEL_LIP = (108, 112, 118)   # its bottom/right rim
+STRIP = (64, 67, 71)          # the LED strip left of the panel
+STRIP_EDGE = (36, 38, 41)
+YELLOW = (238, 226, 108)      # the port-number tags and the uplink outline
+YELLOW_INK = (56, 52, 24)
+SILVER = [(250, 248, 244), (228, 224, 218), (200, 196, 190), (140, 136, 130)]
+CONSOLE_BLUE = (178, 220, 238)
+CONSOLE_INK = (150, 204, 230)  # the CONSOLE print
+PRINT = (206, 212, 218)        # "Catalyst 2960 Series SI"
+PRINT_DIM = (136, 160, 176)
+LED_UNLIT = (54, 58, 62)       # an unlit LED on the charcoal
+TRI_UNLIT = (150, 154, 160)    # the port LEDs' pale triangles, unlit
+TICK = (212, 186, 88)          # the gold tick row under the ports
+WIN_DARK = (28, 30, 33)        # LED windows' bevel
+WIN_LIGHT = (116, 120, 126)
+NIMBUS = "/usr/share/fonts/urw-base35/NimbusSans-%s.otf"   # URW's Helvetica, as Cisco prints
+
+LOGO_FONT = dict(TINY)
+LOGO_FONT["I"] = G("#", "#", "#", "#", "#")
+
+# 3x4 numerals for the tiny port tags
+DIG4 = {
+    "1": G(".#.", "##.", ".#.", "###"),
+    "2": G("##.", "..#", ".#.", "###"),
+    "3": G("###", ".##", "..#", "###"),
+    "4": G("#.#", "#.#", "###", "..#"),
+    "5": G("###", "##.", "..#", "##."),
+    "x": G("...", "#.#", ".#.", "#.#"),
+}
+
+_C29 = {}
+
+
+def print_parts():
+    """'Catalyst 2960 Series SI' as the bezel step prints it, right-aligned before minimize."""
+    parts = [("Catalyst 2960", "Bold", 10), (" Series ", "Regular", 9), ("SI", "Bold", 10)]
+    fonts = [ImageFont.truetype(NIMBUS % st, sz) for _, st, sz in parts]
+    total = sum(f.getlength(t) for (t, _, _), f in zip(parts, fonts))
+    left = 238 - round(total)
+    return [(t, f) for (t, _, _), f in zip(parts, fonts)], left
+
+
+def print_coverage():
+    """0..1 coverage of the print over the 275x14 titlebar."""
+    parts, left = print_parts()
+    im = Image.new("L", (275, 14), 0)
+    d = ImageDraw.Draw(im)
+    x = left
+    for t, f in parts:
+        d.text((x, 10), t, fill=255, font=f, anchor="ls")
+        x += round(f.getlength(t))
+    return np.array(im).astype(np.float32) / 255, left
+
+
+def panel_top(x):
+    """The inset panel's top edge: up into the titlebar on the left, stepping down under the print."""
+    _, left = print_parts()
+    x1, x2 = left - 22, left - 6
+    if x <= x1:
+        return 11
+    if x >= x2:
+        return 19
+    t = (x - x1) / (x2 - x1)
+    return round(11 + 8 * t * t * (3 - 2 * t))
+
+
+def grid_texture(w, h):
+    """The panel's embossed grid: two offset layers of rounded squares, a lit line over a shadow."""
+    tile = Image.new("L", (16, 16), 0)
+    ImageDraw.Draw(tile).rounded_rectangle((1, 1, 14, 14), 4, outline=255)
+    t = np.array(tile) > 0
+    ys, xs = np.mgrid[0:h, 0:w]
+    a = t[ys % 16, xs % 16]
+    b = t[(ys + 6) % 16, (xs + 8) % 16] & ((((ys + 6) // 16) + ((xs + 8) // 16)) % 2 == 0)
+    return a | b
+
+
+def panel_art(mask):
+    """Charcoal with the grid, a dark rim along its top/left and a lit one along its bottom/right."""
+    h, w = mask.shape
+    art = new(w, h, PANEL)
+    g = grid_texture(w, h)
+    sh = np.roll(g, 1, 0) & ~g
+    art[sh] = PANEL_SHADOW
+    art[g] = PANEL_LINE
+    pad = np.pad(mask, 1)
+    up, left = pad[:-2, 1:-1], pad[1:-1, :-2]
+    down, right = pad[2:, 1:-1], pad[1:-1, 2:]
+    art[mask & (~down | ~right)] = PANEL_LIP
+    art[mask & (~up | ~left)] = PANEL_EDGE
+    lip = ~mask & (up | left)        # bezel just below/right of the panel catches the light
+    return art, lip
+
+
+def apply_panel(a, mask):
+    art, lip = panel_art(mask)
+    a[mask] = art[mask]
+    a[lip] = T.hi
+
+
+def main_panel_mask():
+    m = Image.new("L", (275, 116), 0)
+    d = ImageDraw.Draw(m)
+    d.rounded_rectangle((23, 11, 272, 112), 3, fill=255)
+    d.rounded_rectangle((14, 70, 60, 112), 3, fill=255)
+    a = np.array(m) > 0
+    for x in range(275):
+        a[:panel_top(x), x] = False
+    a[19, 272] = False
+    return a
+
+
+def strip_mask():
+    m = Image.new("L", (275, 116), 0)
+    ImageDraw.Draw(m).rounded_rectangle((2, 1, 20, 67), 2, fill=255)
+    return np.array(m) > 0
+
+
+def logo_2960(a, x, y, col):
+    """The 2006 logo at 17x12: nine one-pixel bars (heights measured from the SVG) over CISCO."""
+    for i, (t, b) in enumerate(logo_bars("2006")):
+        r0, r1 = round(t * 5), round(b * 5)
+        rect(a, x + 2 * i, y + r0, 1, r1 - r0 + 1, col)
+    draw_text(a, LOGO_FONT, "CISCO", x, y + 7, col)
+
+
+def bezel_base():
+    """main.bmp's ground (cached per theme so the lit and unlit titlebars share their stipple):
+    the steel-blue bezel, the charcoal inset panel and the LED strip."""
+    if T.name in _C29:
+        return _C29[T.name].copy()
+    a = new(275, 116)
+    powder(a, 0, 0, 275, 116)
+    raised(a, 0, 0, 275, 116)
+    apply_panel(a, main_panel_mask())
+    sm = strip_mask()
+    a[sm] = STRIP
+    pad = np.pad(sm, 1)
+    edge = sm & ~(pad[:-2, 1:-1] & pad[2:, 1:-1] & pad[1:-1, :-2] & pad[1:-1, 2:])
+    a[edge] = STRIP_EDGE
+    a[~sm & np.pad(sm, 1)[:-2, 1:-1]] = T.hi   # its lit lower lip on the bezel
+    _C29[T.name] = a
+    return a.copy()
+
+
+def led_dot(a, x, y, on, col=None):
+    """A 3x3 round LED."""
+    col = (col or LED_GREEN) if on else LED_UNLIT
+    bg = tuple(int(v) for v in a[y, x])
+    for r, row in enumerate((".#.", "###", ".#.")):
+        for c, ch in enumerate(row):
+            px(a, x + c, y + r, col if ch == "#" else lerp(bg, col, 0.4))
+    if on:
+        px(a, x + 1, y, lerp(col, (255, 255, 255), 0.5))
+
+
+def tri_down(a, cx, y, col):
+    rect(a, cx - 1, y, 3, 1, col)
+    px(a, cx, y + 1, col)
+
+
+def led_window(a, x, y, w, h):
+    """A smoked LED window, interior x..x+w-1, y..y+h-1, in a 1px sunken bevel."""
+    rect(a, x, y, w, h, T.term)
+    rect(a, x - 1, y - 1, w + 2, 1, WIN_DARK)
+    rect(a, x - 1, y - 1, 1, h + 2, WIN_DARK)
+    rect(a, x - 1, y + h, w + 2, 1, WIN_LIGHT)
+    rect(a, x + w, y - 1, 1, h + 2, WIN_LIGHT)
+
+
+def tag(a, cx, y, label, font, pressed=False):
+    """A yellow port tag, 7 tall from y (6 with the 3x4 numerals), dark print, centred on cx."""
+    tw = text_w(font, label)
+    h = 7 if font is TINY else 6
+    x = cx - (tw + 4) // 2
+    rect(a, x, y, tw + 4, h, shade(YELLOW, 0.82) if pressed else YELLOW)
+    if font is TINY:
+        draw_text(a, TINY, label, x + 2, y + 1, YELLOW_INK)
+    else:
+        xx = x + 2
+        for ch in label:
+            g = DIG4[ch]
+            for r, row in enumerate(g):
+                for k, c in enumerate(row):
+                    if c == "#":
+                        px(a, xx + k, y + 1 + r, YELLOW_INK)
+            xx += 4
+
+
+def clutter_2960(lit):
+    """The clutterbar as the strip's LED column: label, then a round LED (green when on)."""
+    a = new(8, 43, STRIP)
+    for letter, y, h in CLUTTER_SLOTS:
+        on = letter in lit
+        gy = y + (h - 5) // 2
+        draw_text(a, TINY, letter, 0, gy, T.silk if on else (178, 184, 188))
+        led_dot(a, 5, gy + 1, on)
+    return a
+
+
+def main_titlebar_2960(lit, base=None):
+    a = (bezel_base() if base is None else base)[0:14].copy()
+    logo_2960(a, 3, 1, T.silk if lit else T.silk_dim)
+    cov, _ = print_coverage()
+    col = np.array(PRINT if lit else PRINT_DIM)
+    a[:] = np.round(a * (1 - cov[..., None]) + col * cov[..., None]).astype(np.int32)
+    mini_button(a, 244, 3, "minimize", lit)
+    mini_button(a, 254, 3, "shade", lit)
+    mini_button(a, 264, 3, "close", lit)
+    return a
+
+
+def make_titlebar_2960():
+    a = new(344, 87)
+    powder(a, 0, 0, 344, 87)
+    lit_bar = main_titlebar_2960(True)
+    # options: the logo itself (Winamp's menu button sits on it); pressed, it lights green
+    a[0:9, 0:9] = lit_bar[3:12, 6:15]
+    b = lit_bar.copy()
+    logo_2960(b, 3, 1, LED_GREEN)
+    a[9:18, 0:9] = b[3:12, 6:15]
+    for kind, x in (("minimize", 9), ("close", 18)):
+        b = new(9, 9)
+        mini_button(b, 0, 0, kind, True)
+        a[0:9, x:x + 9] = b
+        mini_button(b, 0, 0, kind, True, pressed=True)
+        a[9:18, x:x + 9] = b
+    b = new(9, 9)
+    mini_button(b, 0, 0, "shade", True)
+    a[18:27, 0:9] = b
+    mini_button(b, 0, 0, "shade", True, pressed=True)
+    a[18:27, 9:18] = b
+    a[0:14, 27:302] = lit_bar
+    a[15:29, 27:302] = main_titlebar_2960(False)
+    a[29:43, 27:302] = lit_bar
+    a[42:56, 27:302] = main_titlebar_2960(False)
+    unlit = clutter_2960("")
+    lit = clutter_2960("OAIDV")
+    a[0:43, 304:312] = unlit
+    a[0:43, 312:320] = unlit
+    for (letter, y, h), sx, sy in zip(CLUTTER_SLOTS, [304, 312, 320, 328, 336], [47, 55, 62, 69, 77]):
+        a[sy:sy + h, sx:sx + 8] = lit[y:y + h]
+    return a
+
+
+PORTS_X = [16, 39, 62, 85, 108]
+
+
+def make_main_2960():
+    a = bezel_base()
+    a[0:14] = main_titlebar_2960(True)
+    a[22:65, 10:18] = clutter_2960("")
+
+    # LED windows: time + analyzer, title, kbps, kHz, mono/stereo
+    led_window(a, 24, 17, 81, 45)
+    for yy in (30, 34):
+        rect(a, 73, yy, 2, 2, T.ink)
+    led_window(a, 110, 23, 156, 13)
+    led_window(a, 110, 41, 17, 10)
+    led_window(a, 155, 41, 12, 10)
+    led_window(a, 211, 40, 57, 14)
+    # the strip's status LEDs, as the MODE button leaves them: system and status lit
+    for label, x, y, on in (("SYST", 170, 41, True), ("STAT", 170, 47, True),
+                            ("DPLX", 191, 41, False), ("SPD", 191, 47, False)):
+        draw_text(a, TINY, label, x, y, T.silk)
+        led_dot(a, x + 16, y + 1, on)
+
+    # the ports row: number tags (the port LEDs are in the jack sprites), the gold tick row
+    for k, x in enumerate(PORTS_X):
+        w = 22 if k == 4 else 23
+        tag(a, x + w // 2, 82, f"{k + 1}x", DIG4)
+    for x in range(17, 130, 2):
+        rect(a, x, 107, 1, 2, TICK)
+    text_center(a, TINY, "CONSOLE", 147, 82, CONSOLE_INK)
+    # the uplink pair in its yellow outline, labelled underneath
+    raised(a, 162, 86, 79, 20, YELLOW, YELLOW)
+    text_center(a, TINY, "SHUFFLE", 178, 107, T.silk)
+    text_center(a, TINY, "REPEAT", 226, 107, T.silk)
+    # the MODE button (About), on its own bit of strip
+    m = Image.new("L", (275, 116), 0)
+    ImageDraw.Draw(m).rounded_rectangle((246, 85, 271, 111), 2, fill=255)
+    pm = np.array(m) > 0
+    a[pm] = STRIP
+    raised(a, 246, 85, 26, 27, STRIP_EDGE, (96, 100, 106))
+    mode_button(a, 259, 96)
+    text_center(a, TINY, "MODE", 259, 104, T.silk)
+    return a
+
+
+def mode_button(a, cx, cy):
+    """The round MODE button: a domed charcoal disc, lit from the top left."""
+    for y in range(cy - 6, cy + 7):
+        for x in range(cx - 6, cx + 7):
+            d = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5
+            if d <= 5.6:
+                t = ((x - cx) + (y - cy)) / 11 + 0.5
+                a[y, x] = ramp([(96, 100, 106), (54, 57, 61), (26, 28, 30)], t)
+            elif d <= 6.4:
+                a[y, x] = (22, 24, 26)
+
+
+def port(a, x, y, w, h, top, pressed, icon_kind=None, led=True):
+    """A switch port: its LED triangle on top (lit when pressed), then the RJ-45 jack in the row's
+    silver surround: a black opening with gold contacts, the latch notch along the bottom."""
+    cx = x + w // 2
+    if led:
+        tri_down(a, cx, y, LED_GREEN if pressed else TRI_UNLIT)
+    sy = y + top
+    sh = h - top
+    sil = [shade(c, 0.9) for c in SILVER] if pressed else SILVER
+    rect(a, x, sy, w, sh, sil[1])
+    rect(a, x, sy, w, 1, sil[0])
+    rect(a, x, sy + sh - 1, w, 1, sil[3])
+    rect(a, x + w - 1, sy, 1, sh, sil[2])
+    body = sh - 6
+    rect(a, x + 2, sy + 1, w - 4, body, SOCKET)
+    rect(a, cx - 4, sy + 1 + body, 9, 3, SOCKET)
+    rect(a, x + 2, sy + 1, w - 4, 1, (34, 36, 38))
+    for i in range(8):
+        gx = cx - 7 + 2 * i
+        if x + 2 < gx < x + w - 3:
+            px(a, gx, sy + 2, GOLD)
+    rect(a, x + 1, sy + 1 + body, cx - 4 - x - 1, 1, sil[0])
+    rect(a, cx + 5, sy + 1 + body, x + w - 2 - cx - 5, 1, sil[0])
+    if icon_kind:
+        col = LED_GREEN if pressed else (206, 212, 216)
+        o = 1 if pressed else 0
+        transport_icon(a, icon_kind, cx + o, sy + 2 + (body + 1) // 2 + o, col)
+
+
+def make_cbuttons_2960(main):
+    a = new(136, 36)
+    for kind, x, w, h, dx, dy in CB:
+        for pressed, y in ((False, 0), (True, 18)):
+            a[y:y + h, x:x + w] = main[dy:dy + h, dx:dx + w]
+            port(a, x, y, w, h, 2, pressed, kind)
+    for pressed, y in ((False, 0), (True, 16)):
+        a[y:y + 16, 114:136] = main[89:105, 136:158]
+        # the CONSOLE port: Cisco's light-blue surround around the jack
+        raised(a, 114, y, 22, 16, CONSOLE_BLUE, shade(CONSOLE_BLUE, 0.75))
+        port(a, 115, y + 1, 20, 14, 0, pressed, "eject", led=False)
+    return a
+
+
+def make_shufrep_2960(main):
+    a = new(92, 85)
+    powder(a, 0, 0, 92, 85)
+    for row, (on, pressed) in enumerate([(False, False), (False, True), (True, False), (True, True)]):
+        y = row * 15
+        a[y:y + 15, 0:28] = main[89:104, 210:238]
+        a[y:y + 15, 28:75] = main[89:104, 164:211]
+        # shuffle: the uplink RJ-45, its LED pointing at it, the "1" between the pair
+        port(a, 28 + 3, y, 22, 15, 0, pressed, led=False)
+        col = LED_GREEN if on else TRI_UNLIT
+        for k, (r0, r1) in enumerate(((3, 3), (2, 4), (1, 5))):
+            rect(a, 28 + 37 + k, y + r0, 1, r1 - r0 + 1, col)
+        draw_text(a, FONT5, "1", 28 + 42, y + 5, T.silk)
+        # repeat: the SFP cage, its LED pointing at it
+        col = LED_GREEN if on else TRI_UNLIT
+        for k, (r0, r1) in enumerate(((9, 13), (10, 12), (11, 11))):
+            rect(a, 1 + k, y + r0, 1, r1 - r0 + 1, col)
+        sfp(a, 6, y + 1, pressed)
+    for x, label, pressed in [(0, "EQ", False), (23, "PL", False), (46, "EQ", True), (69, "PL", True)]:
+        src = 219 if label == "EQ" else 242
+        for on, y in ((False, 61), (True, 73)):
+            a[y:y + 12, x:x + 23] = main[58:70, src:src + 23]
+            o = 1 if pressed else 0
+            tag(a, x + 8 + o, y + 2 + o, label, TINY, pressed)
+            tri = LED_GREEN if on else TRI_UNLIT
+            rect(a, x + 16, y + 4, 5, 1, tri)
+            rect(a, x + 17, y + 5, 3, 1, tri)
+            px(a, x + 18, y + 6, tri)
+    return a
+
+
+def sfp(a, x, y, pressed):
+    """21x13 SFP cage: a steel frame, the dark slot, spring fingers inside, the latch tab below."""
+    fr = [shade(c, 0.88) for c in ((214, 216, 218), (168, 170, 172), (110, 112, 114))] if pressed else \
+        [(214, 216, 218), (168, 170, 172), (110, 112, 114)]
+    rect(a, x, y, 21, 13, fr[1])
+    rect(a, x, y, 21, 1, fr[0])
+    rect(a, x, y, 1, 13, fr[0])
+    rect(a, x + 2, y + 2, 17, 9, (14, 15, 16))
+    rect(a, x + 2, y + 2, 17, 1, (52, 54, 56))
+    for gx in (x + 14, x + 16):
+        rect(a, gx, y + 4, 1, 6, (64, 66, 68))
+    rect(a, x + 4, y + 9, 8, 1, (40, 42, 44))
+    rect(a, x + 7, y + 11, 7, 2, fr[0])
+    rect(a, x, y + 12, 21, 1, fr[2])
+
+
+def make_posbar_2960(main):
+    a = new(307, 10)
+    a[0:10, 0:248] = main[72:82, 16:264]
+    rect(a, 0, 3, 248, 1, PANEL_EDGE)
+    rect(a, 0, 4, 248, 2, (22, 24, 26))
+    rect(a, 0, 6, 248, 1, PANEL_LIP)
+    for xt, pressed in ((248, False), (278, True)):
+        a[0:10, xt:xt + 29] = a[0:10, 100:129]
+        sfp_module(a, xt, 0, pressed)
+    return a
+
+
+def sfp_module(a, x, y, pressed):
+    """29x10 thumb: an SFP transceiver seen from above - its blue bail, steel body, label."""
+    hi = 1.1 if pressed else 1.0
+    bail = shade((70, 132, 210), hi)
+    rect(a, x + 1, y + 2, 1, 6, bail)
+    rect(a, x + 1, y + 2, 6, 1, bail)
+    rect(a, x + 1, y + 7, 6, 1, bail)
+    body = [shade(c, hi) for c in ((236, 238, 240), (198, 202, 206), (160, 164, 168), (96, 100, 104))]
+    for r in range(9):
+        rect(a, x + 6, y + r, 23, 1, ramp(body, r / 8))
+    rect(a, x + 6, y, 1, 9, body[3])
+    rect(a, x + 28, y, 1, 9, body[3])
+    rect(a, x + 6, y + 9, 23, 1, shade(body[3], 0.7))
+    rect(a, x + 13, y + 2, 12, 5, (246, 246, 244))
+    for gx in range(14, 24, 2):
+        px(a, x + gx, y + 4, (120, 124, 130))
+    if pressed:
+        rect(a, x + 9, y + 4, 2, 2, LED_GREEN)
+
+
+def seg_digit(a, x, y, ch, ink, ghost):
+    """A 9x13 LED seven-segment cell: bevel-ended segments, unlit ones as faint ghosts."""
+    on = {
+        "0": "abcdef", "1": "bc", "2": "abged", "3": "abgcd", "4": "fgbc", "5": "afgcd",
+        "6": "afgedc", "7": "abc", "8": "abcdefg", "9": "abcdfg", "-": "g",
+    }[ch]
+    segs = {
+        "a": [(2, 1, 5, 1), (3, 2, 3, 1)],
+        "d": [(3, 10, 3, 1), (2, 11, 5, 1)],
+        "g": [(2, 6, 5, 1)],
+        "f": [(1, 2, 1, 4), (2, 3, 1, 2)],
+        "b": [(7, 2, 1, 4), (6, 3, 1, 2)],
+        "e": [(1, 7, 1, 4), (2, 8, 1, 2)],
+        "c": [(7, 7, 1, 4), (6, 8, 1, 2)],
+    }
+    for s, parts in segs.items():
+        for dx, dy, w, h in parts:
+            rect(a, x + dx, y + dy, w, h, ink if s in on else ghost)
+
+
+def make_numbers_2960(ex):
+    a = new(108 if ex else 99, 13, T.term)
+    for n in range(10):
+        seg_digit(a, 9 * n, 0, str(n), T.ink, T.ink_ghost)
+    if ex:
+        seg_digit(a, 99, 0, "-", T.ink, T.ink_ghost)
+    return a
+
+
+def make_eqmain_2960():
+    a = new(275, 315)
+    powder(a, 0, 0, 275, 315)
+    raised(a, 0, 0, 275, 116)
+    m = Image.new("L", (275, 116), 0)
+    ImageDraw.Draw(m).rounded_rectangle((4, 15, 270, 111), 3, fill=255)
+    apply_panel(a[0:116], np.array(m) > 0)
+    a[0:14, :] = silk_titlebar(275, "EQUALIZER", True, 264)
+    led_window(a, 86, 17, 113, 19)
+    for lbl, yy in (("+12", 41), ("0", 66), ("-12", 92)):
+        text_center(a, TINY, lbl, 58, yy, PRINT)
+        rect(a, 42, yy + 2, 3, 1, PRINT_DIM)
+        rect(a, 71, yy + 2, 3, 1, PRINT_DIM)
+    with neutral_bevel():
+        for x in [21] + [78 + 18 * i for i in range(10)]:
+            eq_slider_frame(a, x, 38, 14)
+    text_center(a, TINY, "PREAMP", 28, 104, CONSOLE_INK)
+    for i, lbl in enumerate(EQ_BANDS):
+        tag(a, 78 + 18 * i + 7, 103, lbl, TINY)
+
+    mini_button(a, 0, 125, "close", True, pressed=True)
+    for x, label, on, pressed in [
+        (10, "ON", False, False), (36, "AUTO", False, False), (69, "ON", True, False), (95, "AUTO", True, False),
+        (128, "ON", False, True), (154, "AUTO", False, True), (187, "ON", True, True), (213, "AUTO", True, True),
+    ]:
+        w = 26 if label == "ON" else 32
+        dx = 14 if label == "ON" else 40
+        a[119:131, x:x + w] = a[18:30, dx:dx + w]
+        mode_key(a, x, 119, w, 12, label, on, pressed, layout="left")
+    a[134:148, :] = silk_titlebar(275, "EQUALIZER", True, 264)
+    a[149:163, :] = silk_titlebar(275, "EQUALIZER", False, 264)
+    eq_thumb(a, 0, 164, False)
+    eq_thumb(a, 0, 176, True)
+    with neutral_bevel():
+        for n in range(28):
+            eq_slider_frame(a, 13 + (n % 14) * 15, 164 + (n // 14) * 65, n)
+    for y, pressed in ((164, False), (176, True)):
+        a[y:y + 12, 224:268] = a[18:30, 217:261]
+        mode_key(a, 224, y, 44, 12, "PRESETS", False, pressed, layout="none")
+        face = shade(KEY, 0.7) if pressed else KEY
+        rect(a, 226, y + 2, 40, 8, face)
+        o = 1 if pressed else 0
+        text_center(a, TINY, "PRESETS", 246 + o, y + 3 + o, T.ink if pressed else T.silk)
+    # graph: LED black, a dotted grid, the curve in LED green
+    rect(a, 0, 294, 113, 19, T.term)
+    for x in range(0, 113, 12):
+        for y in range(1, 19, 2):
+            px(a, 2 + x, 294 + y, T.ink_ghost)
+    for x in range(0, 113, 2):
+        px(a, x, 294 + 9, T.ink_ghost)
+    for r in range(19):
+        px(a, 115, 294 + r, ramp([LED_AMBER, T.ink, T.ink, T.ink_dim], r / 18))
+    for x in range(113):
+        px(a, x, 314, T.ink_dim if x % 3 != 2 else T.term)
+    return a
+
+
+class neutral_bevel:
+    """Sliders' sunken seats in charcoal rather than the bezel's blue."""
+    def __enter__(self):
+        self.saved = (T.hi, T.dk)
+        T.hi, T.dk = PANEL_LIP, (26, 28, 31)
+
+    def __exit__(self, *exc):
+        T.hi, T.dk = self.saved
+
+
+def viscolor_2960():
+    # spectrum colours 2..17 run top to bottom: amber over green, like the port LEDs
+    spec = [(lerp(LED_AMBER, (255, 214, 90), 0.0 if i == 0 else 0.3) if i < 3 else
+             lerp(T.ink_hi, T.ink, (i - 3) / 4) if i < 7 else lerp(T.ink, T.ink_dim, (i - 7) / 8),
+             f"spectrum {i + 1}") for i in range(16)]
+    osc = [(lerp(T.ink_hi, T.ink_dim, i / 4), f"oscilloscope {i + 1}") for i in range(5)]
+    return [(T.term, "background"), (T.ink_ghost, "dots")] + spec + osc + [(LED_AMBER, "peaks")]
+
+
+def build_2960():
+    main = make_main_2960()
+    with neutral_bevel():
+        volume = make_volume(main)
+        balance = make_balance(main)
+    sheets = {
+        "main.bmp": main,
+        "titlebar.bmp": make_titlebar_2960(),
+        "cbuttons.bmp": make_cbuttons_2960(main),
+        "shufrep.bmp": make_shufrep_2960(main),
+        "posbar.bmp": make_posbar_2960(main),
+        "volume.bmp": volume,
+        "balance.bmp": balance,
+        "monoster.bmp": make_monoster(),
+        "playpaus.bmp": make_playpaus(),
+        "numbers.bmp": make_numbers_2960(False),
+        "nums_ex.bmp": make_numbers_2960(True),
+        "text.bmp": make_text(),
+        "pledit.bmp": make_pledit(),
+        "eqmain.bmp": make_eqmain_2960(),
+        "gen.bmp": make_gen(),
+        "genex.bmp": make_genex(),
+    }
+    return pack(sheets)
+
+
+
 SHEETS = {}
 
 
 def build():
+    if getattr(T, "style", None) == "2960":
+        return build_2960()
     main = make_main()
     sheets = {
         "main.bmp": main,
@@ -1334,6 +1927,10 @@ def build():
         "gen.bmp": make_gen(),
         "genex.bmp": make_genex(),
     }
+    return pack(sheets)
+
+
+def pack(sheets):
     for name, arr in sheets.items():
         SHEETS[name[:-4]] = save(arr, name)
     write_text_files()
@@ -1437,12 +2034,21 @@ def preview_main(lit, state):
         blit(img, nums, (99, 0, 9, 13), 36, 26)
     for d, x in ((m // 10, 48), (m % 10, 60), (s // 10, 78), (s % 10, 90)):
         blit(img, nums, (9 * d, 0, 9, 13), x, 26)
-    for x in range(0, 154, 5):
-        w = min(5, 154 - x)
-        blit(img, S["text"], (150, 0, w, 6), 111 + x, 24)
-    box = img.crop((111, 22, 265, 36))
-    ImageDraw.Draw(box).text((0, 7), state["title"], fill=T.ink, font=tt_font(11), anchor="lm")
-    img.paste(box, (111, 22))
+    if getattr(T, "style", None) == "2960":
+        # the title's text row is y 27-32 (Winamp/WACUP): blank it, then capitals stand on y 32
+        for x in range(0, 154, 5):
+            w = min(5, 154 - x)
+            blit(img, S["text"], (150, 0, w, 6), 111 + x, 27)
+        box = img.crop((111, 24, 265, 36))
+        ImageDraw.Draw(box).text((0, 8), state["title"], fill=T.ink, font=tt_font(11), anchor="ls")
+        img.paste(box, (111, 24))
+    else:
+        for x in range(0, 154, 5):
+            w = min(5, 154 - x)
+            blit(img, S["text"], (150, 0, w, 6), 111 + x, 24)
+        box = img.crop((111, 22, 265, 36))
+        ImageDraw.Draw(box).text((0, 7), state["title"], fill=T.ink, font=tt_font(11), anchor="lm")
+        img.paste(box, (111, 22))
     draw_bitmap_text(img, "192", 111, 43)
     draw_bitmap_text(img, "44", 156, 43)
     cols = [c for c, _ in viscolor()]
@@ -1525,7 +2131,7 @@ def preview_playlist(lit, w, h, rows, pressed_close=False, drag=False):
     d = ImageDraw.Draw(img)
     lx, lw = 12, w - 32
     d.rectangle((lx, 20, lx + lw - 1, h - 39), fill=T.term)
-    font = tt_font(10, mono=True)
+    font = tt_font(10, mono=getattr(T, "style", None) != "2960")
     for i, (txt, dur) in enumerate(rows):
         y = 22 + i * 13
         if y + 13 > h - 38:
@@ -1654,7 +2260,7 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     if args == ["--list"]:
         for k, v in THEMES.items():
-            print(f"{k:12s} {v.wsz}")
+            print(f"{k:14s} {v.wsz}")
         sys.exit(0)
     for theme in (args or list(THEMES)):
         use_theme(theme)
