@@ -1601,7 +1601,7 @@ def preview_eq(lit, state):
     return img
 
 
-def preview_playlist(lit, w, h, rows, pressed_close=False, drag=False):
+def preview_playlist(lit, w, h, rows, pressed_close=False, drag=False, elapsed=207):
     S = SHEETS
     sheet = S["pledit"]
     img = Image.new("RGB", (w, h))
@@ -1633,12 +1633,23 @@ def preview_playlist(lit, w, h, rows, pressed_close=False, drag=False):
             break
         if i == 2:
             d.rectangle((lx, y, lx + lw - 1, y + 14), fill=hexrgb(PLEDIT["SelectedBG"]))
-        col = hexrgb(PLEDIT["Current"]) if i == 0 else hexrgb(PLEDIT["Normal"])
-        d.text((lx + 2, y + 2), f"{i + 1}. {txt}", fill=col, font=font)
+        col = hexrgb(PLEDIT["Current"]) if i == 1 else hexrgb(PLEDIT["Normal"])
+        # a title too long for the row is cut short of the duration, as Winamp does
+        label, room = f"{i + 1}. {txt}", lw - 10 - d.textlength(dur, font=font)
+        if d.textlength(label, font=font) > room:
+            while d.textlength(label + "...", font=font) > room:
+                label = label[:-1]
+            label = label.rstrip() + "..."
+        d.text((lx + 2, y + 2), label, fill=col, font=font)
         d.text((lx + lw - 3 - d.textlength(dur, font=font), y + 2), dur, fill=col, font=font)
     blit(img, sheet, (61 if drag else 52, 53, 8, 18), w - 15, 20 + 30)
-    draw_bitmap_text(img, "3:27/41:10", w - 150 + 7, h - 38 + 10)
-    for dx, ch in zip([1, 7, 12, 20, 25], " 0327"):
+    # the footer: the selected row's length / the whole list's, and the elapsed time
+    def secs(t):
+        m, s_ = t.split(":")
+        return int(m) * 60 + int(s_)
+    total = sum(secs(dur) for _, dur in rows)
+    draw_bitmap_text(img, f"{rows[2][1]}/{total // 60}:{total % 60:02d}", w - 150 + 7, h - 38 + 10)
+    for dx, ch in zip([1, 7, 12, 20, 25], f" {elapsed // 60:02d}{elapsed % 60:02d}"):
         draw_bitmap_text(img, ch, w - 150 + 66 + dx, h - 38 + 23)
     return img
 
@@ -1718,15 +1729,21 @@ def preview_gen(lit, w, h, title, pressed_close=False):
 
 
 def preview():
-    rows = [("ARTMS - Virtual Angel", "3:21"), ("Track 02", "3:05"), ("Track 03", "2:58"),
-            ("Track 04", "3:33"), ("Track 05", "3:12"), ("Track 06", "3:40"), ("Track 07", "2:49"),
-            ("Track 08", "3:26"), ("Track 09", "3:01"), ("Track 10", "3:18"), ("Track 11", "3:55")]
+    # DALL (2024), as YouTube Music lists it (album MPREb_P32QBC3fFJK)
+    rows = [("ARTMS - url", "1:07"), ("ARTMS - Virtual Angel", "2:54"), ("ARTMS - Sparkle", "2:31"),
+            ("ARTMS - The Hitchhiker's Guide to the Galaxy", "3:32"), ("ARTMS - Flower Rhythm", "2:40"),
+            ("ARTMS - Candy Crush", "3:01"), ("ARTMS - Air", "2:28"), ("ARTMS - Unf/Air", "2:46"),
+            ("ARTMS - Distress", "2:58"), ("ARTMS - Butterfly Effect", "3:27"), ("ARTMS - Birth", "2:43")]
     bars = [12, 15, 14, 11, 13, 10, 9, 11, 8, 7, 9, 6, 5, 6, 4, 3, 4, 2, 3]
+    # the timers follow the current row (row 2): elapsed at the seek bar's 0.38, remaining at its 0.8
+    m, s_ = rows[1][1].split(":")
+    length = int(m) * 60 + int(s_)
+    played, left = round(length * 0.38), length - round(length * 0.8)
     A = dict(pressed=None, eq=True, pl=True, clutter="AV", shuffle=True, repeat=False, playing=True, stereo=True,
-             pos=0.38, seek=False, volume=72, vdrag=False, balance=0, time=207, remaining=False,
+             pos=0.38, seek=False, volume=72, vdrag=False, balance=0, time=played, remaining=False,
              title="ARTMS - VIRTUAL ANGEL  ***", bars=bars)
     B = dict(pressed="play", eq=False, pl=True, clutter="", shuffle=False, repeat=True, playing=False, stereo=False,
-             pos=0.8, seek=True, volume=25, vdrag=True, balance=-60, time=95, remaining=True,
+             pos=0.8, seek=True, volume=25, vdrag=True, balance=-60, time=left, remaining=True,
              title="DEVINE ALL LOVE & LIVE (0:58)", bars=[3, 2, 4, 1, 2, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
     EA = dict(pressed=None, on=True, auto=False, preamp=50, drag=None,
               bands=[75, 68, 56, 49, 49, 33, 30, 30, 49, 49])
@@ -1738,7 +1755,7 @@ def preview():
         col = Image.new("RGB", (275, h))
         col.paste(preview_main(lit, st), (0, 0))
         col.paste(preview_eq(lit, est), (0, 116))
-        col.paste(preview_playlist(lit, 275, 232, rows, pressed_close=not lit, drag=not lit), (0, 232))
+        col.paste(preview_playlist(lit, 275, 232, rows, pressed_close=not lit, drag=not lit, elapsed=played), (0, 232))
         col.paste(preview_gen(lit, 275, 140, "album art", pressed_close=not lit), (0, 464))
         cols.append(col)
     gap = 12

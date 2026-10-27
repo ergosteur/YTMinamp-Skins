@@ -1259,7 +1259,7 @@
  {
   "family": "Apps",
   "folder": "skins/apps/creative",
-  "title": "Creative: FL Studio, RealPlayer 10, Photoshop CS6",
+  "title": "Creative: FL Studio, RealPlayer 10, Photoshop CS6, RealOne Player",
   "previews": [
    {
     "file": "preview-fl-studio.png",
@@ -1272,6 +1272,11 @@
     "wsz": null
    },
    {
+    "file": "preview-realone.png",
+    "label": "realone",
+    "wsz": null
+   },
+   {
     "file": "preview-realplayer.png",
     "label": "realplayer",
     "wsz": null
@@ -1280,6 +1285,7 @@
   "wsz": [
    "FL-Studio.wsz",
    "Photoshop-CS6.wsz",
+   "RealOne-Player.wsz",
    "RealPlayer-10.wsz"
   ]
  },

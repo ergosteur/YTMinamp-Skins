@@ -1,13 +1,13 @@
 #!/usr/bin/python3
-"""FL Studio, RealPlayer 10 and Photoshop CS6: classic Winamp 2.x skins in the style of three
-creative / media apps, one theme per skin.
+"""FL Studio, RealPlayer 10, Photoshop CS6 and RealOne Player: classic Winamp 2.x skins in the
+style of creative / media apps, one theme per skin.
 
 One procedural generator, based on skins/ember/gen_skin.py (sheet layouts, preview renderer) by
 way of private-repo/skins/wmp (anti-aliased shape helpers, fonts). Everything is drawn here from
 code except each skin's one real logo, read from source/ with Pillow (the SVG rasterised with
-rsvg-convert). Private use only.
+rsvg-convert; RealOne's "1" is drawn). Private use only.
 
-    /usr/bin/python3 -I gen_skin.py [fl-studio|realplayer|photoshop ...]   (no argument: all)
+    /usr/bin/python3 -I gen_skin.py [fl-studio|realplayer|photoshop|realone ...]   (no argument: all)
     /usr/bin/python3 -I gen_skin.py --list
 
 Per theme: the bitmaps and text files in out/<theme>/, zipped flat into <Name>.wsz beside this
@@ -478,6 +478,30 @@ THEMES = {
         vis_dots=(46, 46, 46), vis_peak=(255, 255, 255),
         vis_osc=[(236, 236, 236), (200, 200, 200), (170, 170, 170), (140, 140, 140), (110, 110, 110)],
     ),
+    # RealOne Player (2001-2002) on Windows XP: the pale grey-green frame and menu row with the
+    # blue "1", the lime status bar (dark text), the white transport panel with round grey
+    # buttons and a long thin seek line, the bottom tab bar (Now Playing, Web, ...), and the
+    # home page's navy / purple / burgundy nav buttons and blue section headers as accents.
+    "realone": SimpleNamespace(
+        name="realone", wsz="RealOne-Player.wsz", skin="RealOne Player", era="RealOne Player (2001-2002)",
+        owner="RealNetworks", logo_note="RealOne logo",
+        frame=[(226, 232, 226), (208, 217, 209)], frame_dim=[(226, 227, 226), (212, 214, 212)],
+        body=[(250, 250, 250), (246, 247, 246)], flat=(208, 217, 209),
+        rim=(122, 130, 124), hi=(244, 248, 244), lo=(170, 178, 172),
+        panel=(250, 250, 250), panel_edge=(196, 198, 196),
+        pane=(200, 224, 96), pane_edge=(176, 194, 120), ink=(22, 30, 8), ink_dim=(176, 202, 84),
+        pane_label=(84, 128, 12), body_label=(70, 76, 72),
+        title_lit=(40, 44, 42), title_dim=(132, 138, 134), logo_blue=(24, 104, 168),
+        btn=[(255, 255, 255), (236, 238, 236), (204, 208, 204)], btn_rim=(122, 128, 124),
+        btn_down=[(196, 214, 140), (220, 234, 160), (236, 244, 196)], glyph=(56, 58, 56), glyph_down=(20, 28, 8),
+        ring=[(186, 190, 186), (150, 156, 150), (168, 172, 168)],
+        accent=(24, 104, 168), led_on=(150, 214, 24), led_off=(196, 200, 196),
+        nav={"ON": (40, 40, 104), "AUTO": (82, 24, 80), "PRESETS": (120, 56, 40)}, header=(24, 96, 168),
+        pledit=dict(Normal="#1E2430", Current="#1868A8", NormalBG="#FAFAFA", SelectedBG="#C8DCF0"),
+        vis_bars=[(26, 44, 6), (60, 96, 12), (98, 142, 26)],
+        vis_dots=(184, 208, 86), vis_peak=(40, 40, 40),
+        vis_osc=[(20, 28, 6), (40, 60, 10), (60, 92, 14), (80, 120, 20), (100, 146, 28)],
+    ),
 }
 
 
@@ -499,6 +523,10 @@ def RP():
 
 def PS():
     return T.name == "photoshop"
+
+
+def RO():
+    return T.name == "realone"
 
 
 def flat_body():
@@ -560,6 +588,8 @@ def frame_stops(lit):
 
 
 def bar_frame(w, h, lit, left_edge=False, right_edge=False):
+    if RO():
+        return ro_bar_frame(w, h, lit, left_edge, right_edge)
     a = new(w, h)
     vfill(a, 0, 0, w, h, frame_stops(lit))
     if RP():
@@ -590,6 +620,8 @@ def frame_colour_at(row, lit, h=14):
 
 def caption_button(a, x, y, kind, lit=True, pressed=False):
     """9x9 titlebar button."""
+    if RO():
+        return ro_caption_button(a, x, y, kind, lit, pressed)
     W, H = a.shape[1], a.shape[0]
     if RP():
         stops = T.btn_down if pressed else (T.btn if lit else [(200, 206, 220), (150, 160, 184), (120, 128, 150)])
@@ -630,6 +662,8 @@ def caption_button(a, x, y, kind, lit=True, pressed=False):
 
 
 def title_text(a, s, x, y, lit, centre=False, col=None):
+    if RO():
+        return draw_text(a, UI, s, x - (text_w(UI, s) // 2 if centre else 0), y, col or (T.title_lit if lit else T.title_dim))
     col = col or (T.title_lit if lit else T.title_dim)
     if centre:
         x = x - text_w(UI, s) // 2
@@ -673,6 +707,8 @@ def ps_tab(a, x, y, w, h, label, lit, active):
 
 def lcd(a, x, y, w, h):
     """A recessed display: the inside is (x, y, w, h)."""
+    if RO():
+        return ro_lcd(a, x, y, w, h)
     if RP():
         rbox(a, x - 1, y - 1, w + 2, h + 2, 3, [T.pane, T.pane], T.pane_edge)
         W, H = a.shape[1], a.shape[0]
@@ -816,6 +852,8 @@ RP_TABS = ["Now Playing", "Music & My Library", "CD", "Burn"]
 
 
 def clutter_bar(lit_letters, bg):
+    if RO():
+        return ro_clutter_bar(lit_letters, bg)
     a = new(8, 43, bg)
     if FL():
         rect(a, 0, 0, 8, 43, (28, 33, 36))
@@ -847,6 +885,8 @@ def clutter_bar(lit_letters, bg):
 
 
 def main_titlebar(lit):
+    if RO():
+        return ro_main_titlebar(lit)
     a = bar_frame(275, 14, lit, left_edge=True, right_edge=True)
     if FL():
         # FL's main menu, in its small capitals
@@ -891,6 +931,8 @@ def main_titlebar(lit):
 
 
 def bar_cell_pressed(kind, src):
+    if RO():
+        return ro_main_titlebar(True, pressed=kind)[3:12, src:src + 9].copy()
     cell = bar_frame(275, 14, True, left_edge=True, right_edge=True)[3:12, src:src + 9].copy()
     caption_button(cell, 0, 0, kind, True, pressed=True)
     return cell
@@ -951,6 +993,8 @@ def swoosh(a, cx, cy, rx, ry, width, alpha, y0=14):
 
 
 def main_bg():
+    if RO():
+        return ro_main_bg()
     a = new(275, 116)
     vfill(a, 0, 14, 275, 102, T.body)
     if RP():
@@ -988,6 +1032,8 @@ def centres():
 
 
 def transport(a, pressed=None):
+    if RO():
+        return ro_transport(a, pressed)
     W, H = a.shape[1], a.shape[0]
     C = centres()
     for k, (cx, cy) in C.items():
@@ -1039,6 +1085,8 @@ def fl_steps(a):
 
 
 def make_main():
+    if RO():
+        return ro_make_main()
     a = main_bg()
     bg = a[30, 9]
     a[22:65, 10:18] = clutter_bar("", bg)
@@ -1096,6 +1144,8 @@ PS_LABELS = {"SHUFFLE": "Shuffle", "REPEAT": "Loop", "EQ": "EQ", "PL": "PL", "ON
 
 def toggle_cell(bg, w, h, label, on, pressed, ends="both", led=True):
     """A toggle or push button cell drawn on bg (ends: which ends are rounded, for joined pairs)."""
+    if RO():
+        return ro_toggle_cell(bg, w, h, label, on, pressed, ends, led)
     a = bg.copy()
     if PS():
         if label in PS_LABELS and led:
@@ -1240,6 +1290,8 @@ def make_text():
 
 def seek_rail(seat):
     """248 x 10: the seek bar's rail."""
+    if RO():
+        return ro_seek_rail(seat)
     t = seat.copy()
     W, H = t.shape[1], t.shape[0]
     if FL():
@@ -1285,6 +1337,8 @@ def make_posbar(main):
             tri(t, [(8.5, 0.5), (20.5, 0.5), (14.5, 7.5)], (30, 20, 10), 0.6)
             tri(t, [(9, 0), (20, 0), (14.5, 6.5)], col)
             rect(t, 14, 6, 1, 4, col)
+        elif RO():
+            ro_seek_thumb(t, sel)
         elif RP():
             st = [lerp(c, (140, 210, 255), 0.4) for c in T.silver] if sel else T.silver
             rbox(t, 6, 1, 17, 8, 3.99, st, T.silver_rim)
@@ -1298,6 +1352,8 @@ def make_posbar(main):
 
 def volume_frame(seat, level):
     """68 x 13."""
+    if RO():
+        return ro_volume_frame(seat, level)
     t = seat.copy()
     W, H = t.shape[1], t.shape[0]
     if FL():
@@ -1330,6 +1386,8 @@ def volume_frame(seat, level):
 
 def balance_frame(seat, reach):
     """38 x 13."""
+    if RO():
+        return ro_balance_frame(seat, reach)
     t = seat.copy()
     W, H = t.shape[1], t.shape[0]
     if FL():
@@ -1359,6 +1417,8 @@ def balance_frame(seat, reach):
 
 
 def slider_thumbs(a, seat):
+    if RO():
+        return ro_slider_thumbs(a, seat)
     for x, sel in ((0, True), (15, False)):
         t = seat[1:12, 20:34].copy()
         W, H = 14, 11
@@ -1403,6 +1463,8 @@ def make_balance(main):
         a[y:y + 13, 47:68] = seat[:, -1:]
         a[y + 13:y + 15, :] = seat[-1, 0]
     slider_thumbs(a, main_bg()[57:72, 107:175])
+    if RO():
+        ro_slider_thumbs(a, main_bg()[57:72, 107:175], fill_left=False)
     if PS():
         # the balance thumb sits on the colour line, not the blue-filled opacity line
         for x, sel in ((0, True), (15, False)):
@@ -1423,6 +1485,8 @@ SLIDER_X = [21] + [78 + 18 * i for i in range(10)]
 
 
 def eq_titlebar(lit):
+    if RO():
+        return ro_eq_titlebar(lit)
     a = bar_frame(275, 14, lit, left_edge=True, right_edge=True)
     if FL():
         title_text(a, "Mixer - Master", 8, 3, lit)
@@ -1450,6 +1514,8 @@ def eq_titlebar(lit):
 
 
 def eq_frame_bg():
+    if RO():
+        return ro_eq_frame_bg()
     a = new(275, 116)
     vfill(a, 0, 14, 275, 102, T.body)
     window_rims(a)
@@ -1489,6 +1555,8 @@ def eq_frame_bg():
 
 def eq_slider_frame(bg, n):
     """14x63 for value n of 0..27."""
+    if RO():
+        return ro_eq_slider_frame(bg, n)
     a = bg.copy()
     W, H = a.shape[1], a.shape[0]
     v = n / 27
@@ -1524,6 +1592,8 @@ def eq_slider_frame(bg, n):
 
 def eq_thumb(bg, pressed):
     """11x11, drawn at the slider's x + 1."""
+    if RO():
+        return ro_eq_thumb(bg, pressed)
     a = bg.copy()
     W, H = 11, 11
     if FL():
@@ -1564,6 +1634,10 @@ def make_eqmain():
         draw_text(a, TINY, "PAN", 53, 59, T.body_label)
         fl_knob(a, 58.5, 80, 13, 0.78)
         draw_text(a, TINY, "VOL", 53, 89, T.body_label)
+    elif RO():
+        lcd(a, 86, 17, 113, 19)
+        for lbl, yy in (("+12", 41), ("0", 66), ("-12", 92)):
+            text_center(a, TINY, lbl, 58, yy, (120, 126, 122))
     elif RP():
         lcd(a, 86, 17, 113, 19)
         for lbl, yy in (("+12DB", 41), ("+0DB", 66), ("-12DB", 92)):
@@ -1577,6 +1651,8 @@ def make_eqmain():
         a[38:101, x:x + 14] = eq_slider_frame(a[38:101, x:x + 14], 14)
     lab_y = 104
     labcol = (210, 216, 218) if FL() else T.pane_label
+    if RO():
+        labcol = WHITE   # on the blue section header
     text_center(a, TINY, "PRE", 28, lab_y, labcol)
     for i, lbl in enumerate(EQ_BANDS):
         text_center(a, TINY, lbl, 78 + 18 * i + 7, lab_y, labcol)
@@ -1616,7 +1692,8 @@ def make_eqmain():
         for x in range(0, 113, 2):
             px(a, x, 294 + 9, lerp(T.pane, T.pane_label, 0.4))
     curve = {"fl-studio": [(255, 200, 120), T.accent, (220, 110, 40)],
-             "realplayer": T.vis_bars[:3], "photoshop": [(240, 240, 240), (220, 220, 220), (200, 200, 200)]}[T.name]
+             "realplayer": T.vis_bars[:3], "photoshop": [(240, 240, 240), (220, 220, 220), (200, 200, 200)],
+             "realone": T.vis_bars}[T.name]
     for r in range(19):
         px(a, 115, 294 + r, ramp(curve, r / 18))
     for x in range(113):
@@ -1637,6 +1714,8 @@ def eq_close_pressed():
 
 
 def bar20(w, lit, left_edge=False, right_edge=False):
+    if RO():
+        return ro_bar20(w, lit, left_edge, right_edge)
     a = bar_frame(w, 20, lit, left_edge, right_edge)
     if PS():
         rect(a, 0 if not left_edge else 1, 1, w - (1 if left_edge else 0) - (1 if right_edge else 0), 19,
@@ -1652,6 +1731,8 @@ def bar20(w, lit, left_edge=False, right_edge=False):
 
 
 def side_tile(w, h, left):
+    if RO():
+        return ro_side_tile(w, h, left)
     t = new(w, h, flat_body())
     if RP():
         vfill(t, 0, 0, w, h, [T.flat, T.flat])
@@ -1667,10 +1748,13 @@ def side_tile(w, h, left):
 
 
 def scroll_groove_col():
-    return {"fl-studio": (30, 35, 38), "realplayer": (4, 12, 40), "photoshop": (66, 66, 66)}[T.name]
+    return {"fl-studio": (30, 35, 38), "realplayer": (4, 12, 40), "photoshop": (66, 66, 66),
+            "realone": (234, 238, 234)}[T.name]
 
 
 def scroll_handle(pressed):
+    if RO():
+        return ro_scroll_handle(pressed)
     t = new(8, 18, scroll_groove_col())
     if FL():
         rbox(t, 0, 0, 8, 18, 1.5, [(150, 158, 162), (100, 108, 112)] if not pressed else [(200, 206, 210), (150, 156, 160)],
@@ -1709,6 +1793,8 @@ def mini_transport_icon(a, kind, x, y, col):
 
 
 def title_piece_pl(lit):
+    if RO():
+        return ro_title_piece_pl(lit)
     t = bar20(100, lit)
     if FL():
         title_text(t, "Playlist - Song", 50, 6, lit, centre=True)
@@ -1745,6 +1831,8 @@ def fl_clips(t, x0, y0, w, clips):
 
 
 def make_pledit():
+    if RO():
+        return ro_make_pledit()
     a = new(280, 186, flat_body())
     for lit, y in ((True, 0), (False, 21)):
         a[y:y + 20, 127:152] = bar20(25, lit)
@@ -1870,6 +1958,8 @@ GEN_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 def gen_bottom(w, grip, left_edge):
+    if RO():
+        return ro_gen_bottom(w, grip, left_edge)
     t = new(w, 14, flat_body())
     if RP():
         vfill(t, 0, 0, w, 14, [(14, 28, 72), (6, 12, 36)])
@@ -1897,6 +1987,8 @@ def gen_bottom(w, grip, left_edge):
 
 def gen_title_pieces(lit):
     """left_end, centre, right_end: the box the gen window's title letters sit in."""
+    if RO():
+        return ro_gen_title_pieces(lit)
     l, c, r = bar20(25, lit), bar20(25, lit), bar20(25, lit)
     if RP():
         big = bar20(75, lit)
@@ -1956,6 +2048,8 @@ def make_gen():
             col = T.title_lit if lit else T.title_dim
         elif RP():
             col = WHITE if lit else (236, 238, 244)
+        elif RO():
+            col = T.logo_blue if lit else T.title_dim
         else:
             col = (230, 230, 230) if lit else (176, 176, 176)
         x = 1
@@ -1984,7 +2078,8 @@ def genex_colours():
     hdr_txt = T.title_lit if not RP() else (220, 234, 255)
     btn_txt = T.glyph
     groove = scroll_groove_col()
-    thumb = {"fl-studio": (150, 158, 162), "realplayer": (190, 202, 222), "photoshop": (130, 130, 130)}[T.name]
+    thumb = {"fl-studio": (150, 158, 162), "realplayer": (190, 202, 222), "photoshop": (130, 130, 130),
+             "realone": (196, 200, 196)}[T.name]
     # itemBG, itemFG, wndBG, buttonFG, wndFG, hilite, selColor, hdrBG, hdrFG, hdrTop, hdrMid, hdrBot,
     # hdrEmpty, sbFG, sbBG, sbInvFG, sbInvBG, sbDead (genex_wacup.py derives the other six)
     return [item_bg, item_fg, win, btn_txt, win_txt, T.accent, sel, hdr, hdr_txt,
@@ -2019,6 +2114,15 @@ def write_text_files():
     with open(os.path.join(OUT, "pledit.txt"), "w", newline="\r\n") as f:
         f.write(f"[Text]\nNormal={p['Normal']}\nCurrent={p['Current']}\nNormalBG={p['NormalBG']}\n"
                 f"SelectedBG={p['SelectedBG']}\nMbBG={p['NormalBG']}\nMbFG={p['Normal']}\nFont=Tahoma\n")
+    if RO():
+        with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n", encoding="ascii") as f:
+            f.write(
+                f"{T.skin} - a skin in the style of {T.era}.\n"
+                f"RealOne logo (c) {T.owner}.\n\n"
+                "A classic (Winamp 2.x format) skin. Every bitmap was drawn by a script (gen_skin.py) from\n"
+                "gradients, shapes and hand-made pixel fonts, the RealOne \"1\" included.\n"
+            )
+        return
     with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n", encoding="utf-8") as f:
         f.write(
             f"{T.skin} — a skin in the style of {T.era}.\n"
@@ -2026,6 +2130,568 @@ def write_text_files():
             "A classic (Winamp 2.x format) skin. Every bitmap was drawn by a script (gen_skin.py) from\n"
             f"gradients, shapes and hand-made pixel fonts, apart from the {T.logo_note} in the About spot.\n"
         )
+
+# ------------------------------------------------------------------------------------------
+# RealOne Player (theme "realone"): its own pieces; the shared functions hand over to these
+# ------------------------------------------------------------------------------------------
+
+RO_MENUS = ["File", "View", "Play", "Tools", "Help"]
+RO_UI = dict(UI, V=["#...#", "#...#", "#...#", ".#.#.", ".#.#.", ".#.#.", "..#..", ".....", "....."])
+RO_SILVER = [(255, 255, 255), (232, 234, 232), (188, 192, 188)]
+RO_LIME_FILL = [(196, 232, 80), (140, 196, 24)]
+RO_TRACK = (216, 220, 216)
+RO_TRACK_EDGE = (150, 156, 150)
+RO_TAB_BORDER = (160, 166, 160)
+
+
+def ro_logo(a, cx, cy, d, pressed=False, dim=False):
+    """RealOne's blue "1": a blue ring around a white disc holding a blue figure one."""
+    W, H = a.shape[1], a.shape[0]
+    ring = [(150, 214, 250), (70, 150, 236), (30, 96, 200)]
+    rim = (20, 70, 150)
+    if dim:
+        ring = [lerp(c, (176, 182, 190), 0.55) for c in ring]
+        rim = lerp(rim, (150, 156, 166), 0.55)
+    sphere(a, cx, cy, d, ring, rim, gloss=0.0)
+    di = d * 0.68
+    paint(a, 0, 0, ellipse_mask(W, H, cx - di / 2, cy - di / 2, di, di), (206, 224, 244) if pressed else WHITE)
+    # the figure one in whole pixels: a two-pixel stem and its flag (5 rows; scaled for big logos)
+    k = max(1, int(d // 11))
+    ink = rim if not pressed else lerp(rim, BLACK, 0.3)
+    x0, y0 = int(round(cx - 1 * k)), int(round(cy - 2.5 * k))
+    for r, row in enumerate([".##", "###", ".##", ".##", ".##"]):
+        for c, ch in enumerate(row):
+            if ch == "#":
+                rect(a, x0 + (c - 1) * k, y0 + r * k, k, k, ink)
+
+
+def ro_bar_frame(w, h, lit, left_edge=False, right_edge=False):
+    a = new(w, h)
+    vfill(a, 0, 0, w, h, frame_stops(lit))
+    rect(a, 0, 0, w, 1, T.rim)
+    rect(a, 0, 1, w, 1, T.hi)
+    if left_edge:
+        rect(a, 0, 0, 1, h, T.rim)
+        rect(a, 1, 1, 1, h - 1, T.hi)
+    if right_edge:
+        rect(a, w - 1, 0, 1, h, T.rim)
+        rect(a, w - 2, 1, 1, h - 1, T.lo)
+    return a
+
+
+def ro_caption_button(a, x, y, kind, lit=True, pressed=False):
+    """Windows XP-era plain glyphs, as RealOne drew them on its menu row."""
+    W, H = a.shape[1], a.shape[0]
+    if kind == "options":
+        ro_logo(a, x + 4.5, y + 4.5, 11, pressed, dim=not lit)
+        return
+    if pressed:
+        rbox(a, x, y, 9, 9, 2, [(180, 188, 182), (200, 208, 202)], (128, 136, 130))
+    ink = (70, 74, 72) if lit or pressed else (150, 156, 152)
+    X, Y = x, y
+    if kind == "minimize":
+        rect(a, X + 2, Y + 6, 5, 2, ink)
+    elif kind == "shade":
+        rect(a, X + 2, Y + 2, 5, 2, ink)
+        rect(a, X + 2, Y + 2, 1, 5, ink)
+        rect(a, X + 6, Y + 2, 1, 5, ink)
+        rect(a, X + 2, Y + 6, 5, 1, ink)
+    elif kind == "close":
+        paint(a, 0, 0, line_mask(W, H, [(X + 2.2, Y + 2.2), (X + 6.8, Y + 6.8)], 1.6), ink)
+        paint(a, 0, 0, line_mask(W, H, [(X + 6.8, Y + 2.2), (X + 2.2, Y + 6.8)], 1.6), ink)
+
+
+def ro_main_titlebar(lit, pressed=None):
+    """RealOne's menu row: the "1" (the options button), RealOne Player, the menus, the captions."""
+    a = ro_bar_frame(275, 14, lit, left_edge=True, right_edge=True)
+    W, H = 275, 14
+    # the menus sit on a lighter shelf that rises from the name's darker tab in a curve
+    curve = [(86 + 26 * t, 14.5 - 12.2 * (3 * t * t - 2 * t * t * t)) for t in np.linspace(0, 1, 24)]
+    shelf = poly_mask(W, H, curve + [(273, 2.3), (273, 14.5)])
+    shelf[:2] = 0
+    paint(a, 0, 0, shelf, (236, 238, 236) if lit else (232, 233, 232), 0.85)
+    paint(a, 0, 0, line_mask(W, H, curve + [(122, 2.3)], 1.0), (176, 186, 178) if lit else (196, 198, 196), 0.7)
+    ro_caption_button(a, 6, 3, "options", lit, pressed == "options")
+    blue = T.logo_blue if lit else T.title_dim
+    x = draw_text(a, RO_UI, "RealOne", 19, 3, blue) + 4
+    draw_text(a, RO_UI, "Player", x, 3, (104, 112, 108) if lit else T.title_dim)
+    ink = T.title_lit if lit else T.title_dim
+    widths = [text_w(RO_UI, m) for m in RO_MENUS]
+    x = 238 - sum(widths) - 7 * (len(RO_MENUS) - 1)
+    assert x > 125, x
+    for m, w in zip(RO_MENUS, widths):
+        draw_text(a, RO_UI, m, x, 3, ink)
+        rect(a, x, 11, glyph_w(RO_UI, m[0]), 1, ink)   # the menu's access key, underlined
+        x += w + 7
+    for kind, cx in (("minimize", 244), ("shade", 254), ("close", 264)):
+        ro_caption_button(a, cx, 3, kind, lit, pressed == kind)
+    return a
+
+
+def ro_lcd(a, x, y, w, h):
+    """A piece of the lime status bar: the inside (x, y, w, h) is the plain lime."""
+    rbox(a, x - 1, y - 1, w + 2, h + 2, 2, [T.pane, T.pane], T.pane_edge)
+
+
+def ro_tab(a, x, y, w, lit=True):
+    """The raised tab of RealOne's bottom bar ("Web"), open at the bottom into the white below."""
+    rbox(a, x, y, w, a.shape[0] - y + 4, 3, [T.panel, T.panel], RO_TAB_BORDER if lit else (186, 190, 186))
+    rect(a, x + 2, y + 1, w - 4, 1, WHITE)
+
+
+RO_LIT = [(240, 250, 200), (208, 236, 120), (172, 214, 64)]
+
+
+def ro_pill(a, x, y, w, h, pressed, r=None, on=False):
+    """A grey capsule button; on, it lights lime like the status bar."""
+    W, H = a.shape[1], a.shape[0]
+    st = (RO_LIT if on else T.btn) if not pressed else ([lerp(c, BLACK, 0.18) for c in RO_LIT[::-1]] if on else
+                                                        [lerp(c, BLACK, 0.12) for c in T.btn[::-1]])
+    rbox(a, x, y, w, h, (h / 2 - 0.01) if r is None else r, st, T.btn_rim)
+    if not pressed:
+        paint(a, 0, 0, rr_mask(W, H, max(0.5, h / 2 - 2), x + 2, y + 1, w - 4, h * 0.35), WHITE, 0.6)
+
+
+def ro_round(a, cx, cy, d, pressed):
+    """RealOne's round transport button: a grey ring around a pale face (lime-tinted when pressed)."""
+    sphere(a, cx, cy, d, T.ring, T.btn_rim, gloss=0.0)
+    sphere(a, cx, cy, d - 4, T.btn_down if pressed else T.btn, lerp(T.ring[1], BLACK, 0.15),
+           gloss=0.0 if pressed else 0.45)
+
+
+def ro_clutter_bar(lit_letters, bg):
+    a = new(8, 43, bg)
+    rbox(a, 0, 0, 8, 43, 3, [(238, 240, 238), (222, 226, 222)], (180, 186, 180))
+    for letter, y, h in CLUTTER_SLOTS:
+        on = letter in lit_letters
+        rbox(a, 1, y, 6, h, 2, RO_LIME_FILL if on else RO_SILVER, (120, 140, 70) if on else (150, 156, 150))
+        draw_text(a, TINY, letter, 2, y + (h - 5) // 2, T.ink if on else (80, 86, 82))
+    return a
+
+
+def ro_globe(a, x, y, w, h):
+    """The status bar's Web button: a globe with a play badge on a pale yellow key."""
+    W, H = a.shape[1], a.shape[0]
+    rbox(a, x + 1, y + 1, w - 2, h - 2, 4, [(254, 254, 226), (244, 244, 176)], (176, 182, 150))
+    cx, cy, d = x + w / 2 + 0.5, y + h / 2, 17
+    sphere(a, cx, cy, d, [(176, 224, 255), (70, 150, 236), (20, 76, 186)], (24, 60, 140), gloss=0.0)
+    disc = ellipse_mask(W, H, cx - d / 2 + 1, cy - d / 2 + 1, d - 2, d - 2)
+    for ex, ey, ew, eh in ((-1, -8, 9, 9), (3, 1, 5, 5)):
+        paint(a, 0, 0, ellipse_mask(W, H, cx + ex, cy + ey, ew, eh) * disc, (236, 206, 92), 0.9)
+    paint(a, 0, 0, ellipse_mask(W, H, cx - d * 0.3, cy - d / 2 + 1.5, d * 0.5, d * 0.32), WHITE, 0.5)
+    bx, by = x + 7.5, y + h - 7.5
+    paint(a, 0, 0, ellipse_mask(W, H, bx - 4, by - 4, 8, 8), (40, 40, 40))
+    paint(a, 0, 0, ellipse_mask(W, H, bx - 3, by - 3, 6, 6), WHITE)
+    tri(a, [(bx - 1.2, by - 2), (bx + 2, by), (bx - 1.2, by + 2)], (30, 30, 30))
+
+
+def ro_main_bg():
+    a = new(275, 116, T.flat)
+    rbox(a, 4, 15, 267, 97, 3, [T.panel, T.panel], T.panel_edge)
+    # the soft capsule the round buttons sit in
+    rbox(a, 13, 86, 148, 22, 11, [(242, 244, 242), (232, 235, 232)], (214, 218, 214))
+    a[0:14] = ro_main_titlebar(True)
+    window_rims(a)
+    return a
+
+
+def ro_status(a):
+    """The lime status bar, an L: the time and visualiser on the left, title and readouts across."""
+    W, H = a.shape[1], a.shape[0]
+    outer = np.maximum(rr_mask(W, H, 4, 19, 18, 249, 39), rr_mask(W, H, 4, 19, 18, 88, 45))
+    inner = np.maximum(rr_mask(W, H, 3, 20, 19, 247, 37), rr_mask(W, H, 3, 20, 19, 86, 43))
+    paint(a, 0, 0, outer, T.pane_edge)
+    paint(a, 0, 0, inner, T.pane)
+
+
+def ro_make_main():
+    a = ro_main_bg()
+    ro_status(a)
+    a[22:65, 10:18] = ro_clutter_bar("", a[30, 9])
+    for yy in (29, 34):
+        rect(a, 73, yy, 2, 2, T.ink)
+    rect(a, 106, 21, 1, 33, lerp(T.pane, T.pane_edge, 0.8))
+    draw_text(a, TINY, "KBPS", 129, 44, T.pane_label)
+    draw_text(a, TINY, "KHZ", 169, 44, T.pane_label)
+    a[57:70, 107:175] = volume_frame(a[57:70, 107:175], 0)
+    a[57:70, 177:215] = balance_frame(a[57:70, 177:215], 0)
+    a[72:82, 16:264] = seek_rail(a[72:82, 16:264])
+    transport(a)
+    for name, x0, w in (("eq", 219, 23), ("pl", 242, 23)):
+        a[58:70, x0:x0 + w] = toggle_cell(a[58:70, x0:x0 + w], w, 12, name.upper(), False, False)
+    a[89:104, 164:211] = toggle_cell(a[89:104, 164:211], 47, 15, "SHUFFLE", False, False, ends="left")
+    a[89:104, 210:238] = toggle_cell(a[89:104, 210:238], 28, 15, "REPEAT", False, False, ends="right")
+    ro_globe(a, *ABOUT)
+    return a
+
+
+def ro_transport(a, pressed=None):
+    W, H = a.shape[1], a.shape[0]
+    for k, (cx, cy) in centres().items():
+        p = k == pressed
+        if k == "play":
+            # the big play button and the little tail RealOne's play button grows to the right
+            rbox(a, cx, cy - 5, 11, 10, 5, T.ring[1:], T.btn_rim)
+            ro_round(a, cx, cy, 18, p)
+            glyph(a, k, cx + 0.8 + (0.5 if p else 0), cy + (0.5 if p else 0), T.glyph_down if p else (44, 46, 44), 0.8)
+        else:
+            ro_round(a, cx, cy, 15, p)
+            glyph(a, k, cx + (0.5 if p else 0), cy + (0.5 if p else 0), T.glyph_down if p else T.glyph, 0.55)
+
+
+def ro_toggle_cell(bg, w, h, label, on, pressed, ends="both", led=True):
+    if label in T.nav:
+        return ro_nav_button(bg, w, h, label, on, pressed)
+    if label in RO_TAB_ICONS:
+        return ro_tab_button(bg, w, h, label)
+    a = bg.copy()
+    ext = 8
+    if ends == "left":
+        big = np.zeros((h, w + ext, 3), np.int32)
+        big[:, :w] = a
+        ox = 0
+    elif ends == "right":
+        big = np.zeros((h, w + ext, 3), np.int32)
+        big[:, ext:] = a
+        ox = ext
+    else:
+        big, ox = a.copy(), 0
+    ro_pill(big, 0, 0, big.shape[1], h - 1, pressed, r=None if label else 3, on=on)
+    a = big[:, ox:ox + w].copy()
+    if ends == "left":
+        rect(a, w - 1, 1, 1, h - 3, T.btn_rim)
+    elif ends == "right":
+        rect(a, 0, 1, 1, h - 3, T.btn_rim)
+    if not label:
+        return a
+    o = 1 if pressed else 0
+    tw = text_w(TINY, label)
+    lx = (w - tw) // 2 + (1 if ends == "left" else (-1 if ends == "right" else 0))
+    ty = (h - 1 - 5) // 2
+    draw_text(a, TINY, label, lx + o, ty + o, T.ink if on else (40, 44, 42))
+    return a
+
+
+def ro_nav_button(bg, w, h, label, on, pressed):
+    """The RealOne home page's nav buttons (SPORTS, NEWS ...): a dark colour, white caps, white arrow."""
+    a = bg.copy()
+    base = T.nav[label]
+    st = [lerp(base, WHITE, 0.2), base, lerp(base, BLACK, 0.12)]
+    if pressed:
+        st = [lerp(base, BLACK, 0.3), lerp(base, BLACK, 0.1)]
+    rbox(a, 0, 0, w, h, 1.5, st, lerp(base, BLACK, 0.5))
+    o = 1 if pressed else 0
+    cy = h / 2
+    tri(a, [(w - 7 + o, cy - 3 + o), (w - 3.5 + o, cy + o), (w - 7 + o, cy + 3 + o)], WHITE)
+    tw = text_w(TINY, label)
+    if label == "PRESETS":
+        draw_text(a, TINY, label, (w - 7 - tw) // 2 + o, (h - 5) // 2 + o, WHITE)
+    else:
+        rect(a, 3 + o, (h - 3) // 2 + o, 3, 3, T.led_on if on else lerp(base, WHITE, 0.3))
+        draw_text(a, TINY, label, 3 + 3 + (w - 13 - tw) // 2 + o, (h - 5) // 2 + o, WHITE)
+    return a
+
+
+RO_TAB_ICONS = {"ADD": (52, 150, 52), "REM": (206, 72, 40), "SEL": (24, 104, 168), "MISC": (226, 146, 20),
+                "LIST": (96, 112, 140)}
+
+
+def ro_tab_button(bg, w, h, label):
+    """An item of RealOne's bottom tab bar: a small coloured icon over its name."""
+    a = bg.copy()
+    col = RO_TAB_ICONS[label]
+    cx, y = w // 2, 2
+    dark = lerp(col, BLACK, 0.35)
+    if label == "ADD":
+        rect(a, cx - 3, y + 2, 7, 3, col)
+        rect(a, cx - 1, y, 3, 7, col)
+        rect(a, cx - 3, y + 4, 7, 1, dark)
+    elif label == "REM":
+        rect(a, cx - 3, y + 2, 7, 3, col)
+        rect(a, cx - 3, y + 4, 7, 1, dark)
+    elif label == "SEL":
+        for dx, dy in ((-3, 3), (-2, 4), (-1, 5), (0, 4), (1, 3), (2, 2), (3, 1)):
+            rect(a, cx + dx, y + dy, 1, 2, col)
+    elif label == "MISC":
+        for dx in (-3, 0, 3):
+            rect(a, cx + dx - 1, y + 2, 2, 2, col)
+            rect(a, cx + dx - 1, y + 3, 2, 1, dark)
+    else:
+        rect(a, cx - 3, y, 7, 7, dark)
+        rect(a, cx - 2, y + 1, 5, 5, WHITE)
+        for r in (2, 4):
+            rect(a, cx - 1, y + r, 3, 1, col)
+    text_center(a, TINY, label, (w + 1) // 2, 11, (52, 56, 54))
+    return a
+
+
+def ro_seek_rail(seat):
+    t = seat.copy()
+    rect(t, 3, 4, 242, 1, (56, 56, 56))
+    rect(t, 3, 5, 242, 1, (128, 128, 128))
+    rect(t, 2, 5, 1, 1, (150, 150, 150))
+    rect(t, 245, 4, 1, 2, (150, 150, 150))
+    return t
+
+
+def ro_seek_thumb(t, sel):
+    sphere(t, 14.5, 5, 10, T.btn_down[::-1] if sel else RO_SILVER, T.btn_rim, gloss=0.5)
+
+
+def ro_wedge(t, level, x0=3, x1=65):
+    """The volume slider's wedge (thin at the left, taller at the right), lime up to the level."""
+    W, H = t.shape[1], t.shape[0]
+    pts = [(x0, 10.5), (x1, 10.5), (x1, 3.5), (x0, 8.5)]
+    paint(t, 0, 0, poly_mask(W, H, pts), RO_TRACK_EDGE)
+    inner = poly_mask(W, H, [(x0 + 1, 9.5), (x1 - 1, 9.5), (x1 - 1, 4.6), (x0 + 1, 8.0)])
+    paint(t, 0, 0, inner, RO_TRACK)
+    if level > 0:
+        m = inner.copy()
+        m[:, int(round(x0 + 1 + level * (x1 - x0 - 2))):] = 0
+        paint(t, 0, 0, m, gcanvas(H, W, 4, 6, RO_LIME_FILL))
+
+
+def ro_volume_frame(seat, level):
+    t = seat.copy()
+    ro_wedge(t, level)
+    return t
+
+
+def ro_track_h(t, x, w, fill_from=None, fill_to=None):
+    """A flat 4-row horizontal track (rows 6-9), optionally lime between two x."""
+    rect(t, x, 6, w, 4, RO_TRACK_EDGE)
+    rect(t, x, 7, w, 2, RO_TRACK)
+    if fill_from is not None and fill_to > fill_from:
+        rect(t, fill_from, 7, fill_to - fill_from, 2, RO_LIME_FILL[1])
+        rect(t, fill_from, 7, fill_to - fill_from, 1, RO_LIME_FILL[0])
+
+
+def ro_balance_frame(seat, reach):
+    t = seat.copy()
+    ro_track_h(t, 3, 32)
+    rect(t, 2, 7, 1, 2, RO_TRACK_EDGE)
+    rect(t, 35, 7, 1, 2, RO_TRACK_EDGE)
+    if reach > 0:
+        half = round(1 + reach * 15)
+        ro_track_h(t, 3, 32, 19 - half, 19 + half)
+        rect(t, 3, 6, 32, 1, RO_TRACK_EDGE)
+        rect(t, 3, 9, 32, 1, RO_TRACK_EDGE)
+    rect(t, 18, 3, 1, 2, (150, 156, 150))
+    return t
+
+
+def ro_slider_thumbs(a, seat, fill_left=True):
+    """14 x 11 cells: the wedge's middle (lime on the left, grey on the right) under a silver knob."""
+    for x, sel in ((0, True), (15, False)):
+        t = seat[1:12, 20:34].copy()
+        rect(t, 0, 5, 14, 1, RO_TRACK_EDGE)
+        rect(t, 0, 9, 14, 1, RO_TRACK_EDGE)
+        rect(t, 0, 6, 14, 3, RO_TRACK)
+        if fill_left:
+            rect(t, 0, 6, 7, 3, RO_LIME_FILL[1])
+            rect(t, 0, 6, 7, 1, RO_LIME_FILL[0])
+        sphere(t, 7, 5.5, 11, T.btn_down[::-1] if sel else RO_SILVER, T.btn_rim, gloss=0.55)
+        a[422:433, x:x + 14] = t
+
+
+def ro_eq_tab():
+    tw = text_w(RO_UI, "Equalizer") + 14
+    return 6, tw
+
+
+def ro_eq_titlebar(lit):
+    a = ro_bar_frame(275, 14, lit, left_edge=True, right_edge=True)
+    x, w = ro_eq_tab()
+    ro_tab(a, x, 2, w, lit)
+    draw_text(a, RO_UI, "Equalizer", x + 7, 4, T.logo_blue if lit else T.title_dim)
+    ro_caption_button(a, 264, 3, "close", lit)
+    return a
+
+
+def ro_eq_frame_bg():
+    a = new(275, 116, T.flat)
+    rbox(a, 4, 13, 267, 99, 3, [T.panel, T.panel], T.panel_edge)
+    x, w = ro_eq_tab()
+    rect(a, x + 1, 13, w - 2, 2, T.panel)
+    window_rims(a)
+    rect(a, 1, 14, 1, 1, T.hi)
+    # a blue section header (the home page's "LISTEN TO REALONE RADIO") under the sliders
+    rect(a, 15, 102, 246, 9, T.header)
+    rect(a, 15, 102, 246, 1, lerp(T.header, WHITE, 0.3))
+    return a
+
+
+def ro_eq_slider_frame(bg, n):
+    a = bg.copy()
+    top = round((1 - n / 27) * 51) + 5
+    rect(a, 5, 2, 4, 59, RO_TRACK_EDGE)
+    rect(a, 6, 3, 2, 57, RO_TRACK)
+    if top < 60:
+        rect(a, 6, top, 2, 60 - top, RO_LIME_FILL[1])
+        rect(a, 6, top, 1, 60 - top, RO_LIME_FILL[0])
+    for yy in (8, 31, 54):
+        rect(a, 1, yy, 2, 1, (176, 180, 176))
+        rect(a, 11, yy, 2, 1, (176, 180, 176))
+    return a
+
+
+def ro_eq_thumb(bg, pressed):
+    a = bg.copy()
+    rect(a, 4, 0, 4, 11, RO_TRACK_EDGE)
+    rect(a, 5, 0, 2, 11, RO_TRACK)
+    rect(a, 5, 6, 2, 5, RO_LIME_FILL[1])
+    rect(a, 5, 6, 1, 5, RO_LIME_FILL[0])
+    sphere(a, 5.5, 5.5, 10, T.btn_down[::-1] if pressed else RO_SILVER, T.btn_rim, gloss=0.55)
+    return a
+
+
+def ro_bar20(w, lit, left_edge=False, right_edge=False):
+    return ro_bar_frame(w, 20, lit, left_edge, right_edge)
+
+
+def ro_side_tile(w, h, left):
+    t = new(w, h, T.flat)
+    if left:
+        rect(t, 0, 0, 1, h, T.rim)
+        rect(t, 1, 0, 1, h, T.hi)
+        rect(t, w - 1, 0, 1, h, T.panel_edge)
+    else:
+        rect(t, w - 1, 0, 1, h, T.rim)
+        rect(t, w - 2, 0, 1, h, T.lo)
+        rect(t, 0, 0, 1, h, T.panel_edge)
+    return t
+
+
+def ro_scroll_handle(pressed):
+    t = new(8, 18, scroll_groove_col())
+    rbox(t, 0, 0, 8, 18, 3.5, T.btn_down if pressed else RO_SILVER, T.btn_rim)
+    for gy in (7, 9, 11):
+        rect(t, 2, gy, 4, 1, (150, 156, 150))
+    return t
+
+
+def ro_now_playing_icon(a, x, y):
+    """The Now Playing tab's icon: a page with a green play triangle."""
+    rect(a, x, y, 7, 9, (96, 104, 98))
+    rect(a, x + 1, y + 1, 5, 7, WHITE)
+    tri(a, [(x + 2, y + 2.5), (x + 5.5, y + 4.5), (x + 2, y + 6.5)], (52, 160, 52))
+
+
+def ro_title_piece_pl(lit):
+    t = ro_bar20(100, lit)
+    tw = text_w(RO_UI, "Now Playing") + 24
+    x = 50 - tw // 2
+    ro_tab(t, x, 3, tw, lit)
+    ro_now_playing_icon(t, x + 6, 6)
+    draw_text(t, RO_UI, "Now Playing", x + 17, 7, T.logo_blue if lit else T.title_dim)
+    return t
+
+
+def ro_bottom_base(w):
+    t = new(w, 38)
+    vfill(t, 0, 0, w, 38, [(228, 234, 228), (206, 215, 207)])
+    rect(t, 0, 0, w, 1, T.panel_edge)
+    rect(t, 0, 1, w, 1, T.hi)
+    rect(t, 0, 36, w, 1, T.lo)
+    rect(t, 0, 37, w, 1, T.rim)
+    return t
+
+
+def ro_make_pledit():
+    a = new(280, 186, T.flat)
+    for lit, y in ((True, 0), (False, 21)):
+        a[y:y + 20, 127:152] = ro_bar20(25, lit)
+        a[y:y + 20, 0:25] = ro_bar20(25, lit, left_edge=True)
+        a[y:y + 20, 26:126] = ro_title_piece_pl(lit)
+        t = ro_bar20(25, lit, right_edge=True)
+        ro_caption_button(t, 14, 3, "close", lit)
+        a[y:y + 20, 153:178] = t
+    a[42:71, 0:12] = ro_side_tile(12, 29, True)
+    t = ro_side_tile(20, 29, False)
+    rect(t, 5, 0, 8, 29, scroll_groove_col())
+    rect(t, 4, 0, 1, 29, T.panel_edge)
+    rect(t, 13, 0, 1, 29, T.panel_edge)
+    a[42:71, 31:51] = t
+    cell = ro_bar20(25, True, right_edge=True)[3:12, 14:23].copy()
+    ro_caption_button(cell, 0, 0, "close", True, pressed=True)
+    a[42:51, 52:61] = cell
+    a[53:71, 52:60] = ro_scroll_handle(False)
+    a[53:71, 61:69] = ro_scroll_handle(True)
+
+    t = ro_bottom_base(125)
+    rect(t, 0, 0, 1, 38, T.rim)
+    rect(t, 1, 1, 1, 36, T.hi)
+    rect(t, 0, 0, 11, 1, T.flat)
+    rect(t, 0, 0, 1, 1, T.rim)
+    rect(t, 1, 0, 1, 1, T.hi)
+    rect(t, 11, 0, 1, 1, T.panel_edge)
+    for bx, lbl in ((14, "ADD"), (43, "REM"), (72, "SEL"), (101, "MISC")):
+        t[8:26, bx:bx + 22] = ro_tab_button(t[8:26, bx:bx + 22], 22, 18, lbl)
+    for sx in (40, 69, 98):
+        rect(t, sx, 10, 1, 14, (176, 182, 176))
+        rect(t, sx + 1, 10, 1, 14, WHITE)
+    a[72:110, 0:125] = t
+
+    t = ro_bottom_base(150)
+    rect(t, 149, 0, 1, 38, T.rim)
+    rect(t, 148, 1, 1, 36, T.lo)
+    rect(t, 131, 0, 19, 1, T.flat)
+    rect(t, 148, 0, 1, 1, T.lo)
+    rect(t, 149, 0, 1, 1, T.rim)
+    rect(t, 130, 0, 1, 1, T.panel_edge)
+    ro_lcd(t, 6, 9, 56, 8)
+    rbox(t, 1, 21, 63, 12, 6, [(246, 248, 246), (226, 230, 226)], (180, 186, 180))
+    for k, kind in enumerate(["previous", "play", "pause", "stop", "next", "eject"]):
+        mini_transport_icon(t, kind, 3 + 10 * k, 22, (64, 68, 66))
+    ro_lcd(t, 65, 22, 33, 8)
+    rect(t, 84, 22 + 2, 1, 1, T.ink)
+    rect(t, 84, 22 + 5, 1, 1, T.ink)
+    t[8:26, 106:128] = ro_tab_button(t[8:26, 106:128], 22, 18, "LIST")
+    for k in range(4):
+        for j in range(k + 1):
+            gx, gy = 145 - 3 * k + 3 * j, 32 - 3 * j
+            px(t, gx, gy, (140, 148, 142))
+            px(t, gx + 1, gy + 1, WHITE)
+    a[72:110, 126:276] = t
+    a[0:38, 179:204] = ro_bottom_base(25)
+    return a
+
+
+def ro_gen_bottom(w, grip, left_edge):
+    t = new(w, 14)
+    vfill(t, 0, 0, w, 14, [(222, 229, 222), (206, 215, 207)])
+    rect(t, 0, 0, w, 1, T.panel_edge)
+    rect(t, 0, 12, w, 1, T.lo)
+    rect(t, 0, 13, w, 1, T.rim)
+    if left_edge:
+        rect(t, 0, 0, 1, 14, T.rim)
+        rect(t, 1, 1, 1, 12, T.hi)
+        rect(t, 1, 0, 10, 1, T.flat)
+        rect(t, 1, 0, 1, 1, T.hi)
+        rect(t, 10, 0, 1, 1, T.panel_edge)
+    else:
+        rect(t, w - 1, 0, 1, 14, T.rim)
+        rect(t, w - 2, 1, 1, 12, T.lo)
+        rect(t, w - 8, 0, 6, 1, T.flat)
+        rect(t, w - 2, 0, 1, 1, T.lo)
+        rect(t, w - 9, 0, 1, 1, T.panel_edge)
+    if grip:
+        for k in range(3):
+            for j in range(k + 1):
+                gx, gy = w - 5 - 3 * k + 3 * j, 9 - 3 * j
+                px(t, gx, gy, (140, 148, 142))
+                px(t, gx + 1, gy + 1, WHITE)
+    return t
+
+
+def ro_gen_title_pieces(lit):
+    big = ro_bar20(75, lit)
+    ro_tab(big, 17, 2, 41, lit)
+    l = big[:, 0:25].copy()
+    c = np.repeat(big[:, 37:38].copy(), 25, axis=1)
+    r = big[:, 50:75].copy()
+    return l, c, r
+
 
 # ------------------------------------------------------------------------------------------
 # Build
@@ -2168,11 +2834,15 @@ def preview_main(lit, state):
     for d, x in ((m // 10, 48), (m % 10, 60), (s // 10, 78), (s % 10, 90)):
         blit(img, nums, (9 * d, 0, 9, 13), x, 26)
     # the title box blanked with text.bmp's space, then the title in TrueType in text.bmp's ink
+    ty = 27 if RO() else 24     # RO: the title row as Winamp/WACUP draw it (older themes kept as built)
     for x in range(0, 154, 5):
         w = min(5, 154 - x)
-        blit(img, S["text"], (150, 0, w, 6), 111 + x, 24)
+        blit(img, S["text"], (150, 0, w, 6), 111 + x, ty)
     box = img.crop((111, 22, 265, 36))
-    ImageDraw.Draw(box).text((0, 7), state["title"], fill=text_ink(), font=tt_font(11), anchor="lm")
+    if RO():
+        ImageDraw.Draw(box).text((0, 11), state["title"], fill=text_ink(), font=tt_font(11), anchor="ls")
+    else:
+        ImageDraw.Draw(box).text((0, 7), state["title"], fill=text_ink(), font=tt_font(11), anchor="lm")
     img.paste(box, (111, 22))
     draw_bitmap_text(img, "192", 111, 43)
     draw_bitmap_text(img, "44", 156, 43)

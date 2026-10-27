@@ -1,24 +1,27 @@
-# Creative: FL Studio, RealPlayer 10, Photoshop CS6
+# Creative: FL Studio, RealPlayer 10, Photoshop CS6, RealOne Player
 
-Three classic skins from one procedural generator (`gen_skin.py`, built on
+Four classic skins from one procedural generator (`gen_skin.py`, built on
 `skins/ember/gen_skin.py` by way of `private-repo/skins/apps/wmp/gen_skin.py`, keeping their sheet
-layouts, helpers and preview renderer), a theme each. Each skin carries one real logo in the About
-spot; the script draws everything else.
+layouts, helpers and preview renderer), a theme each. The first three carry one real logo in the
+About spot; RealOne Player's blue "1" is drawn by the script, once, in the titlebar. The script
+draws everything else.
 
 ```sh
 /usr/bin/python3 -I gen_skin.py                         # all of them
-/usr/bin/python3 -I gen_skin.py fl-studio photoshop     # some (fl-studio, realplayer, photoshop)
+/usr/bin/python3 -I gen_skin.py fl-studio photoshop     # some (fl-studio, realplayer, photoshop, realone)
 /usr/bin/python3 -I gen_skin.py --list
 ```
 
-Outputs: `FL-Studio.wsz`, `RealPlayer-10.wsz`, `Photoshop-CS6.wsz` and `preview-<theme>.png` here;
+Outputs: `FL-Studio.wsz`, `RealPlayer-10.wsz`, `Photoshop-CS6.wsz`, `RealOne-Player.wsz` and
+`preview-<theme>.png` here;
 sheets in `out/<theme>/` and the rasterised logos in `out/scratch/` (`out/` is ignored).
 Deterministic. Each .wsz is finished by `skins/genex_wacup.py`.
 
 ## Themes
 
-text.bmp's ink matches each title box (lime on black, ice blue on navy, light grey on dark grey).
-The preview draws the app's TrueType title in that ink.
+text.bmp's ink matches each title box (lime on black, ice blue on navy, light grey on dark grey,
+near-black on lime). The preview draws the app's TrueType title in that ink (RealOne Player's on
+the y 27 title row; the older three keep their previews as built).
 
 - **FL Studio** (`fl-studio`, FL Studio 9 to 12, with grey-blue-green panels):
   - The main titlebar is FL's menu bar (FILE EDIT ADD PATTERNS VIEW OPTIONS TOOLS HELP), and the
@@ -67,6 +70,30 @@ The preview draws the app's TrueType title in that ink.
     selection. Its ADD, REM, SEL and MISC buttons are the panel's footer icons (new layer, trash,
     marquee, fx) above small labels.
   - The album-art title is an active panel tab, and the "Ps" CS6 icon sits in the About spot.
+- **RealOne Player** (`realone`, RealOne Player 2001-2002 on Windows XP, from the user's
+  screenshot): a pale grey-green frame (#E2E8E2 to #D0D9D1) around white (#FAFAFA) panels.
+  - The main titlebar is RealOne's menu row: the blue "1" as the options button, "RealOne" in
+    #1868A8 and "Player" in grey on the darker left part, then File View Play Tools Help (access
+    keys underlined) on a lighter shelf that rises in a curve, and XP-style minimise, maximise
+    (shade) and close glyphs.
+  - The displays are the lime status bar (#C8E060), one L-shaped bar: time and visualiser on the
+    left, the title, kbps, kHz and mono/stereo across. text.bmp, the digits and the visualiser
+    are near-black (#161E08) and olive on the lime.
+  - The transport sits in a soft capsule: round grey-ringed buttons with pale faces, the big play
+    button with its tail, all lime-tinted when pressed. The seek bar is RealOne's thin dark line
+    with a silver knob. Volume is the wedge filled lime up to a round silver knob; balance a flat
+    track filled lime from the centre.
+  - Shuffle, repeat, EQ and PL are grey capsules that light lime when on; the clutterbar is a
+    column of small grey keys, lime when on. The About spot is the status bar's Web key, a globe
+    with a play badge on pale yellow.
+  - The Equalizer's ON, AUTO and PRESETS are the home page's navy, purple and burgundy nav
+    buttons with white arrows (ON and AUTO with a lime light); the graph is a lime display; the
+    sliders are grey tracks filling lime under silver knobs; the band names sit on a blue
+    section header (#1860A8).
+  - Playlist and album-art titles are the bottom tab bar's raised white tab ("Now Playing" with
+    its icon), open into the white list below. The playlist's ADD, REM, SEL, MISC and LIST are
+    tab-bar items: a small coloured icon over the name.
+  - Playlist: #1E2430 on #FAFAFA, #1868A8 current, #C8DCF0 selection. Font: Tahoma.
 
 ## Limits
 
@@ -77,7 +104,15 @@ The preview draws the app's TrueType title in that ink.
   the line. Balance's is the line's centre colours, which matches exactly only near the centre.
 - FL's channel rack and pattern clips are decoration only: the step pattern is fixed.
 - RealPlayer 10's own window was darker and flatter than RealOne's. This skin leans on the
-  RealOne-era chrome, glossy pills and swooshes, as asked.
+  RealOne-era chrome, glossy pills and swooshes, as asked. Its description ("RealPlayer 10 /
+  RealOne Player") is also written into its readme.txt, so it is left as is to keep the .wsz
+  unchanged; RealOne Player proper is the `realone` theme.
+- RealOne Player: Winamp's transport order (previous, play, pause, stop, next) and fixed spots
+  can't give RealOne's play, stop, previous|next pill pair, so every button is a separate round
+  one; the browser toolbar, the Location field and the web page aren't drawn (only the page's
+  nav-button and header colours, in the Equalizer). The volume and balance knobs are opaque
+  cells carrying a piece of the track: the balance one shows it unfilled, as it can't know the
+  side. Colours are sampled from the screenshot (a dithered 256-colour capture, so averaged).
 
 ## Sources
 
@@ -91,6 +126,9 @@ SVG is rasterised with `rsvg-convert`), then composited once in the About spot.
   "player".
 - Photoshop CS6 icon: https://commons.wikimedia.org/wiki/File:Adobe_Photoshop_CS6_icon.svg, in
   `source/logo-ps/`.
+- RealOne Player screenshot (2001-2002, Windows XP), the user's own: `source/realone-player.png`,
+  reference only (colours sampled, nothing composited). The RealOne "1" is drawn by the script
+  (the downloaded RealPlayer icon is the later "real" swoosh and "player" wordmark, not the "1").
 - FL Studio logo (c) Image-Line.
-- RealPlayer logo (c) RealNetworks.
+- RealPlayer logo and RealOne "1" (c) RealNetworks.
 - Photoshop icon (c) Adobe.
