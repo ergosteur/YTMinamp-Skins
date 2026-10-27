@@ -136,7 +136,7 @@ footer { max-width: 1280px; margin: 0 auto; padding: 0 16px 40px; color: var(--m
     grid.innerHTML = shown.map(function (t, i) {
       return '<button class="tile" type="button" data-i="' + i + '">' +
         '<img loading="lazy" decoding="async" src="' + esc(url(t.src)) + '" alt="' + esc(t.title + ", " + t.label) + '">' +
-        '<span class="cap"><b>' + esc(t.title.split(":")[0]) + '</b><span>' + esc(t.label) + '</span></span></button>';
+        '<span class="cap"><b>' + esc(t.multi ? t.label : t.short) + '</b><span>' + esc(t.multi ? t.short : t.family) + '</span></span></button>';
     }).join("");
     $("count").textContent = shown.length + " of " + tiles.length + " previews";
     $("empty").hidden = shown.length !== 0;
@@ -167,7 +167,8 @@ footer { max-width: 1280px; margin: 0 auto; padding: 0 16px 40px; color: var(--m
       if (fams.indexOf(e.family) === -1) fams.push(e.family);
       e.previews.forEach(function (p) {
         tiles.push({
-          entry: e, family: e.family, title: e.title, label: p.label, wsz: p.wsz,
+          entry: e, family: e.family, title: e.title, short: e.title.split(":")[0], multi: e.previews.length > 1,
+          label: p.label, wsz: p.wsz,
           src: e.folder + "/" + p.file,
           hay: (e.title + " " + p.label + " " + e.family + " " + e.folder + " " + e.wsz.join(" ")).toLowerCase()
         });
