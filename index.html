@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YTMinamp Skins</title>
+<meta name="description" content="Winamp 2.x skins (.wsz) for YTMinamp's Winamp mode. Also work in Winamp and WACUP.">
+<style>
+:root {
+  --bg: #f4f5f7; --panel: #ffffff; --text: #1b1f24; --muted: #5b6470; --line: #d8dce2;
+  --accent: #1f6feb; --accent-text: #ffffff; --shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171b; --panel: #1d2127; --text: #e6e9ed; --muted: #9aa4b0; --line: #2f353d;
+    --accent: #4c8dff; --accent-text: #0b0e12; --shadow: 0 1px 3px rgba(0,0,0,.5);
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+header, main { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
+header { padding-top: 28px; }
+h1 { margin: 0 0 4px; font-size: 1.7rem; }
+header p { margin: 0 0 14px; color: var(--muted); max-width: 70ch; }
+.controls { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0 12px;
+  border-bottom: 1px solid var(--line); }
+.controls .row { max-width: 1280px; margin: 0 auto; padding: 0 16px; display: flex; gap: 10px;
+  flex-wrap: wrap; align-items: center; }
+input[type=search] { flex: 1 1 240px; min-width: 0; padding: 8px 12px; font: inherit;
+  color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font: inherit; font-size: .85rem; padding: 5px 11px; border-radius: 999px; cursor: pointer;
+  color: var(--text); background: var(--panel); border: 1px solid var(--line); }
+.chip[aria-pressed=true] { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+#count { color: var(--muted); font-size: .85rem; margin: 12px 0 8px; }
+.grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  padding-bottom: 40px; }
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: var(--shadow); padding: 0; cursor: pointer; text-align: left; font: inherit;
+  color: inherit; overflow: hidden; display: flex; flex-direction: column; }
+.tile:focus-visible, .chip:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tile img { width: 100%; aspect-ratio: 1172 / 1256; object-fit: contain; background: #0003; display: block; }
+.tile .cap { padding: 8px 10px 10px; }
+.tile .cap b { display: block; font-size: .9rem; line-height: 1.3; }
+.tile .cap span { color: var(--muted); font-size: .8rem; }
+.empty { color: var(--muted); padding: 40px 0; text-align: center; }
+dialog { width: min(1000px, 96vw); max-height: 94vh; padding: 0; color: var(--text);
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+dialog::backdrop { background: rgba(0,0,0,.65); }
+.dlg { display: grid; grid-template-columns: minmax(0, 1fr) 300px; max-height: 94vh; }
+.dlg .shot { overflow: auto; background: #0003; padding: 12px; }
+.dlg .shot img { width: 100%; height: auto; display: block; }
+.dlg .side { padding: 16px; overflow: auto; border-left: 1px solid var(--line); }
+.dlg h2 { margin: 0 0 2px; font-size: 1.1rem; line-height: 1.3; }
+.dlg .meta { color: var(--muted); font-size: .85rem; margin: 0 0 12px; }
+.dlg h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 14px 0 6px; }
+.dlg ul { list-style: none; margin: 0; padding: 0; }
+.dlg li { margin: 0 0 4px; word-break: break-all; }
+.dlg li.pick a { font-weight: 600; }
+.btns { display: flex; gap: 8px; margin-top: 14px; }
+.btns button, .btns a { font: inherit; font-size: .9rem; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+  color: var(--text); background: var(--panel); border: 1px solid var(--line); text-decoration: none; }
+@media (max-width: 760px) {
+  .dlg { grid-template-columns: 1fr; overflow: auto; }
+  .dlg .side { border-left: 0; border-top: 1px solid var(--line); overflow: visible; }
+  .dlg .shot { overflow: visible; }
+}
+footer { max-width: 1280px; margin: 0 auto; padding: 0 16px 40px; color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>YTMinamp Skins</h1>
+  <p>Classic Winamp 2.x skins (.wsz) for YTMinamp's Winamp mode, each drawn by a script. They also work in
+  real Winamp and WACUP. Pick a preview to see it larger and download the <code>.wsz</code>.</p>
+</header>
+<div class="controls">
+  <div class="row">
+    <input type="search" id="q" placeholder="Search skins" aria-label="Search skins">
+    <div class="chips" id="chips" role="group" aria-label="Filter by family"></div>
+  </div>
+</div>
+<main>
+  <div id="count" aria-live="polite"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" hidden>No skins match.</div>
+</main>
+<footer>
+  <a href="https://github.com/ergosteur/YTMinamp-Skins">Source on GitHub</a>. Personal, private-use skins, not for
+  commercial distribution. Many are homages; logos, marks and artwork belong to their owners, with credits in each
+  skin's folder. None of this is affiliated with or endorsed by any of them. The skins in <code>bundled-skins/</code>
+  are original and CC0.
+</footer>
+
+<dialog id="dlg" aria-label="Skin preview">
+  <div class="dlg">
+    <div class="shot"><img id="dImg" alt=""></div>
+    <div class="side">
+      <h2 id="dTitle"></h2>
+      <p class="meta" id="dMeta"></p>
+      <div id="dPick"></div>
+      <h3 id="dAllH">All skins in this folder</h3>
+      <ul id="dList"></ul>
+      <p><a id="dFolder" href="#">Folder on GitHub (generator, credits)</a></p>
+      <div class="btns">
+        <button type="button" id="dPrev">Prev</button>
+        <button type="button" id="dNext">Next</button>
+        <button type="button" id="dClose">Close</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  var tiles = [], shown = [], family = "All", cur = -1;
+  var $ = function (id) { return document.getElementById(id); };
+  var REPO = "https://github.com/ergosteur/YTMinamp-Skins/tree/main/";
+
+  function url(path) { return encodeURI(path).replace(/#/g, "%23"); }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function render() {
+    var q = $("q").value.trim().toLowerCase();
+    shown = tiles.filter(function (t) {
+      return (family === "All" || t.family === family) && (!q || t.hay.indexOf(q) !== -1);
+    });
+    var grid = $("grid");
+    grid.innerHTML = shown.map(function (t, i) {
+      return '<button class="tile" type="button" data-i="' + i + '">' +
+        '<img loading="lazy" decoding="async" src="' + esc(url(t.src)) + '" alt="' + esc(t.title + ", " + t.label) + '">' +
+        '<span class="cap"><b>' + esc(t.title.split(":")[0]) + '</b><span>' + esc(t.label) + '</span></span></button>';
+    }).join("");
+    $("count").textContent = shown.length + " of " + tiles.length + " previews";
+    $("empty").hidden = shown.length !== 0;
+  }
+
+  function open(i) {
+    if (!shown.length) return;
+    cur = (i + shown.length) % shown.length;
+    var t = shown[cur], e = t.entry;
+    $("dImg").src = url(t.src);
+    $("dImg").alt = t.title + ", " + t.label;
+    $("dTitle").textContent = t.title;
+    $("dMeta").textContent = t.family + " / " + t.label;
+    $("dFolder").href = REPO + url(e.folder);
+    var link = function (w) {
+      return '<a href="' + esc(url(e.folder + "/" + w)) + '" download>' + esc(w) + '</a>';
+    };
+    $("dPick").innerHTML = t.wsz ? '<h3>Download</h3><ul><li class="pick">' + link(t.wsz) + '</li></ul>' : "";
+    $("dAllH").textContent = t.wsz ? "Others in this folder" : "Download";
+    $("dList").innerHTML = e.wsz.filter(function (w) { return w !== t.wsz; })
+      .map(function (w) { return "<li>" + link(w) + "</li>"; }).join("");
+    if (!$("dlg").open) $("dlg").showModal();
+  }
+
+  fetch("gallery.json").then(function (r) { return r.json(); }).then(function (data) {
+    var fams = ["All"];
+    data.forEach(function (e) {
+      if (fams.indexOf(e.family) === -1) fams.push(e.family);
+      e.previews.forEach(function (p) {
+        tiles.push({
+          entry: e, family: e.family, title: e.title, label: p.label, wsz: p.wsz,
+          src: e.folder + "/" + p.file,
+          hay: (e.title + " " + p.label + " " + e.family + " " + e.folder + " " + e.wsz.join(" ")).toLowerCase()
+        });
+      });
+    });
+    $("chips").innerHTML = fams.map(function (f) {
+      return '<button class="chip" type="button" aria-pressed="' + (f === "All") + '" data-f="' + esc(f) + '">' + esc(f) + "</button>";
+    }).join("");
+    render();
+  }).catch(function () {
+    $("count").textContent = "Couldn't load gallery.json.";
+  });
+
+  $("chips").addEventListener("click", function (ev) {
+    var b = ev.target.closest(".chip");
+    if (!b) return;
+    family = b.getAttribute("data-f");
+    Array.prototype.forEach.call($("chips").children, function (c) {
+      c.setAttribute("aria-pressed", c === b);
+    });
+    render();
+  });
+  $("q").addEventListener("input", render);
+  $("grid").addEventListener("click", function (ev) {
+    var b = ev.target.closest(".tile");
+    if (b) open(+b.getAttribute("data-i"));
+  });
+  $("dClose").addEventListener("click", function () { $("dlg").close(); });
+  $("dPrev").addEventListener("click", function () { open(cur - 1); });
+  $("dNext").addEventListener("click", function () { open(cur + 1); });
+  $("dlg").addEventListener("click", function (ev) { if (ev.target === $("dlg")) $("dlg").close(); });
+  document.addEventListener("keydown", function (ev) {
+    if (!$("dlg").open) return;
+    if (ev.key === "ArrowLeft") open(cur - 1);
+    if (ev.key === "ArrowRight") open(cur + 1);
+  });
+})();
+</script>
+</body>
+</html>

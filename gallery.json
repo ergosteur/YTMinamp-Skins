@@ -1,0 +1,1619 @@
+[
+ {
+  "family": "Bundled",
+  "folder": "bundled-skins/breeze",
+  "title": "Breeze: light and dark",
+  "previews": [
+   {
+    "file": "preview-breeze-dark.png",
+    "label": "breeze dark",
+    "wsz": null
+   },
+   {
+    "file": "preview-breeze-light.png",
+    "label": "breeze light",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "YTMinamp-Breeze-Dark.wsz",
+   "YTMinamp-Breeze-Light.wsz"
+  ]
+ },
+ {
+  "family": "Bundled",
+  "folder": "bundled-skins/classic",
+  "title": "YTMinamp Classic: the grey 3D desktop look",
+  "previews": [
+   {
+    "file": "preview-classic.png",
+    "label": "classic",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "YTMinamp-Classic.wsz"
+  ]
+ },
+ {
+  "family": "Bundled",
+  "folder": "bundled-skins/ember",
+  "title": "Ember",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "YTMinamp-Ember.wsz"
+  ]
+ },
+ {
+  "family": "Bundled",
+  "folder": "bundled-skins/frutiger-aero",
+  "title": "Frutiger Aero: the glossy 2004-2012 look",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "YTMinamp-Frutiger-Aero.wsz"
+  ]
+ },
+ {
+  "family": "Bundled",
+  "folder": "bundled-skins/green",
+  "title": "YTMinamp Green: green on near-black",
+  "previews": [
+   {
+    "file": "preview-green.png",
+    "label": "green",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "YTMinamp-Green.wsz"
+  ]
+ },
+ {
+  "family": "Bundled",
+  "folder": "bundled-skins/material",
+  "title": "YTMinamp Material Music: Material design, 2015",
+  "previews": [
+   {
+    "file": "preview-material.png",
+    "label": "material",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "YTMinamp-Material-Music.wsz"
+  ]
+ },
+ {
+  "family": "Bundled",
+  "folder": "bundled-skins/pixel-pet",
+  "title": "Pixel Pet: a virtual-pet keychain toy",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "YTMinamp-Pixel-Pet.wsz"
+  ]
+ },
+ {
+  "family": "Bundled",
+  "folder": "bundled-skins/slick",
+  "title": "YTMinamp Slick: light and clean",
+  "previews": [
+   {
+    "file": "preview-slick.png",
+    "label": "slick",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "YTMinamp-Slick.wsz"
+  ]
+ },
+ {
+  "family": "Bundled",
+  "folder": "bundled-skins/vaporwave",
+  "title": "Vaporwave: sunset, grid and marble",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "YTMinamp-Vaporwave.wsz"
+  ]
+ },
+ {
+  "family": "Bundled",
+  "folder": "bundled-skins/vfd",
+  "title": "VFD: a vacuum fluorescent display head unit",
+  "previews": [
+   {
+    "file": "preview-vfd-silver.png",
+    "label": "vfd silver",
+    "wsz": null
+   },
+   {
+    "file": "preview-vfd.png",
+    "label": "vfd",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "YTMinamp-VFD-Silver.wsz",
+   "YTMinamp-VFD.wsz"
+  ]
+ },
+ {
+  "family": "Bundled",
+  "folder": "bundled-skins/ytminamp",
+  "title": "YTMinamp Dark and Light: the house look",
+  "previews": [
+   {
+    "file": "preview-ytminamp-dark.png",
+    "label": "ytminamp dark",
+    "wsz": "YTMinamp-Dark.wsz"
+   },
+   {
+    "file": "preview-ytminamp-light.png",
+    "label": "ytminamp light",
+    "wsz": "YTMinamp-Light.wsz"
+   }
+  ],
+  "wsz": [
+   "YTMinamp-Dark.wsz",
+   "YTMinamp-Light.wsz"
+  ]
+ },
+ {
+  "family": "K-pop",
+  "folder": "skins/kpop/artms",
+  "title": "ARTMS: the group, its members, their objekts, light and dark",
+  "previews": [
+   {
+    "file": "preview-artms-light.png",
+    "label": "artms light",
+    "wsz": "ARTMS-Light.wsz"
+   },
+   {
+    "file": "preview-choerry-light.png",
+    "label": "choerry light",
+    "wsz": null
+   },
+   {
+    "file": "preview-choerry-objekt-light.png",
+    "label": "choerry objekt light",
+    "wsz": null
+   },
+   {
+    "file": "preview-choerry-objekt.png",
+    "label": "choerry objekt",
+    "wsz": null
+   },
+   {
+    "file": "preview-choerry.png",
+    "label": "choerry",
+    "wsz": null
+   },
+   {
+    "file": "preview-haseul-light.png",
+    "label": "haseul light",
+    "wsz": null
+   },
+   {
+    "file": "preview-haseul-objekt-light.png",
+    "label": "haseul objekt light",
+    "wsz": null
+   },
+   {
+    "file": "preview-haseul-objekt.png",
+    "label": "haseul objekt",
+    "wsz": null
+   },
+   {
+    "file": "preview-haseul.png",
+    "label": "haseul",
+    "wsz": null
+   },
+   {
+    "file": "preview-heejin-light.png",
+    "label": "heejin light",
+    "wsz": null
+   },
+   {
+    "file": "preview-heejin-objekt-light.png",
+    "label": "heejin objekt light",
+    "wsz": null
+   },
+   {
+    "file": "preview-heejin-objekt.png",
+    "label": "heejin objekt",
+    "wsz": null
+   },
+   {
+    "file": "preview-heejin.png",
+    "label": "heejin",
+    "wsz": null
+   },
+   {
+    "file": "preview-jinsoul-light.png",
+    "label": "jinsoul light",
+    "wsz": null
+   },
+   {
+    "file": "preview-jinsoul-objekt-light.png",
+    "label": "jinsoul objekt light",
+    "wsz": null
+   },
+   {
+    "file": "preview-jinsoul-objekt.png",
+    "label": "jinsoul objekt",
+    "wsz": null
+   },
+   {
+    "file": "preview-jinsoul.png",
+    "label": "jinsoul",
+    "wsz": null
+   },
+   {
+    "file": "preview-kimlip-light.png",
+    "label": "kimlip light",
+    "wsz": null
+   },
+   {
+    "file": "preview-kimlip-objekt-light.png",
+    "label": "kimlip objekt light",
+    "wsz": null
+   },
+   {
+    "file": "preview-kimlip-objekt.png",
+    "label": "kimlip objekt",
+    "wsz": null
+   },
+   {
+    "file": "preview-kimlip.png",
+    "label": "kimlip",
+    "wsz": null
+   },
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "ARTMS-Choerry-Light.wsz",
+   "ARTMS-Choerry-Objekt-Light.wsz",
+   "ARTMS-Choerry-Objekt.wsz",
+   "ARTMS-Choerry.wsz",
+   "ARTMS-HaSeul-Light.wsz",
+   "ARTMS-HaSeul-Objekt-Light.wsz",
+   "ARTMS-HaSeul-Objekt.wsz",
+   "ARTMS-HaSeul.wsz",
+   "ARTMS-HeeJin-Light.wsz",
+   "ARTMS-HeeJin-Objekt-Light.wsz",
+   "ARTMS-HeeJin-Objekt.wsz",
+   "ARTMS-HeeJin.wsz",
+   "ARTMS-JinSoul-Light.wsz",
+   "ARTMS-JinSoul-Objekt-Light.wsz",
+   "ARTMS-JinSoul-Objekt.wsz",
+   "ARTMS-JinSoul.wsz",
+   "ARTMS-KimLip-Light.wsz",
+   "ARTMS-KimLip-Objekt-Light.wsz",
+   "ARTMS-KimLip-Objekt.wsz",
+   "ARTMS-KimLip.wsz",
+   "ARTMS-Light.wsz",
+   "ARTMS.wsz"
+  ]
+ },
+ {
+  "family": "K-pop",
+  "folder": "skins/kpop/artms-clubicarus",
+  "title": "ARTMS Club Icarus: the album \"Club Icarus\"",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "ARTMS-Club-Icarus.wsz"
+  ]
+ },
+ {
+  "family": "K-pop",
+  "folder": "skins/kpop/artms-dall",
+  "title": "ARTMS Dall: the album \"Dall\"",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "ARTMS-Dall.wsz"
+  ]
+ },
+ {
+  "family": "K-pop",
+  "folder": "skins/kpop/artms-hyperego",
+  "title": "ARTMS Hyper-Ego: the album \"Hyper-Ego\"",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "ARTMS-Hyper-Ego.wsz"
+  ]
+ },
+ {
+  "family": "K-pop",
+  "folder": "skins/kpop/loona",
+  "title": "LOONA: the group, its subunits and eras, dark and light",
+  "previews": [
+   {
+    "file": "preview-1-3-light.png",
+    "label": "1 3 light",
+    "wsz": null
+   },
+   {
+    "file": "preview-1-3.png",
+    "label": "1 3",
+    "wsz": null
+   },
+   {
+    "file": "preview-12-00.png",
+    "label": "12 00",
+    "wsz": null
+   },
+   {
+    "file": "preview-and-light.png",
+    "label": "and light",
+    "wsz": null
+   },
+   {
+    "file": "preview-and.png",
+    "label": "and",
+    "wsz": null
+   },
+   {
+    "file": "preview-flip-that.png",
+    "label": "flip that",
+    "wsz": null
+   },
+   {
+    "file": "preview-hash-light.png",
+    "label": "hash light",
+    "wsz": null
+   },
+   {
+    "file": "preview-hash.png",
+    "label": "hash",
+    "wsz": null
+   },
+   {
+    "file": "preview-loona-light.png",
+    "label": "loona light",
+    "wsz": "LOONA-Light.wsz"
+   },
+   {
+    "file": "preview-odd-eye-circle-light.png",
+    "label": "odd eye circle light",
+    "wsz": null
+   },
+   {
+    "file": "preview-odd-eye-circle.png",
+    "label": "odd eye circle",
+    "wsz": null
+   },
+   {
+    "file": "preview-plus-plus.png",
+    "label": "plus plus",
+    "wsz": null
+   },
+   {
+    "file": "preview-x-x.png",
+    "label": "x x",
+    "wsz": null
+   },
+   {
+    "file": "preview-yyxy-light.png",
+    "label": "yyxy light",
+    "wsz": null
+   },
+   {
+    "file": "preview-yyxy.png",
+    "label": "yyxy",
+    "wsz": null
+   },
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "LOONA-1-3-Light.wsz",
+   "LOONA-1-3.wsz",
+   "LOONA-12-00.wsz",
+   "LOONA-And-Light.wsz",
+   "LOONA-And.wsz",
+   "LOONA-Flip-That.wsz",
+   "LOONA-Hash-Light.wsz",
+   "LOONA-Hash.wsz",
+   "LOONA-Light.wsz",
+   "LOONA-Odd-Eye-Circle-Light.wsz",
+   "LOONA-Odd-Eye-Circle.wsz",
+   "LOONA-Plus-Plus.wsz",
+   "LOONA-X-X.wsz",
+   "LOONA-yyxy-Light.wsz",
+   "LOONA-yyxy.wsz",
+   "LOONA.wsz"
+  ]
+ },
+ {
+  "family": "K-pop",
+  "folder": "skins/kpop/nmixx",
+  "title": "NMIXX: a steel-blue night with neon and the six members' colours",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "NMIXX.wsz"
+  ]
+ },
+ {
+  "family": "Operating systems",
+  "folder": "skins/os/android",
+  "title": "Android: Android 2.3, 4.0 and 6.0",
+  "previews": [
+   {
+    "file": "preview-gingerbread.png",
+    "label": "gingerbread",
+    "wsz": null
+   },
+   {
+    "file": "preview-ics.png",
+    "label": "ics",
+    "wsz": null
+   },
+   {
+    "file": "preview-marshmallow.png",
+    "label": "marshmallow",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Android-2.3.wsz",
+   "Android-4.0.wsz",
+   "Android-6.0.wsz"
+  ]
+ },
+ {
+  "family": "Operating systems",
+  "folder": "skins/os/frutiger-aero",
+  "title": "Frutiger Aero: the glossy 2004-2012 look",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Frutiger-Aero.wsz"
+  ]
+ },
+ {
+  "family": "Operating systems",
+  "folder": "skins/os/ios-modern",
+  "title": "iOS Modern: iOS 7 (flat) and iOS 26 (Liquid Glass)",
+  "previews": [
+   {
+    "file": "preview-ios26-v2.png",
+    "label": "ios26 v2",
+    "wsz": "iOS26-v2.wsz"
+   },
+   {
+    "file": "preview-ios26.png",
+    "label": "ios26",
+    "wsz": "iOS26.wsz"
+   },
+   {
+    "file": "preview-ios7.png",
+    "label": "ios7",
+    "wsz": "iOS7.wsz"
+   }
+  ],
+  "wsz": [
+   "iOS26-v2.wsz",
+   "iOS26.wsz",
+   "iOS7.wsz"
+  ]
+ },
+ {
+  "family": "Operating systems",
+  "folder": "skins/os/ios6",
+  "title": "iOS 6: the skeuomorphic iPhone look (2012)",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "iOS6.wsz"
+  ]
+ },
+ {
+  "family": "Operating systems",
+  "folder": "skins/os/kde-breeze",
+  "title": "KDE Breeze: KDE Plasma's Breeze, light and dark",
+  "previews": [
+   {
+    "file": "preview-breeze-dark.png",
+    "label": "breeze dark",
+    "wsz": null
+   },
+   {
+    "file": "preview-breeze-light.png",
+    "label": "breeze light",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "KDE-Breeze-Dark.wsz",
+   "KDE-Breeze-Light.wsz"
+  ]
+ },
+ {
+  "family": "Operating systems",
+  "folder": "skins/os/macos",
+  "title": "macOS: Mac OS 9, Mac OS X Aqua and Snow Leopard",
+  "previews": [
+   {
+    "file": "preview-aqua.png",
+    "label": "aqua",
+    "wsz": null
+   },
+   {
+    "file": "preview-macos9.png",
+    "label": "macos9",
+    "wsz": "Mac-OS-9.wsz"
+   },
+   {
+    "file": "preview-snow-leopard.png",
+    "label": "snow leopard",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Mac-OS-9.wsz",
+   "Mac-OS-X-Aqua.wsz",
+   "Mac-OS-X-Snow-Leopard.wsz"
+  ]
+ },
+ {
+  "family": "Operating systems",
+  "folder": "skins/os/mobile-classic",
+  "title": "Mobile Classic: BlackBerry OS 5, BlackBerry OS 6, BlackBerry 10, Windows Mobile 6",
+  "previews": [
+   {
+    "file": "preview-bb10.png",
+    "label": "bb10",
+    "wsz": null
+   },
+   {
+    "file": "preview-bb5.png",
+    "label": "bb5",
+    "wsz": null
+   },
+   {
+    "file": "preview-bb6.png",
+    "label": "bb6",
+    "wsz": null
+   },
+   {
+    "file": "preview-wm6.png",
+    "label": "wm6",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "BlackBerry-10.wsz",
+   "BlackBerry-OS-5.wsz",
+   "BlackBerry-OS-6.wsz",
+   "Windows-Mobile-6.wsz"
+  ]
+ },
+ {
+  "family": "Operating systems",
+  "folder": "skins/os/windows-7",
+  "title": "Windows 7: the Aero theme",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Windows-7.wsz"
+  ]
+ },
+ {
+  "family": "Operating systems",
+  "folder": "skins/os/windows-classic",
+  "title": "Windows Classic: Windows 95, 98 and 2000",
+  "previews": [
+   {
+    "file": "preview-win2000.png",
+    "label": "win2000",
+    "wsz": null
+   },
+   {
+    "file": "preview-win95.png",
+    "label": "win95",
+    "wsz": null
+   },
+   {
+    "file": "preview-win98.png",
+    "label": "win98",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Windows-2000.wsz",
+   "Windows-95.wsz",
+   "Windows-98.wsz"
+  ]
+ },
+ {
+  "family": "Operating systems",
+  "folder": "skins/os/windows-modern",
+  "title": "Windows Modern: Windows 8, 10 and 11",
+  "previews": [
+   {
+    "file": "preview-win10.png",
+    "label": "win10",
+    "wsz": null
+   },
+   {
+    "file": "preview-win11.png",
+    "label": "win11",
+    "wsz": null
+   },
+   {
+    "file": "preview-win8.png",
+    "label": "win8",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Windows-10.wsz",
+   "Windows-11.wsz",
+   "Windows-8.wsz"
+  ]
+ },
+ {
+  "family": "Operating systems",
+  "folder": "skins/os/windows-xp",
+  "title": "Windows XP: the Luna Blue theme",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Windows-XP.wsz"
+  ]
+ },
+ {
+  "family": "Devices",
+  "folder": "skins/devices/apple-hardware",
+  "title": "Apple Hardware: the iMac G3 in its translucent colours and the unibody MacBook Pro",
+  "previews": [
+   {
+    "file": "preview-imac-blueberry.png",
+    "label": "imac blueberry",
+    "wsz": null
+   },
+   {
+    "file": "preview-imac-bondi.png",
+    "label": "imac bondi",
+    "wsz": null
+   },
+   {
+    "file": "preview-imac-grape.png",
+    "label": "imac grape",
+    "wsz": null
+   },
+   {
+    "file": "preview-imac-graphite.png",
+    "label": "imac graphite",
+    "wsz": null
+   },
+   {
+    "file": "preview-imac-lime.png",
+    "label": "imac lime",
+    "wsz": null
+   },
+   {
+    "file": "preview-imac-strawberry.png",
+    "label": "imac strawberry",
+    "wsz": null
+   },
+   {
+    "file": "preview-imac-tangerine.png",
+    "label": "imac tangerine",
+    "wsz": null
+   },
+   {
+    "file": "preview-macbook-pro.png",
+    "label": "macbook pro",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "MacBook-Pro-Unibody.wsz",
+   "iMac-G3-Blueberry.wsz",
+   "iMac-G3-Bondi-Blue.wsz",
+   "iMac-G3-Grape.wsz",
+   "iMac-G3-Graphite.wsz",
+   "iMac-G3-Lime.wsz",
+   "iMac-G3-Strawberry.wsz",
+   "iMac-G3-Tangerine.wsz"
+  ]
+ },
+ {
+  "family": "Devices",
+  "folder": "skins/devices/boombox",
+  "title": "Boombox: the Panasonic RX-DS660 portable stereo component CD system",
+  "previews": [
+   {
+    "file": "preview-rx-ds660.png",
+    "label": "rx ds660",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Panasonic-RX-DS660.wsz"
+  ]
+ },
+ {
+  "family": "Devices",
+  "folder": "skins/devices/car-audio",
+  "title": "Car Audio: VW MIB II (two takes), Clarion, Clarion ADX5655z (three takes)",
+  "previews": [
+   {
+    "file": "preview-clarion-adx5655z-silver.png",
+    "label": "clarion adx5655z silver",
+    "wsz": "Clarion-ADX5655z-Silver.wsz"
+   },
+   {
+    "file": "preview-clarion-adx5655z-swoop.png",
+    "label": "clarion adx5655z swoop",
+    "wsz": "Clarion-ADX5655z-Swoop.wsz"
+   },
+   {
+    "file": "preview-clarion-adx5655z.png",
+    "label": "clarion adx5655z",
+    "wsz": "Clarion-ADX5655z.wsz"
+   },
+   {
+    "file": "preview-clarion.png",
+    "label": "clarion",
+    "wsz": "Clarion.wsz"
+   },
+   {
+    "file": "preview-vw-mib2-v2.png",
+    "label": "vw mib2 v2",
+    "wsz": null
+   },
+   {
+    "file": "preview-vw-mib2.png",
+    "label": "vw mib2",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Clarion-ADX5655z-Silver.wsz",
+   "Clarion-ADX5655z-Swoop.wsz",
+   "Clarion-ADX5655z.wsz",
+   "Clarion.wsz",
+   "VW-MIB-II-v2.wsz",
+   "VW-MIB-II.wsz"
+  ]
+ },
+ {
+  "family": "Devices",
+  "folder": "skins/devices/cisco",
+  "title": "Cisco: classic Cisco network hardware",
+  "previews": [
+   {
+    "file": "preview-catalyst-2960.png",
+    "label": "catalyst 2960",
+    "wsz": null
+   },
+   {
+    "file": "preview-cisco-2800.png",
+    "label": "cisco 2800",
+    "wsz": "Cisco-2800.wsz"
+   },
+   {
+    "file": "preview-cisco.png",
+    "label": "cisco",
+    "wsz": "Cisco.wsz"
+   }
+  ],
+  "wsz": [
+   "Cisco-2800.wsz",
+   "Cisco-Catalyst-2960.wsz",
+   "Cisco.wsz"
+  ]
+ },
+ {
+  "family": "Devices",
+  "folder": "skins/devices/dell-optiplex",
+  "title": "Dell OptiPlex: the OptiPlex 9010 desktop's front panel (2012), with a PowerEdge-style LCD",
+  "previews": [
+   {
+    "file": "preview-optiplex-9010.png",
+    "label": "optiplex 9010",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Dell-OptiPlex-9010.wsz"
+  ]
+ },
+ {
+  "family": "Devices",
+  "folder": "skins/devices/honda-accord",
+  "title": "Honda Accord: a late-80s / early-90s Accord centre stack (radio face, climate sliders)",
+  "previews": [
+   {
+    "file": "preview-accord.png",
+    "label": "accord",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Honda-Accord.wsz"
+  ]
+ },
+ {
+  "family": "Devices",
+  "folder": "skins/devices/ipod",
+  "title": "iPod: the iPod classic (6th/7th generation) and the iPod mini",
+  "previews": [
+   {
+    "file": "preview-classic-black.png",
+    "label": "classic black",
+    "wsz": null
+   },
+   {
+    "file": "preview-classic-silver.png",
+    "label": "classic silver",
+    "wsz": null
+   },
+   {
+    "file": "preview-mini-blue-metal.png",
+    "label": "mini blue metal",
+    "wsz": null
+   },
+   {
+    "file": "preview-mini-blue.png",
+    "label": "mini blue",
+    "wsz": null
+   },
+   {
+    "file": "preview-mini-gold-metal.png",
+    "label": "mini gold metal",
+    "wsz": null
+   },
+   {
+    "file": "preview-mini-gold.png",
+    "label": "mini gold",
+    "wsz": null
+   },
+   {
+    "file": "preview-mini-green-metal.png",
+    "label": "mini green metal",
+    "wsz": null
+   },
+   {
+    "file": "preview-mini-green.png",
+    "label": "mini green",
+    "wsz": null
+   },
+   {
+    "file": "preview-mini-pink-metal.png",
+    "label": "mini pink metal",
+    "wsz": null
+   },
+   {
+    "file": "preview-mini-pink.png",
+    "label": "mini pink",
+    "wsz": null
+   },
+   {
+    "file": "preview-mini-silver-metal.png",
+    "label": "mini silver metal",
+    "wsz": null
+   },
+   {
+    "file": "preview-mini-silver.png",
+    "label": "mini silver",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "iPod-classic-Black.wsz",
+   "iPod-classic-Silver.wsz",
+   "iPod-mini-Blue-Metal.wsz",
+   "iPod-mini-Blue.wsz",
+   "iPod-mini-Gold-Metal.wsz",
+   "iPod-mini-Gold.wsz",
+   "iPod-mini-Green-Metal.wsz",
+   "iPod-mini-Green.wsz",
+   "iPod-mini-Pink-Metal.wsz",
+   "iPod-mini-Pink.wsz",
+   "iPod-mini-Silver-Metal.wsz",
+   "iPod-mini-Silver.wsz"
+  ]
+ },
+ {
+  "family": "Devices",
+  "folder": "skins/devices/norstar",
+  "title": "Norstar: the Nortel Meridian Norstar M7310 office phone, charcoal and ash",
+  "previews": [
+   {
+    "file": "preview-m7310-ash.png",
+    "label": "m7310 ash",
+    "wsz": null
+   },
+   {
+    "file": "preview-m7310-charcoal.png",
+    "label": "m7310 charcoal",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Nortel-Norstar-M7310-Ash.wsz",
+   "Nortel-Norstar-M7310.wsz"
+  ]
+ },
+ {
+  "family": "Devices",
+  "folder": "skins/devices/payphone",
+  "title": "Payphone: the Nortel Millennium card phone in Bell Canada's 2000s livery",
+  "previews": [
+   {
+    "file": "preview-millennium-bell.png",
+    "label": "millennium bell",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Nortel-Millennium-Bell.wsz"
+  ]
+ },
+ {
+  "family": "Games",
+  "folder": "skins/games/consoles",
+  "title": "Consoles: Xbox and PlayStation 3 dashboards",
+  "previews": [
+   {
+    "file": "preview-ps3.png",
+    "label": "ps3",
+    "wsz": "PS3.wsz"
+   },
+   {
+    "file": "preview-xbox-360-metro.png",
+    "label": "xbox 360 metro",
+    "wsz": "Xbox-360-Metro.wsz"
+   },
+   {
+    "file": "preview-xbox-360-nxe.png",
+    "label": "xbox 360 nxe",
+    "wsz": "Xbox-360-NXE.wsz"
+   },
+   {
+    "file": "preview-xbox-360.png",
+    "label": "xbox 360",
+    "wsz": "Xbox-360.wsz"
+   },
+   {
+    "file": "preview-xbox-og.png",
+    "label": "xbox og",
+    "wsz": null
+   },
+   {
+    "file": "preview-xbox-series.png",
+    "label": "xbox series",
+    "wsz": "Xbox-Series.wsz"
+   }
+  ],
+  "wsz": [
+   "PS3.wsz",
+   "Xbox-360-Metro.wsz",
+   "Xbox-360-NXE.wsz",
+   "Xbox-360.wsz",
+   "Xbox-Original.wsz",
+   "Xbox-Series.wsz"
+  ]
+ },
+ {
+  "family": "Games",
+  "folder": "skins/games/gaming",
+  "title": "Gaming: Steam (2004 and modern), Minecraft, Twitch",
+  "previews": [
+   {
+    "file": "preview-minecraft.png",
+    "label": "minecraft",
+    "wsz": "Minecraft.wsz"
+   },
+   {
+    "file": "preview-steam-2004.png",
+    "label": "steam 2004",
+    "wsz": "Steam-2004.wsz"
+   },
+   {
+    "file": "preview-steam.png",
+    "label": "steam",
+    "wsz": "Steam.wsz"
+   },
+   {
+    "file": "preview-twitch.png",
+    "label": "twitch",
+    "wsz": "Twitch.wsz"
+   }
+  ],
+  "wsz": [
+   "Minecraft.wsz",
+   "Steam-2004.wsz",
+   "Steam.wsz",
+   "Twitch.wsz"
+  ]
+ },
+ {
+  "family": "Games",
+  "folder": "skins/games/nintendo",
+  "title": "Nintendo: the DS, DSi and 3DS handhelds, the Wii and the Switch",
+  "previews": [
+   {
+    "file": "preview-3ds.png",
+    "label": "3ds",
+    "wsz": null
+   },
+   {
+    "file": "preview-ds.png",
+    "label": "ds",
+    "wsz": null
+   },
+   {
+    "file": "preview-dsi.png",
+    "label": "dsi",
+    "wsz": null
+   },
+   {
+    "file": "preview-switch.png",
+    "label": "switch",
+    "wsz": null
+   },
+   {
+    "file": "preview-wii.png",
+    "label": "wii",
+    "wsz": "Wii.wsz"
+   }
+  ],
+  "wsz": [
+   "Nintendo-3DS.wsz",
+   "Nintendo-DS.wsz",
+   "Nintendo-DSi.wsz",
+   "Nintendo-Switch.wsz",
+   "Wii.wsz"
+  ]
+ },
+ {
+  "family": "Games",
+  "folder": "skins/games/playstation",
+  "title": "PlayStation: the original PlayStation, the PSone and the PlayStation 2",
+  "previews": [
+   {
+    "file": "preview-ps1.png",
+    "label": "ps1",
+    "wsz": null
+   },
+   {
+    "file": "preview-ps2.png",
+    "label": "ps2",
+    "wsz": null
+   },
+   {
+    "file": "preview-psone.png",
+    "label": "psone",
+    "wsz": "PSone.wsz"
+   }
+  ],
+  "wsz": [
+   "PSone.wsz",
+   "PlayStation-2.wsz",
+   "PlayStation.wsz"
+  ]
+ },
+ {
+  "family": "Games",
+  "folder": "skins/games/pokemon",
+  "title": "Pokemon: the handheld games' pixel UI, Gen 1 to Gen 3",
+  "previews": [
+   {
+    "file": "preview-gen1.png",
+    "label": "gen1",
+    "wsz": null
+   },
+   {
+    "file": "preview-gen2.png",
+    "label": "gen2",
+    "wsz": null
+   },
+   {
+    "file": "preview-gen3.png",
+    "label": "gen3",
+    "wsz": null
+   },
+   {
+    "file": "preview-pokemon-yellow-overworld.png",
+    "label": "pokemon yellow overworld",
+    "wsz": "Pokemon-Yellow-Overworld.wsz"
+   },
+   {
+    "file": "preview-pokemon-yellow.png",
+    "label": "pokemon yellow",
+    "wsz": "Pokemon-Yellow.wsz"
+   }
+  ],
+  "wsz": [
+   "Pokemon-Gen1.wsz",
+   "Pokemon-Gen2.wsz",
+   "Pokemon-Gen3.wsz",
+   "Pokemon-Yellow-Overworld.wsz",
+   "Pokemon-Yellow.wsz"
+  ]
+ },
+ {
+  "family": "Apps",
+  "folder": "skins/apps/browsers",
+  "title": "Browsers: Chrome, Firefox, Discord, Netscape",
+  "previews": [
+   {
+    "file": "preview-chrome-blue.png",
+    "label": "chrome blue",
+    "wsz": null
+   },
+   {
+    "file": "preview-chrome.png",
+    "label": "chrome",
+    "wsz": "Chrome.wsz"
+   },
+   {
+    "file": "preview-discord.png",
+    "label": "discord",
+    "wsz": "Discord.wsz"
+   },
+   {
+    "file": "preview-firefox.png",
+    "label": "firefox",
+    "wsz": "Firefox.wsz"
+   },
+   {
+    "file": "preview-netscape.png",
+    "label": "netscape",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Chrome-Classic-Blue.wsz",
+   "Chrome.wsz",
+   "Discord.wsz",
+   "Firefox.wsz",
+   "Netscape-4.8.wsz"
+  ]
+ },
+ {
+  "family": "Apps",
+  "folder": "skins/apps/creative",
+  "title": "Creative: FL Studio, RealPlayer 10, Photoshop CS6",
+  "previews": [
+   {
+    "file": "preview-fl-studio.png",
+    "label": "fl studio",
+    "wsz": "FL-Studio.wsz"
+   },
+   {
+    "file": "preview-photoshop.png",
+    "label": "photoshop",
+    "wsz": null
+   },
+   {
+    "file": "preview-realplayer.png",
+    "label": "realplayer",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "FL-Studio.wsz",
+   "Photoshop-CS6.wsz",
+   "RealPlayer-10.wsz"
+  ]
+ },
+ {
+  "family": "Apps",
+  "folder": "skins/apps/ms-apps",
+  "title": "MS Apps: MSN Messenger, Office 2007, Office 2010",
+  "previews": [
+   {
+    "file": "preview-msn.png",
+    "label": "msn",
+    "wsz": null
+   },
+   {
+    "file": "preview-office2007.png",
+    "label": "office2007",
+    "wsz": "Office-2007.wsz"
+   },
+   {
+    "file": "preview-office2010.png",
+    "label": "office2010",
+    "wsz": "Office-2010.wsz"
+   }
+  ],
+  "wsz": [
+   "MSN-Messenger.wsz",
+   "Office-2007.wsz",
+   "Office-2010.wsz"
+  ]
+ },
+ {
+  "family": "Apps",
+  "folder": "skins/apps/p2p",
+  "title": "P2P: the file-sharing clients of 1999-2006",
+  "previews": [
+   {
+    "file": "preview-azureus.png",
+    "label": "azureus",
+    "wsz": "Azureus.wsz"
+   },
+   {
+    "file": "preview-kazaa.png",
+    "label": "kazaa",
+    "wsz": "Kazaa.wsz"
+   },
+   {
+    "file": "preview-limewire.png",
+    "label": "limewire",
+    "wsz": "LimeWire.wsz"
+   },
+   {
+    "file": "preview-napster.png",
+    "label": "napster",
+    "wsz": "Napster.wsz"
+   }
+  ],
+  "wsz": [
+   "Azureus.wsz",
+   "Kazaa.wsz",
+   "LimeWire.wsz",
+   "Napster.wsz"
+  ]
+ },
+ {
+  "family": "Apps",
+  "folder": "skins/apps/streaming",
+  "title": "Streaming: YouTube Music (dark and light), Spotify, Apple Music, SoundCloud",
+  "previews": [
+   {
+    "file": "preview-apple-music.png",
+    "label": "apple music",
+    "wsz": "Apple-Music.wsz"
+   },
+   {
+    "file": "preview-soundcloud.png",
+    "label": "soundcloud",
+    "wsz": "SoundCloud.wsz"
+   },
+   {
+    "file": "preview-spotify.png",
+    "label": "spotify",
+    "wsz": "Spotify.wsz"
+   },
+   {
+    "file": "preview-youtube-music-light.png",
+    "label": "youtube music light",
+    "wsz": "YouTube-Music-Light.wsz"
+   },
+   {
+    "file": "preview-youtube-music.png",
+    "label": "youtube music",
+    "wsz": "YouTube-Music.wsz"
+   }
+  ],
+  "wsz": [
+   "Apple-Music.wsz",
+   "SoundCloud.wsz",
+   "Spotify.wsz",
+   "YouTube-Music-Light.wsz",
+   "YouTube-Music.wsz"
+  ]
+ },
+ {
+  "family": "Apps",
+  "folder": "skins/apps/wmp",
+  "title": "WMP: Windows Media Player 7, 8, 9 Series and 10",
+  "previews": [
+   {
+    "file": "preview-wmp10.png",
+    "label": "wmp10",
+    "wsz": "WMP-10.wsz"
+   },
+   {
+    "file": "preview-wmp7.png",
+    "label": "wmp7",
+    "wsz": "WMP-7.wsz"
+   },
+   {
+    "file": "preview-wmp8.png",
+    "label": "wmp8",
+    "wsz": "WMP-8.wsz"
+   },
+   {
+    "file": "preview-wmp9.png",
+    "label": "wmp9",
+    "wsz": "WMP-9.wsz"
+   }
+  ],
+  "wsz": [
+   "WMP-10.wsz",
+   "WMP-7.wsz",
+   "WMP-8.wsz",
+   "WMP-9.wsz"
+  ]
+ },
+ {
+  "family": "Apps",
+  "folder": "skins/apps/work-apps",
+  "title": "Work Apps: Microsoft Teams, Slack (dark and light), Palo Alto Networks",
+  "previews": [
+   {
+    "file": "preview-palo-alto.png",
+    "label": "palo alto",
+    "wsz": null
+   },
+   {
+    "file": "preview-slack-light.png",
+    "label": "slack light",
+    "wsz": "Slack-Light.wsz"
+   },
+   {
+    "file": "preview-slack.png",
+    "label": "slack",
+    "wsz": "Slack.wsz"
+   },
+   {
+    "file": "preview-teams.png",
+    "label": "teams",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Microsoft-Teams.wsz",
+   "Palo-Alto-Networks.wsz",
+   "Slack-Light.wsz",
+   "Slack.wsz"
+  ]
+ },
+ {
+  "family": "Web",
+  "folder": "skins/web/encarta-tumblr",
+  "title": "Encarta and Tumblr: Microsoft Encarta 97 and the 2012 Tumblr dashboard",
+  "previews": [
+   {
+    "file": "preview-encarta-97.png",
+    "label": "encarta 97",
+    "wsz": "Encarta-97.wsz"
+   },
+   {
+    "file": "preview-tumblr.png",
+    "label": "tumblr",
+    "wsz": "Tumblr.wsz"
+   }
+  ],
+  "wsz": [
+   "Encarta-97.wsz",
+   "Tumblr.wsz"
+  ]
+ },
+ {
+  "family": "Web",
+  "folder": "skins/web/social-2012",
+  "title": "Social 2012: Twitter, Instagram and Google+ around 2012",
+  "previews": [
+   {
+    "file": "preview-google-plus.png",
+    "label": "google plus",
+    "wsz": "Google-Plus.wsz"
+   },
+   {
+    "file": "preview-instagram-2012.png",
+    "label": "instagram 2012",
+    "wsz": "Instagram-2012.wsz"
+   },
+   {
+    "file": "preview-twitter-2012.png",
+    "label": "twitter 2012",
+    "wsz": "Twitter-2012.wsz"
+   }
+  ],
+  "wsz": [
+   "Google-Plus.wsz",
+   "Instagram-2012.wsz",
+   "Twitter-2012.wsz"
+  ]
+ },
+ {
+  "family": "Web",
+  "folder": "skins/web/web-classic",
+  "title": "Web Classic: deviantART, What.CD, Gmail 2004, old reddit",
+  "previews": [
+   {
+    "file": "preview-deviantart.png",
+    "label": "deviantart",
+    "wsz": "deviantArt.wsz"
+   },
+   {
+    "file": "preview-gmail-2004.png",
+    "label": "gmail 2004",
+    "wsz": "Gmail-2004.wsz"
+   },
+   {
+    "file": "preview-reddit.png",
+    "label": "reddit",
+    "wsz": null
+   },
+   {
+    "file": "preview-what-cd.png",
+    "label": "what cd",
+    "wsz": "What-cd.wsz"
+   }
+  ],
+  "wsz": [
+   "Gmail-2004.wsz",
+   "Reddit-Classic.wsz",
+   "What-cd.wsz",
+   "deviantArt.wsz"
+  ]
+ },
+ {
+  "family": "Web",
+  "folder": "skins/web/web-nostalgia",
+  "title": "Web Nostalgia: MySpace, Facebook 2006, Neopets",
+  "previews": [
+   {
+    "file": "preview-facebook-2006.png",
+    "label": "facebook 2006",
+    "wsz": "Facebook-2006.wsz"
+   },
+   {
+    "file": "preview-myspace.png",
+    "label": "myspace",
+    "wsz": "MySpace.wsz"
+   },
+   {
+    "file": "preview-neopets.png",
+    "label": "neopets",
+    "wsz": "Neopets.wsz"
+   }
+  ],
+  "wsz": [
+   "Facebook-2006.wsz",
+   "MySpace.wsz",
+   "Neopets.wsz"
+  ]
+ },
+ {
+  "family": "Variants",
+  "folder": "skins/variants/ember",
+  "title": "Ember",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Ember.wsz"
+  ]
+ },
+ {
+  "family": "Variants",
+  "folder": "skins/variants/pixel-pet",
+  "title": "Pixel Pet: the public Pixel Pet skin titled for the Tamagotchi",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Tamagotchi.wsz"
+  ]
+ },
+ {
+  "family": "Variants",
+  "folder": "skins/variants/vaporwave",
+  "title": "Vaporwave (private variant)",
+  "previews": [
+   {
+    "file": "preview.png",
+    "label": "default",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "Vaporwave.wsz"
+  ]
+ },
+ {
+  "family": "Variants",
+  "folder": "skins/variants/vfd",
+  "title": "VFD: the public VFD skins with a head-unit titlebar",
+  "previews": [
+   {
+    "file": "preview-vfd-silver.png",
+    "label": "vfd silver",
+    "wsz": "VFD-Silver.wsz"
+   },
+   {
+    "file": "preview-vfd.png",
+    "label": "vfd",
+    "wsz": "VFD.wsz"
+   }
+  ],
+  "wsz": [
+   "VFD-Silver.wsz",
+   "VFD.wsz"
+  ]
+ }
+]

@@ -8,6 +8,8 @@ Classic Winamp 2.x skins (.wsz) for YTMinamp's Winamp mode, each drawn by a scri
 | [`bundled-skins/`](bundled-skins/) | The skins that ship with [YTMinamp-limusic](https://github.com/ergosteur/YTMinamp-limusic) releases (original designs, CC0) |
 | [`skins/`](skins/) | The larger collection: K-pop, OS, device, game, app and web homages, plus extra variants |
 
+**[Browse the skin gallery](https://ergosteur.github.io/YTMinamp-Skins/)** for a preview of every skin, with downloads.
+
 ## Using a skin
 
 Each skin folder has a ready-built `.wsz` and a `preview*.png`. Load the `.wsz` in YTMinamp's
