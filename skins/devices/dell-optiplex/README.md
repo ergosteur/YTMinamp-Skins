@@ -26,21 +26,24 @@ finished by `skins/genex_wacup.py`.
 - **Dell OptiPlex 9010** (`optiplex-9010`, 2012): every window is satin black bezel (#2C2D32
   fading to #1E1F23) above and the silver steel mesh below (lands #D6D8DC to #ACAFB4, holes
   #16161A, staggered rows of 4x2 stadium holes, a lit lower lip and shaded upper lip on each).
-  Main window: the titlebar prints "OptiPlex 9010" in white italic (as Dell prints model names
-  on the bezel), the options button is the small round ID button, and minimize/shade/close are
-  small dark-grey keys. The displays are a PowerEdge-style blue-backlit LCD in black glass: a
-  lit field (#2F4FD8, sampled from the photos) with white text (#FAFBFF), italic time digits,
-  white analyzer bars and a "KBPS / KHZ" info row; MONO/STEREO show the selected item as the
-  LCD does, a pale box (#C4D2FA) with the text inverted into it, the other dimmed (#809AEE).
-  The clutterbar is a column of the dark-grey keys beside the LCD (pressed = blue letter).
-  Under the LCD: the two audio jacks and the drive light, the volume and balance as small LCD
-  bars lighting segment by segment, and EQ/PL as grey keys with a check that lights when on.
-  The slim optical drive crosses the bezel; its tray seam is the seek bar and the thumb is the
-  light-blue "EST" pull-out tag (#96B2D6). On the mesh: a black recess with the transport as
-  the PowerEdge's < check > keys (previous <, play check, pause, stop as the power symbol in
-  green #60D66E, next >), the eject key, a second recess with shuffle and repeat as front USB
-  ports (the tongue turns USB 3.0 blue #1666D6 and the tridents light when on), and the brushed
-  aluminium DELL badge (white wordmark in relief) in the About spot. The EQ: bezel strip with
+  Main window: the titlebar prints "OptiPlex" in white italic (as Dell prints model names on
+  the bezel, left generic rather than naming the 9010 specifically), the options button is the
+  small round ID button, and minimize/shade/close are small dark-grey keys. The displays are a
+  PowerEdge-style blue-backlit LCD in black glass: a lit field (#2F4FD8, sampled from the
+  photos) with white text (#FAFBFF), italic time digits, white analyzer bars and a
+  "KBPS / KHZ" info row; MONO/STEREO show the selected item as the LCD does, a pale box
+  (#C4D2FA) with the text inverted into it, the other dimmed (#809AEE). The clutterbar is a
+  column of the dark-grey keys beside the LCD (pressed = blue letter). Under the LCD: the two
+  audio jacks and the drive light, the volume and balance as small LCD bars lighting segment by
+  segment, and EQ/PL as grey keys with a check that lights when on. The slim optical drive
+  crosses the bezel; its tray seam is the seek bar and the thumb is the light-blue "EST"
+  pull-out tag (#96B2D6). On the mesh: a black recess with the transport as the PowerEdge's
+  < check > keys (previous <, play check, pause, stop an X in the same weight as the check,
+  next >), with eject (search's show/hide) carrying the power symbol in green #60D66E instead
+  of stop: stop isn't an on/off toggle, and eject is one. A second recess holds shuffle and
+  repeat as front USB ports (the tongue turns USB 3.0 blue #1666D6 when on; the trident beside
+  each port is printed on the bezel, like the real thing, and doesn't light up with it), and the
+  brushed aluminium DELL badge (white wordmark in relief) sits in the About spot. The EQ: bezel strip with
   "Equalizer", ON/AUTO keys with checks, the graph as a small LCD (white curve), and the mesh
   below with black slots whose LCD columns light up to each value, the dB scale and band labels
   on black plates. Playlist and album-art frames: a black bezel band ("Playlist" in white
@@ -56,9 +59,9 @@ finished by `skins/genex_wacup.py`.
   seamlessly; the trade-off is that holes alternate slightly in sharpness. The playlist and
   album-art sides are plain bezel (vertical-only variation).
 - The OptiPlex has no display; the LCD is borrowed from the PowerEdge servers' front panel (its
-  < check > keys, EST tag and power symbol too), as asked. The model name in the titlebar is set
-  in Open Sans italic, close to but not Dell's own face. The real OptiPlex print is small caps
-  "OPTIPLEX 9010"; the italic follows the PowerEdge bezel print.
+  < check > keys, EST tag and power symbol too), as asked. The titlebar's "OptiPlex" is set in
+  Open Sans italic, close to but not Dell's own face; the real print is small caps and, on the
+  9010 specifically, would name the model. The italic follows the PowerEdge bezel print.
 - At 32x19 px the badge's wordmark is about 8 px tall: the tilted E reads, but only just.
 - The balance slider's frames can't show which side (format limit): it lights outward from the
   centre.

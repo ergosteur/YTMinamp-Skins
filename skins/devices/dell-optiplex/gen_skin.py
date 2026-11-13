@@ -441,9 +441,9 @@ GLYPHS = {
     "prev": G("...##", "..##.", ".##..", "##...", ".##..", "..##.", "...##"),
     "next": G("##...", ".##..", "..##.", "...##", "..##.", ".##..", "##..."),
     "check": G(".......##", "......##.", ".....##..", "##..##...", ".####....", "..##....."),
+    "cross": G("##.....##", ".##...##.", "..##.##..", "..##.##..", ".##...##.", "##.....##"),
     "pause": G("##.##", "##.##", "##.##", "##.##", "##.##", "##.##", "##.##"),
     "power": G("...#...", ".#.#.#.", "#..#..#", "#.....#", "#.....#", ".#...#.", "..###.."),
-    "eject": G("...#...", "..###..", ".#####.", "#######", ".......", "#######"),
     "close": G("#...#", ".#.#.", "..#..", ".#.#.", "#...#"),
     "min": G(".....", ".....", ".....", ".....", "#####"),
     "shade": G("#####", ".....", ".....", ".....", "....."),
@@ -568,7 +568,7 @@ def main_titlebar(lit):
     rect(a, 0, 0, 1, 14, (56, 58, 64))
     rect(a, 274, 0, 1, 14, BEZEL_LO)
     # the model name in the bezel's white italic print
-    tt_print(a, "OptiPlex 9010", 19, 11, 10, (244, 245, 248) if lit else (150, 152, 158))
+    tt_print(a, "OptiPlex", 19, 11, 10, (244, 245, 248) if lit else (150, 152, 158))
     caption_key(a, 6, 3, "options", lit)
     caption_key(a, 244, 3, "minimize", lit)
     caption_key(a, 254, 3, "shade", lit)
@@ -712,7 +712,7 @@ def slot_seat(a, x, y, w):
 # ------------------------------------------------------------------------------------------
 
 TRANSPORT = [("prev", 0, 23, 18), ("check", 23, 23, 18), ("pause", 46, 23, 18),
-             ("power", 69, 23, 18), ("next", 92, 22, 18)]
+             ("cross", 69, 23, 18), ("next", 92, 22, 18)]
 
 
 def make_cbuttons():
@@ -720,13 +720,13 @@ def make_cbuttons():
     for kind, x, w, h in TRANSPORT:
         for pressed, y in ((False, 0), (True, 18)):
             key(a, x, y, w, h, pressed, corner=RECESS)
-            col = None
-            if kind == "power":
-                col = (150, 255, 160) if pressed else POWER_GREEN
-            key_glyph(a, kind, x, y, w, h, pressed, col)
+            key_glyph(a, kind, x, y, w, h, pressed)
+    # Eject (search's show/hide) carries the power symbol instead of Stop: Stop isn't an on/off
+    # toggle, and a power glyph on it read as "quit" rather than "stop playback".
     for pressed, y in ((False, 0), (True, 16)):
         key(a, 114, y, 22, 16, pressed, corner=RECESS)
-        key_glyph(a, "eject", 114, y, 22, 16, pressed)
+        col = (150, 255, 160) if pressed else POWER_GREEN
+        key_glyph(a, "power", 114, y, 22, 16, pressed, col)
     return a
 
 
@@ -768,8 +768,10 @@ def port_toggle(a, x, y, w, h, label, on, pressed):
         ink = KEY_INK_PRESSED
     text_center(a, TINY, label, x + w // 2 + o, y + 9 + o, ink)
     if w > 40:
-        trident(a, x + 3 + o, y + 2 + o, USB_BLUE if on else (70, 72, 80))
-        trident(a, x + w - 10 + o, y + 2 + o, USB_BLUE if on else (70, 72, 80))
+        # Printed on the bezel beside the port, same as the real thing: it doesn't light up with
+        # shuffle/repeat, only the port's tongue (USB 2.0/3.0) does.
+        trident(a, x + 3 + o, y + 2 + o, SILVER_PRINT)
+        trident(a, x + w - 10 + o, y + 2 + o, SILVER_PRINT)
 
 
 def check_key(a, x, y, w, h, label, on, pressed):
@@ -1156,7 +1158,7 @@ def make_pledit():
     foot_edges(t, False, True)
     plate(t, 1, 6, 130, 28)
     small_lcd(t, 6, 9, 56, 8)
-    icons = ["prev", "check", "pause", "power", "next", "eject"]
+    icons = ["prev", "check", "pause", "cross", "next", "power"]
     for k, kind in enumerate(icons):
         bx = 3 + 10 * k
         key(t, bx, 22, 10, 10, False, corner=RECESS)
@@ -1180,10 +1182,10 @@ def make_pledit():
 MINI = {
     "prev": G("..#", ".#.", "#..", ".#.", "..#"),
     "check": G("....#", "...#.", "#.#..", ".#..."),
+    "cross": G("#...#", ".#.#.", ".#.#.", "#...#"),
     "pause": G("#.#", "#.#", "#.#", "#.#", "#.#"),
     "power": G("..#..", "#.#.#", "#...#", "#...#", ".###."),
     "next": G("#..", ".#.", "..#", ".#.", "#.."),
-    "eject": G("..#..", ".###.", "#####", ".....", "#####"),
 }
 
 

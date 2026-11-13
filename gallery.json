@@ -370,6 +370,39 @@
  },
  {
   "family": "K-pop",
+  "folder": "skins/kpop/heejin-noir",
+  "title": "HeeJin: four personal skins built around two unrelated sets of candid HeeJin (ARTMS) photos",
+  "previews": [
+   {
+    "file": "preview-bunny.png",
+    "label": "bunny",
+    "wsz": null
+   },
+   {
+    "file": "preview-noir.png",
+    "label": "noir",
+    "wsz": null
+   },
+   {
+    "file": "preview-parasol.png",
+    "label": "parasol",
+    "wsz": null
+   },
+   {
+    "file": "preview-plushie.png",
+    "label": "plushie",
+    "wsz": null
+   }
+  ],
+  "wsz": [
+   "HeeJin-BunnyPop.wsz",
+   "HeeJin-LaceNoir.wsz",
+   "HeeJin-Parasol.wsz",
+   "HeeJin-Plushie.wsz"
+  ]
+ },
+ {
+  "family": "K-pop",
   "folder": "skins/kpop/loona",
   "title": "LOONA: the group, its subunits and eras, dark and light",
   "previews": [
@@ -1001,8 +1034,13 @@
  {
   "family": "Devices",
   "folder": "skins/devices/norstar",
-  "title": "Norstar: the Nortel Meridian Norstar M7310 office phone, charcoal and ash",
+  "title": "Office phones: the Nortel Norstar M7310 and the Cisco IP Phone 7945",
   "previews": [
+   {
+    "file": "preview-cisco-7945.png",
+    "label": "cisco 7945",
+    "wsz": null
+   },
    {
     "file": "preview-m7310-ash.png",
     "label": "m7310 ash",
@@ -1015,6 +1053,7 @@
    }
   ],
   "wsz": [
+   "Cisco-IP-Phone-7945.wsz",
    "Nortel-Norstar-M7310-Ash.wsz",
    "Nortel-Norstar-M7310.wsz"
   ]

@@ -23,6 +23,7 @@ file, preview-<theme>.png (the windows assembled from the sprites the way the ap
 """
 
 import os
+import subprocess
 import sys
 import zipfile
 from types import SimpleNamespace
@@ -74,9 +75,26 @@ THEMES = {
         WELL=(132, 126, 110), NUB=(70, 74, 80), NUB_HI=(130, 134, 140),
         SEL=(176, 204, 186), CURRENT=(170, 36, 20), ITEM_HDR=(196, 190, 172),
     ),
+    # Cisco IP Phone 7945 (2007): its own main-window layout (a colour-LCD office phone, not a
+    # Norstar key set) sharing this folder's helpers where they fit. Silver screen bezel, charcoal
+    # housing and keys with pale ink (the opposite of the Norstar themes' light keys / dark ink),
+    # a teal "accent" key colour for the nav cluster's checkmark (Play) and its lit LEDs.
+    "cisco-7945": SimpleNamespace(
+        name="cisco-7945", title="Cisco IP Phone 7945", wsz="Cisco-IP-Phone-7945.wsz", seed=7945,
+        colourway="cisco",
+        BODY=(90, 93, 97), BODY_HI=(126, 130, 134), BODY_LO=(52, 54, 57),
+        BEZEL=(196, 196, 195), BEZEL_HI=(222, 222, 220), BEZEL_LO=(152, 152, 150),
+        KEY=(104, 108, 112), KEY_HI=(148, 152, 156), KEY_LO=(54, 57, 60), KEY_INK=(230, 232, 233),
+        ACCENT=(66, 104, 126), ACCENT_HI=(108, 150, 172), ACCENT_LO=(36, 60, 76), ACCENT_INK=(240, 244, 246),
+        GLASS=(158, 195, 214), INK=(18, 40, 56), LIST_BG=(214, 220, 224),
+        PRINT=(222, 224, 225), PRINT_DIM=(150, 152, 154), PRINT_UNLIT=(128, 130, 132),
+        WELL=(32, 34, 36), NUB=(58, 62, 66), NUB_HI=(110, 114, 118),
+        SEL=(150, 188, 208), CURRENT=(198, 92, 38), ITEM_HDR=(68, 71, 75),
+        CISCO_RED=(196, 18, 46), CISCO_TEAL=(21, 73, 93),   # the downloaded badge's own two inks
+    ),
 }
 
-PALETTE_KEYS = [k for k in vars(THEMES["m7310-charcoal"]) if k.isupper()]
+PALETTE_KEYS = sorted({k for t in THEMES.values() for k in vars(t) if k.isupper()})
 
 
 def lerp(a, b, t):
@@ -449,12 +467,21 @@ def grille(a, x, y, w, rows, lit=True):
 
 
 def key_colours(kind, pressed=False):
-    face, hi, lo, ink = {
-        "grey": (KEY, KEY_HI, KEY_LO, KEY_INK),
-        "red": (RED, RED_HI, RED_LO, RED_INK),
-        "green": (GREEN, GREEN_HI, GREEN_LO, GREEN_INK),
-        "dark": (NUB, NUB_HI, BEZEL_LO, KEY_HI),
-    }[kind]
+    # An if/elif chain, not a dict literal: a dict literal would eagerly evaluate every branch's
+    # globals (RED, GREEN, ...) even for an unused kind, and the cisco-7945 theme doesn't define
+    # those (it adds its own "accent" kind instead).
+    if kind == "grey":
+        face, hi, lo, ink = KEY, KEY_HI, KEY_LO, KEY_INK
+    elif kind == "red":
+        face, hi, lo, ink = RED, RED_HI, RED_LO, RED_INK
+    elif kind == "green":
+        face, hi, lo, ink = GREEN, GREEN_HI, GREEN_LO, GREEN_INK
+    elif kind == "dark":
+        face, hi, lo, ink = NUB, NUB_HI, BEZEL_LO, KEY_HI
+    elif kind == "accent":
+        face, hi, lo, ink = ACCENT, ACCENT_HI, ACCENT_LO, ACCENT_INK
+    else:
+        raise ValueError(kind)
     if pressed:
         face, hi = lerp(face, lo, 0.35), lerp(hi, lo, 0.5)
     return face, hi, lo, ink
@@ -507,6 +534,69 @@ def indicator(a, x, y, on, h=7):
             for k, ch in enumerate(row):
                 if ch == "#":
                     px(a, x + 2 + k, y + 1 + r + max(0, (h - 7) // 2), INK)
+
+
+def indicator_round(a, x, y, on, h=7):
+    """cisco-7945's version of `indicator()`: a round LED (the phone's own look) in the same
+    glass-sliver rim, lit in the theme's accent teal rather than a triangle."""
+    rect(a, x, y, 6, h, BEZEL_LO)
+    rect(a, x + 1, y + 1, 4, h - 2, GLASS)
+    if on:
+        cx, cy = x + 3, y + h // 2
+        for dx, dy in ((-1, 0), (0, -1), (0, 0), (0, 1), (1, 0)):
+            px(a, cx + dx, cy + dy, ACCENT)
+
+
+# cisco-7945's small icon glyphs: a checkmark (the nav cluster's Play), a headset (the eject key).
+# The icon-grid's shuffle / repeat keys started out as that grid's own globe / open-book icons,
+# but redrawn that small (20px) they read as a crossed-out circle and two flat bars, not as
+# anything in particular — so SHUFFLE_ICON and REPEAT_ICON below are the standard crossing-arrows
+# and looping-arrow glyphs instead (still each in its own icon-grid-style key with its own lit
+# LED), which read unmistakably at this size where the literal icons didn't. Both are kept to 7
+# rows tall (toggle_icon()'s key face is 13px tall) so they sit inset with clear margin on every
+# side, the same as HEADSET does on the eject key, instead of touching the key's own bevel.
+CHECK = G("......#", ".....#.", "#...#..", ".#.#...", "..#....")
+HEADSET = G("..###..", ".#...#.", "#.....#", "#.....#", "##...##", "##...##")
+SHUFFLE_ICON = G(
+    "#......#",
+    ".#...##.",
+    "..#..##.",
+    "...##...",
+    "..#..##.",
+    ".#...##.",
+    "#......#",
+)
+REPEAT_ICON = G(
+    ".####...",
+    ".#...###",
+    "#..#...#",
+    "#...###.",
+    "#.....#.",
+    ".#...#..",
+    "..###...",
+)
+
+
+def icon_glyph(a, glyph, cx, cy, col):
+    """Draws one of the glyphs above, centred on (cx, cy)."""
+    h, w = len(glyph), len(glyph[0])
+    x0, y0 = cx - w // 2, cy - h // 2
+    for r, row in enumerate(glyph):
+        for c, ch in enumerate(row):
+            if ch == "#":
+                px(a, x0 + c, y0 + r, col)
+
+
+def toggle_icon(a, x, y, w, h, glyph, on, pressed, colour="grey"):
+    """cisco-7945's version of `toggle()`: the same indicator-plus-key composition, but with one
+    of the icon glyphs above instead of a text label (the icon-grid's shuffle / repeat)."""
+    indicator_round(a, x, y + (h - 7) // 2, on)
+    kx, kw = x + 7, w - 8
+    well(a, kx - 1, y, kw + 2, h, WELL)
+    ink = key(a, kx, y + 1, kw, h - 2, colour, pressed)
+    chamfer(a, kx, y + 1, kw, h - 2, WELL, (True, True, True, True), r=1)
+    o = 1 if pressed else 0
+    icon_glyph(a, glyph, kx + kw // 2 + o, y + h // 2 + o, ink)
 
 
 def paper_strip(a, x, y, w, h, lit=True):
@@ -819,6 +909,19 @@ def toggle(a, x, y, w, h, label, on, pressed, colour="grey", well_col=None):
     kx, kw = x + 7, w - 8
     well(a, kx - 1, y, kw + 2, h, WELL if well_col is None else well_col)
     ink = key(a, kx, y + 1, kw, h - 2, colour, pressed)
+    o = 1 if pressed else 0
+    text_center(a, SMALL, label, kx + kw // 2 + o, y + (h - 5) // 2 + o, ink)
+
+
+def toggle_cisco(a, x, y, w, h, label, on, pressed, colour="grey", well_col=None):
+    """cisco-7945's version of `toggle()`: a round LED (`indicator_round`) instead of the Norstar
+    triangle. Used for the main window's EQ / PL keys and the EQ window's On / Auto keys."""
+    indicator_round(a, x, y + (h - 7) // 2, on)
+    kx, kw = x + 7, w - 8
+    wc = WELL if well_col is None else well_col
+    well(a, kx - 1, y, kw + 2, h, wc)
+    ink = key(a, kx, y + 1, kw, h - 2, colour, pressed)
+    chamfer(a, kx, y + 1, kw, h - 2, wc, (True, True, True, True), r=1)
     o = 1 if pressed else 0
     text_center(a, SMALL, label, kx + kw // 2 + o, y + (h - 5) // 2 + o, ink)
 
@@ -1385,6 +1488,10 @@ def viscolor():
 
 
 def pledit_colours():
+    # preview_playlist() (shared by every theme) calls this bare name; dispatch to cisco-7945's
+    # own version (defined further down, alongside its other cisco-7945-only functions) there.
+    if T.name == "cisco-7945":
+        return pledit_colours_cisco()
     return dict(Normal=hexc(INK), Current=hexc(CURRENT), NormalBG=hexc(PAPER), SelectedBG=hexc(SEL))
 
 
@@ -1410,6 +1517,589 @@ def write_text_files():
 
 
 # ------------------------------------------------------------------------------------------
+# cisco-7945: its own main-window layout (a colour-LCD office phone, not a Norstar key set).
+# Reuses this file's generic helpers (rect/raised/sunken/key/well/glass/nub/eq_frame/bar20/
+# side_tile/small_key/mini_button/toggle, the pixel fonts) wherever they fit; writes its own
+# versions only where the M7310 ones bake in Norstar-specific shapes (the speaker grille, the
+# memory keys' paper designation strips, the meridian/NORTEL logos).
+# ------------------------------------------------------------------------------------------
+
+
+def cisco_bars():
+    """The downloaded Cisco logo's bridge bar heights, measured from the rasterised SVG (the
+    same technique as devices/cisco's generator, adapted: that logo's bridge is drawn in a
+    distinct dark teal ink rather than blue, so bars are matched by colour proximity instead of
+    a blue-channel test)."""
+    global _CISCO_BARS
+    if _CISCO_BARS is not None:
+        return _CISCO_BARS
+    svg = os.path.join(SOURCE, "cisco-logo-2006", "Cisco_logo.svg")
+    png = os.path.join(SCRATCH, "cisco-logo-400.png")
+    if not os.path.exists(png):
+        os.makedirs(SCRATCH, exist_ok=True)
+        subprocess.run(["/usr/bin/rsvg-convert", "-h", "400", svg, "-o", png], check=True)
+    a = np.asarray(Image.open(png).convert("RGBA")).astype(np.int32)
+    teal = np.array([21, 73, 93])
+    dist = np.abs(a[..., :3] - teal).sum(-1)
+    mask = (a[..., 3] > 128) & (dist < 40)
+    cols = mask.any(0)
+    W = mask.shape[1]
+    bars, x = [], 0
+    while x < W:
+        if cols[x]:
+            s = x
+            while x < W and cols[x]:
+                x += 1
+            c = (s + x) // 2
+            ys = np.nonzero(mask[:, c])[0]
+            bars.append((int(ys.min()), int(ys.max())))
+        x += 1
+    top = min(b[0] for b in bars)
+    bot = max(b[1] for b in bars)
+    _CISCO_BARS = [((b0 - top) / (bot - top), (b1 - top) / (bot - top)) for b0, b1 in bars]
+    return _CISCO_BARS
+
+
+_CISCO_BARS = None
+
+
+def cisco_badge(a, x, y, col_bridge, col_text, bridge_h=6, gap=1):
+    """The downloaded Cisco logo (source/cisco-logo-2006/Cisco_logo.svg, Wikimedia Commons),
+    redrawn as pixels: the bridge's bars (heights measured above) over "cisco" in the skin's own
+    pixel font (SMALL, lower-case, matching the real wordmark's case). Returns (width, height)."""
+    bars = cisco_bars()
+    for i, (t, b) in enumerate(bars):
+        top = round(t * (bridge_h - 1))
+        bot = round(b * (bridge_h - 1))
+        rect(a, x + i * 2, y + top, 1, bot - top + 1, col_bridge)
+    bridge_w = len(bars) * 2 - 1
+    tw = text_w(SMALL, "cisco")
+    tx = x + max(0, (bridge_w - tw) // 2)
+    draw_text(a, SMALL, "cisco", tx, y + bridge_h + gap, col_text)
+    return max(bridge_w, tw), bridge_h + gap + 5
+
+
+def chamfer(a, x, y, w, h, bg, corners, r=2):
+    """Rounds off up to `r` px of the given corners of the w x h rect at (x, y), staircasing back
+    to `bg`. Classic Winamp windows are always rectangular (no per-skin transparency), so this
+    softens the silhouette of a shape drawn within the window — the screen bezel, a key, the
+    titlebar's own corners — rather than the window itself. `corners` is (tl, tr, bl, br)."""
+    tl, tr, bl, br = corners
+    for i in range(r):
+        n = r - i
+        if tl:
+            rect(a, x, y + i, n, 1, bg)
+        if tr:
+            rect(a, x + w - n, y + i, n, 1, bg)
+        if bl:
+            rect(a, x, y + h - 1 - i, n, 1, bg)
+        if br:
+            rect(a, x + w - n, y + h - 1 - i, n, 1, bg)
+
+
+def titlebar_body_cisco(w, h=14):
+    """Like `titlebar_body()`, but in the screen bezel's own silver (the real unit's logo print
+    sits on that same light shoulder, not on the charcoal body below it — see make_main_cisco)."""
+    a = new(w, h, BEZEL)
+    grain(a, 0, 0, w, h, 0.6)
+    rect(a, 0, 0, w, 1, BEZEL_HI)
+    rect(a, 0, h - 1, w, 1, BEZEL_LO)
+    return a
+
+
+def main_titlebar_cisco(lit):
+    """The Cisco badge over the left edge, "CISCO IP PHONE 7945" printed beside it (as the real
+    unit prints its model name above the screen, on the same silver shoulder the screen sits in —
+    not on the charcoal body), the titlebar buttons at their fixed spots. Its top two corners are
+    rounded: the real unit's shoulder is noticeably curved there."""
+    a = titlebar_body_cisco(275)
+    rect(a, 0, 0, 1, 14, BODY_HI)
+    rect(a, 274, 0, 1, 14, BODY_LO)
+    chamfer(a, 0, 0, 275, 14, BODY, (True, True, False, False))
+    bridge_c = CISCO_TEAL if lit else lerp(CISCO_TEAL, BEZEL, 0.55)
+    text_c = CISCO_RED if lit else lerp(CISCO_RED, BEZEL, 0.55)
+    bw, _ = cisco_badge(a, 18, 1, bridge_c, text_c)
+    draw_text(a, FONT5, "CISCO IP PHONE 7945", 18 + bw + 9, 4, INK if lit else lerp(INK, BEZEL, 0.5))
+    mini_button(a, 6, 3, "options", lit)
+    mini_button(a, 244, 3, "minimize", lit)
+    mini_button(a, 254, 3, "shade", lit)
+    mini_button(a, 264, 3, "close", lit)
+    return a
+
+
+def make_titlebar_cisco():
+    a = new(344, 87)
+    plastic(a, 0, 0, 344, 87)
+    for kind, x, y, py_ in [("options", 0, 0, 9), ("minimize", 9, 0, 9), ("close", 18, 0, 9)]:
+        b = new(9, 9)
+        mini_button(b, 0, 0, kind, True)
+        a[y:y + 9, x:x + 9] = b
+        mini_button(b, 0, 0, kind, True, pressed=True)
+        a[py_:py_ + 9, x:x + 9] = b
+    b = new(9, 9)
+    mini_button(b, 0, 0, "shade", True)
+    a[18:27, 0:9] = b
+    mini_button(b, 0, 0, "shade", True, pressed=True)
+    a[18:27, 9:18] = b
+    a[0:14, 27:302] = main_titlebar_cisco(True)
+    a[15:29, 27:302] = main_titlebar_cisco(False)
+    a[29:43, 27:302] = main_titlebar_cisco(True)
+    a[42:56, 27:302] = main_titlebar_cisco(False)
+    unlit = clutter_bar("")
+    lit = clutter_bar("OAIDV")
+    a[0:43, 304:312] = unlit
+    a[0:43, 312:320] = unlit
+    for (letter, y, h), sx, sy in zip(CLUTTER_SLOTS, [304, 312, 320, 328, 336], [47, 55, 62, 69, 77]):
+        a[sy:sy + h, sx:sx + 8] = lit[y:y + h]
+    return a
+
+
+def about_badge(a, x, y, d=14):
+    """The About spot: the phone's own round, lit "?" Help button (centred in its icon-key
+    grid on the real unit) — a filled teal disc with a radial shade, the mark in ACCENT_INK."""
+    r = d / 2
+    for yy in range(d):
+        for xx in range(d):
+            dx, dy = xx - r + 0.5, yy - r + 0.5
+            dist2 = dx * dx + dy * dy
+            if dist2 <= r * r:
+                px(a, x + xx, y + yy, lerp(ACCENT_HI, ACCENT_LO, min(1.0, dist2 / (r * r))))
+    draw_text(a, FONT5, "?", x + d // 2 - 1, y + d // 2 - 2, ACCENT_INK)
+    rect(a, x - 1, y + d, d + 2, 1, BODY_LO)
+
+
+def make_main_cisco():
+    a = new(275, 116)
+    plastic(a, 0, 0, 275, 116)
+    raised(a, 0, 0, 275, 116)
+    a[0:14, :] = main_titlebar_cisco(True)
+
+    rect(a, 9, 21, 10, 45, WELL)
+    a[22:65, 10:18] = clutter_bar("")
+
+    # the screen bezel: the phone's silver faceplate around the colour LCD, continuing straight
+    # down from the titlebar above (one light shoulder, same as the real unit — no seam between
+    # the logo/model-name print and the screen); only its left edge (against the clutterbar well)
+    # and its rounded-off bottom corners (where the charcoal body begins) are drawn.
+    bx, by, bw, bh = 18, 14, 253, 58
+    rect(a, bx, by, bw, bh, BEZEL)
+    grain(a, bx, by, bw, bh, 0.7)
+    rect(a, bx, by + bh - 1, bw, 1, BEZEL_LO)
+    rect(a, bx + bw - 1, by, 1, bh, BEZEL_LO)
+    rect(a, bx + bw, by, 1, bh, BODY_LO)
+    rect(a, bx - 1, by, 1, bh, BODY_LO)
+    chamfer(a, bx, by, bw, bh, BODY, (False, False, True, True))
+    for r in ((21, 19, 83, 43), (108, 19, 160, 36)):
+        glass(a, *r)
+    # the clock: the LCD's faint dot grid where the app draws the digits, the colon, minus's
+    for x in (48, 60, 78, 90):
+        dot_digit(a, x, 26, DOT57[" "])
+    for r in range(7):
+        for c in range(5):
+            px(a, 36 + 2 * c, 26 + 2 * r, ghost())
+    for yy in (30, 34):
+        rect(a, 72, yy, 2, 2, INK)
+    for x in range(24, 100, 2):
+        px(a, x, 60, ghost())
+    draw_text(a, SMALL, "kbps", 128, 44, lerp(INK, GLASS, 0.3))
+    draw_text(a, SMALL, "kHz", 168, 44, lerp(INK, GLASS, 0.3))
+    # a thin seam under the left glass (where the ribs sit on the Norstar face)
+    rect(a, 22, 65, 81, 1, BEZEL_LO)
+    rect(a, 22, 66, 81, 1, lerp(BEZEL, BODY, 0.3))
+    # wells: the volume rocker, a short balance rocker, and the two round line keys (EQ / PL)
+    well(a, 107, 57, 68, 13, BEZEL_LO)
+    well(a, 177, 57, 38, 13, BEZEL_LO)
+    well(a, 219, 58, 23, 12, BEZEL_LO)
+    well(a, 242, 58, 23, 12, BEZEL_LO)
+
+    # seek: the body's recessed seam
+    rect(a, 16, 76, 248, 1, BODY_LO)
+    rect(a, 16, 77, 248, 1, lerp(BODY_LO, BODY, 0.4))
+    rect(a, 16, 78, 248, 1, BODY_HI)
+
+    # key wells: transport and eject
+    for x, w in ((16, 23), (39, 23), (62, 23), (85, 23), (108, 22)):
+        well(a, x + 1, 89, w - 2, 16)
+    well(a, 137, 90, 20, 14)
+
+    about_badge(a, 252, 90)
+
+    rect(a, 6, 110, 263, 1, BODY_LO)
+    rect(a, 6, 111, 263, 1, BODY_HI)
+    return a
+
+
+def phone_key_cisco(a, x, y, w, h, kind, pressed):
+    """A transport key: the teal accent key for Play (the nav cluster's checkmark), plain
+    charcoal keys with a white icon for everything else (the nav arrows / headset)."""
+    colour = "accent" if kind == "play" else "grey"
+    ink = key(a, x, y, w, h, colour, pressed)
+    chamfer(a, x, y, w, h, BODY, (True, True, True, True), r=1)
+    o = 1 if pressed else 0
+    cx, cy = x + w // 2 + o, y + h // 2 + o
+    if kind == "play":
+        icon_glyph(a, CHECK, cx, cy, ink)
+    elif kind == "eject":
+        icon_glyph(a, HEADSET, cx, cy, ink)
+    else:
+        mini_icon(a, kind, cx, cy, ink)
+
+
+TRANSPORT_C = [  # kind, sheet x, width, main x
+    ("previous", 0, 23, 16),
+    ("play", 23, 23, 39),
+    ("pause", 46, 23, 62),
+    ("stop", 69, 23, 85),
+    ("next", 92, 22, 108),
+]
+
+
+def make_cbuttons_cisco(main):
+    a = new(136, 36)
+    for kind, x, w, dx in TRANSPORT_C:
+        for pressed, y in ((False, 0), (True, 18)):
+            a[y:y + 18, x:x + w] = main[88:106, dx:dx + w]
+            phone_key_cisco(a, x + 2, y + 2, w - 4, 14, kind, pressed)
+    for pressed, y in ((False, 0), (True, 16)):
+        a[y:y + 16, 114:136] = main[89:105, 136:158]
+        phone_key_cisco(a, 116, y + 2, 18, 12, "eject", pressed)
+    return a
+
+
+def make_shufrep_cisco(main):
+    a = new(92, 85)
+    for row, (on, pressed) in enumerate([(False, False), (False, True), (True, False), (True, True)]):
+        y = row * 15
+        a[y:y + 15, 0:28] = main[89:104, 210:238]
+        a[y:y + 15, 28:75] = main[89:104, 164:211]
+        toggle_icon(a, 0, y, 28, 15, REPEAT_ICON, on, pressed)    # repeat: an icon-grid-style key
+        toggle_icon(a, 28, y, 47, 15, SHUFFLE_ICON, on, pressed)  # shuffle: an icon-grid-style key
+    for x, label, pressed in [(0, "EQ", False), (23, "PL", False), (46, "EQ", True), (69, "PL", True)]:
+        for on, y in ((False, 61), (True, 73)):
+            a[y:y + 12, x:x + 23] = main[58:70, 219 + (x % 46):219 + (x % 46) + 23]
+            toggle_cisco(a, x, y, 23, 12, label, on, pressed, well_col=BEZEL_LO)
+    return a
+
+
+def label_titlebar_cisco(title, lit, close_x=264):
+    """14px titlebar: a silver label plate (the screen bezel's own material) carrying the title
+    in LCD ink, plain charcoal either side (no speaker grille on this phone)."""
+    a = titlebar_body(275)
+    rect(a, 0, 0, 1, 14, BODY_HI)
+    rect(a, 274, 0, 1, 14, BODY_LO)
+    tw = text_w(FONT5, title)
+    pw = tw + 12
+    px0 = (275 - pw) // 2
+    plate = BEZEL if lit else lerp(BEZEL, BODY, 0.5)
+    plate_hi = BEZEL_HI if lit else lerp(BEZEL_HI, BODY, 0.5)
+    rect(a, px0 - 1, 1, pw + 2, 12, BODY_LO)
+    rect(a, px0, 2, pw, 10, plate)
+    rect(a, px0, 2, pw, 1, plate_hi)
+    draw_text(a, FONT5, title, px0 + 6, 4, INK if lit else lerp(INK, BEZEL, 0.5))
+    mini_button(a, close_x, 3, "close", lit)
+    return a
+
+
+def eq_body_cisco():
+    a = new(275, 116)
+    plastic(a, 0, 0, 275, 116)
+    raised(a, 0, 0, 275, 116)
+    a[0:14, :] = label_titlebar_cisco("EQUALIZER", True)
+    rect(a, 82, 15, 121, 23, BEZEL)
+    raised(a, 82, 15, 121, 23, BEZEL_HI, BEZEL_LO)
+    glass(a, 86, 17, 113, 19)
+    rect(a, 216, 17, 46, 14, WELL)
+    rect(a, 52, 38, 22, 61, WELL)
+    raised(a, 52, 38, 22, 61, BODY_HI, BODY_LO)
+    for lbl, yy in (("+12", 39), ("0", 66), ("-12", 93)):
+        text_center(a, TINY, lbl, 44, yy, PRINT)
+    for x in EQ_X:
+        a[38:101, x:x + 14] = eq_frame(a[38:101, x:x + 14])
+    text_center(a, TINY, "PREAMP", 28, 104, PRINT)
+    for i, lbl in enumerate(EQ_BANDS):
+        text_center(a, TINY, lbl, 78 + 18 * i + 7, 104, PRINT)
+    rect(a, 4, 111, 267, 1, BODY_LO)
+    rect(a, 4, 112, 267, 1, BODY_HI)
+    return a
+
+
+def presets_key_cisco(a, x, y, w, h, pressed):
+    well(a, x, y, w, h)
+    ink = key(a, x + 1, y + 1, w - 2, h - 2, "grey", pressed)
+    chamfer(a, x + 1, y + 1, w - 2, h - 2, WELL, (True, True, True, True), r=1)
+    o = 1 if pressed else 0
+    text_center(a, SMALL, "Presets", x + w // 2 + o, y + (h - 5) // 2 + o, ink)
+
+
+def make_eqmain_cisco():
+    a = new(275, 315)
+    plastic(a, 0, 0, 275, 315)
+    body = eq_body_cisco()
+    a[0:116, :] = body
+    c = new(9, 9)
+    mini_button(c, 0, 0, "close", True, pressed=True)
+    a[125:134, 0:9] = c
+    for x, label, on, pressed in [
+        (10, "On", False, False), (36, "Auto", False, False), (69, "On", True, False), (95, "Auto", True, False),
+        (128, "On", False, True), (154, "Auto", False, True), (187, "On", True, True), (213, "Auto", True, True),
+    ]:
+        w = 26 if label == "On" else 32
+        bx = 14 if label == "On" else 40
+        a[119:131, x:x + w] = body[18:30, bx:bx + w]
+        toggle_cisco(a, x, 119, w, 12, label, on, pressed)
+    a[134:148, :] = label_titlebar_cisco("EQUALIZER", True)
+    a[149:163, :] = label_titlebar_cisco("EQUALIZER", False)
+    for y, sel in ((164, False), (176, True)):
+        a[y:y + 11, 0:11] = body[40:51, 22:33]
+        rect(a, 0, y, 11, 11, BODY)
+        k = new(11, 11)
+        key(k, 0, 0, 11, 11, "grey", sel)
+        rect(k, 2, 5, 7, 1, KEY_LO)
+        rect(k, 2, 6, 7, 1, KEY_HI)
+        a[y:y + 11, 0:11] = k
+    base = body[38:101, 78:92]
+    for n in range(28):
+        x, y = 13 + (n % 14) * 15, 164 + (n // 14) * 65
+        a[y:y + 63, x:x + 14] = eq_frame(base, n)
+    for y, pressed in ((164, False), (176, True)):
+        a[y:y + 12, 224:268] = body[18:30, 217:261]
+        presets_key_cisco(a, 224, y, 44, 12, pressed)
+    rect(a, 0, 294, 113, 19, GLASS)
+    for x in range(0, 113, 2):
+        px(a, x, 294 + 9, ghost())
+    for x in range(0, 113, 12):
+        for y in range(0, 19, 2):
+            px(a, x, 294 + y, ghost())
+    for r in range(19):
+        px(a, 115, 294 + r, lerp(INK, GLASS, 0.15 * r / 18))
+    for x in range(113):
+        px(a, x, 314, lerp(INK, GLASS, 0.55) if x % 3 != 2 else GLASS)
+    return a
+
+
+def make_pledit_cisco():
+    a = new(280, 186)
+    plastic(a, 0, 0, 280, 186)
+    for lit, y in ((True, 0), (False, 21)):
+        plate = BEZEL if lit else lerp(BEZEL, BODY, 0.5)
+        plate_hi = BEZEL_HI if lit else lerp(BEZEL_HI, BODY, 0.5)
+        ink = INK if lit else lerp(INK, BEZEL, 0.5)
+        t = bar20(25, lit)
+        a[y:y + 20, 127:152] = t
+        t = bar20(25, lit)
+        rect(t, 0, 0, 1, 20, BODY_HI)
+        a[y:y + 20, 0:25] = t
+        t = bar20(100, lit)
+        rect(t, 3, 3, 94, 14, plate)
+        rect(t, 3, 3, 94, 1, plate_hi)
+        text_center(t, FONT5, "PLAYLIST", 50, 7, ink)
+        a[y:y + 20, 26:126] = t
+        t = bar20(25, lit)
+        rect(t, 24, 0, 1, 20, BODY_LO)
+        mini_button(t, 14, 3, "close", lit)
+        a[y:y + 20, 153:178] = t
+
+    a[42:71, 0:12] = side_tile(12, 29, True)
+    t = side_tile(20, 29, False)
+    rect(t, 5, 0, 8, 29, WELL)
+    rect(t, 5, 0, 1, 29, BODY_LO)
+    rect(t, 12, 0, 1, 29, BODY_HI)
+    a[42:71, 31:51] = t
+    t = new(9, 9)
+    mini_button(t, 0, 0, "close", True, pressed=True)
+    a[42:51, 52:61] = t
+    for x, sel in ((52, False), (61, True)):
+        k = new(8, 18, WELL)
+        key(k, 0, 0, 8, 18, "grey", sel)
+        for gy in (7, 9, 11):
+            rect(k, 2, gy, 4, 1, KEY_LO)
+        a[53:71, x:x + 8] = k
+
+    def bottom_base(w):
+        t = new(w, 38)
+        plastic(t, 0, 0, w, 38)
+        rect(t, 0, 0, w, 1, BODY_LO)
+        rect(t, 0, 1, w, 1, BODY_HI)
+        rect(t, 0, 37, w, 1, BODY_LO)
+        rect(t, 0, 33, w, 1, BODY_LO)
+        rect(t, 0, 34, w, 1, BODY_HI)
+        return t
+
+    t = bottom_base(125)
+    rect(t, 0, 0, 1, 38, BODY_HI)
+    for bx, lbl in ((14, "Add"), (43, "Rem"), (72, "Sel"), (101, "Misc")):
+        small_key(t, bx + 1, 9, 20, 16, lbl)
+    a[72:110, 0:125] = t
+
+    t = bottom_base(150)
+    rect(t, 149, 0, 1, 38, BODY_LO)
+    rect(t, 3, 6, 62, 14, BEZEL)
+    glass(t, 6, 9, 56, 8)
+    rect(t, 2, 21, 62, 12, WELL)
+    for k, kind in enumerate(["previous", "play", "pause", "stop", "next", "eject"]):
+        bx = 3 + 10 * k
+        colour = "accent" if kind == "play" else "grey"
+        ink = key(t, bx, 22, 10, 10, colour)
+        if kind == "play":
+            icon_glyph(t, CHECK, bx + 5, 27, ink)
+        elif kind == "eject":
+            icon_glyph(t, HEADSET, bx + 5, 27, ink)
+        else:
+            mini_icon(t, kind, bx + 5, 27, ink)
+    rect(t, 63, 20, 37, 12, BEZEL)
+    glass(t, 65, 22, 33, 8)
+    rect(t, 84, 24, 1, 1, INK)
+    rect(t, 84, 27, 1, 1, INK)
+    small_key(t, 107, 9, 20, 16, "List")
+    for k in range(4):
+        for j in range(k + 1):
+            gx, gy = 145 - 3 * k + 3 * j, 30 - 3 * j
+            px(t, gx, gy, BODY_LO)
+            px(t, gx + 1, gy + 1, BODY_HI)
+    a[72:110, 126:276] = t
+
+    t = bottom_base(25)
+    a[0:38, 179:204] = t
+    return a
+
+
+GEN_PLATE_C = (3, 11)
+
+
+def make_gen_cisco():
+    a = new(194, 109)
+    plastic(a, 0, 0, 194, 109)
+    py, ph = GEN_PLATE_C
+    for lit, y in ((True, 0), (False, 21)):
+        plate = BEZEL if lit else lerp(BEZEL, BODY, 0.5)
+        plate_hi = BEZEL_HI if lit else lerp(BEZEL_HI, BODY, 0.5)
+
+        def piece(px0, fn):
+            t = bar20(25, lit)
+            fn(t)
+            a[y:y + 20, px0:px0 + 25] = t
+
+        def plate_band(t, x, w):
+            rect(t, x, py, w, ph, plate)
+            rect(t, x, py, w, 1, plate_hi)
+
+        piece(0, lambda t: rect(t, 0, 0, 1, 20, BODY_HI))
+        piece(26, lambda t: plate_band(t, 20, 5))
+        piece(52, lambda t: plate_band(t, 0, 25))
+        piece(78, lambda t: plate_band(t, 0, 5))
+        piece(104, lambda t: None)
+
+        def right(t):
+            mini_button(t, 14, 3, "close", lit)
+            rect(t, 24, 0, 1, 20, BODY_LO)
+
+        piece(130, right)
+
+    def bottom(w, grip, left_edge):
+        t = new(w, 14)
+        plastic(t, 0, 0, w, 14)
+        rect(t, 0, 0, w, 1, BODY_LO)
+        rect(t, 0, 1, w, 1, BODY_HI)
+        rect(t, 0, 13, w, 1, BODY_LO)
+        rect(t, 0, 9, w, 1, BODY_LO)
+        rect(t, 0, 10, w, 1, BODY_HI)
+        if left_edge:
+            rect(t, 0, 0, 1, 14, BODY_HI)
+        else:
+            rect(t, w - 1, 0, 1, 14, BODY_LO)
+        if grip:
+            for k in range(3):
+                for j in range(k + 1):
+                    gx, gy = w - 4 - 3 * k + 3 * j, 7 - 3 * j
+                    px(t, gx, gy, BODY_LO)
+                    px(t, gx + 1, gy + 1, BODY_HI)
+        return t
+
+    a[42:56, 0:125] = bottom(125, False, True)
+    a[57:71, 0:125] = bottom(125, True, False)
+    a[72:86, 127:152] = bottom(25, False, False)
+    a[72:86, 151] = a[72:86, 150]
+    for x, w, h, outer_left in ((127, 11, 29, True), (158, 11, 24, True), (139, 8, 29, False), (170, 8, 24, False)):
+        a[42:42 + h, x:x + w] = side_tile(w, h, outer_left)
+    t = new(9, 9)
+    mini_button(t, 0, 0, "close", True, pressed=True)
+    a[42:51, 148:157] = t
+
+    for lit, y in ((True, 88), (False, 96)):
+        rect(a, 0, y, 194, 7, SEP)
+        x = 1
+        cell = BEZEL if lit else lerp(BEZEL, BODY, 0.5)
+        ink = INK if lit else lerp(INK, BEZEL, 0.5)
+        for c in GEN_LETTERS:
+            w = glyph_w(FONT5, c) + 1
+            rect(a, x, y, w, 7, cell)
+            draw_text(a, FONT5, c, x, y + 1, ink)
+            x += w + 1
+        assert x <= 194, x
+    return a
+
+
+def genex_colours_cisco():
+    return [
+        LIST_BG,    # item background
+        INK,        # item text
+        BODY,       # window background
+        KEY_INK,    # button text (on the grey key faces)
+        PRINT,      # window text
+        BODY_LO,    # dividers, sunken borders
+        SEL,        # selection bar
+        ITEM_HDR,   # list header background
+        PRINT,      # list header text
+        BODY_HI,    # header frame, light
+        BODY_LO,    # header frame, dark
+        KEY_LO,     # header frame, pressed
+        BODY,       # header dead area
+        KEY,        # scrollbar
+        KEY_LO,     # scrollbar 2
+        KEY_HI,     # scrollbar pressed
+        KEY_LO,     # scrollbar pressed 2
+        WELL,       # scrollbar dead area
+    ]
+
+
+def make_genex_cisco():
+    a = new(256, 64)
+    plastic(a, 0, 1, 256, 63)
+    rect(a, 0, 0, 256, 1, BODY)
+    for i, c in enumerate(genex_colours_cisco()):
+        px(a, 48 + 2 * i, 0, c)
+    key(a, 0, 1, 47, 15, "grey")
+    key(a, 0, 16, 47, 15, "grey", True)
+    return a
+
+
+def pledit_colours_cisco():
+    return dict(Normal=hexc(INK), Current=hexc(CURRENT), NormalBG=hexc(LIST_BG), SelectedBG=hexc(SEL))
+
+
+def write_text_files_cisco():
+    with open(os.path.join(OUT, "viscolor.txt"), "w", newline="\r\n") as f:
+        for (r, g, b), note in viscolor():
+            f.write(f"{r},{g},{b}, // {note}\n")
+    p = pledit_colours_cisco()
+    with open(os.path.join(OUT, "pledit.txt"), "w", newline="\r\n") as f:
+        f.write(f"[Text]\nNormal={p['Normal']}\nCurrent={p['Current']}\nNormalBG={p['NormalBG']}\n"
+                f"SelectedBG={p['SelectedBG']}\nMbBG={p['NormalBG']}\nMbFG={p['Normal']}\nFont=Arial\n")
+    name = T.wsz[:-4].replace("-", " ")
+    with open(os.path.join(OUT, "readme.txt"), "w", newline="\r\n") as f:
+        f.write(
+            f"{name} - a skin in the style of the Cisco Unified IP Phone 7945 office phone: its\n"
+            "pale blue-grey colour-LCD look, the nav cluster's checkmark as Play, the headset key as\n"
+            "eject, the icon-grid's globe and open-book keys as shuffle and repeat, the lit round\n"
+            "Help button as the About spot, and the volume rocker.\n"
+            "Cisco logo (c) Cisco Systems, Inc.\n\n"
+            "Drawn by a script (gen_skin.py): rectangles, bevels, noise and hand-made pixel fonts;\n"
+            "the Cisco bridge logo's bar heights are measured from the downloaded SVG and redrawn\n"
+            "as pixels, in the skin's own font, in the badge's own two inks.\n"
+        )
+
+
+# ------------------------------------------------------------------------------------------
 # Build
 # ------------------------------------------------------------------------------------------
 
@@ -1417,12 +2107,13 @@ SHEETS = {}
 
 
 def build():
-    main = make_main()
+    cisco = T.name == "cisco-7945"
+    main = make_main_cisco() if cisco else make_main()
     sheets = {
         "main.bmp": main,
-        "titlebar.bmp": make_titlebar(),
-        "cbuttons.bmp": make_cbuttons(main),
-        "shufrep.bmp": make_shufrep(main),
+        "titlebar.bmp": make_titlebar_cisco() if cisco else make_titlebar(),
+        "cbuttons.bmp": make_cbuttons_cisco(main) if cisco else make_cbuttons(main),
+        "shufrep.bmp": make_shufrep_cisco(main) if cisco else make_shufrep(main),
         "posbar.bmp": make_posbar(main),
         "volume.bmp": make_volume(main),
         "balance.bmp": make_balance(main),
@@ -1431,15 +2122,15 @@ def build():
         "numbers.bmp": make_numbers(False),
         "nums_ex.bmp": make_numbers(True),
         "text.bmp": make_text(),
-        "pledit.bmp": make_pledit(),
-        "eqmain.bmp": make_eqmain(),
-        "gen.bmp": make_gen(),
-        "genex.bmp": make_genex(),
+        "pledit.bmp": make_pledit_cisco() if cisco else make_pledit(),
+        "eqmain.bmp": make_eqmain_cisco() if cisco else make_eqmain(),
+        "gen.bmp": make_gen_cisco() if cisco else make_gen(),
+        "genex.bmp": make_genex_cisco() if cisco else make_genex(),
     }
     SHEETS.clear()
     for name, arr in sheets.items():
         SHEETS[name[:-4]] = save(arr, name)
-    write_text_files()
+    write_text_files_cisco() if cisco else write_text_files()
     names = list(sheets) + ["pledit.txt", "viscolor.txt", "readme.txt"]
     wsz = os.path.join(HERE, T.wsz)
     with zipfile.ZipFile(wsz, "w", zipfile.ZIP_DEFLATED) as z:
@@ -1729,7 +2420,10 @@ def preview_gen(lit, w, h, title, pressed_close=False):
     blit(img, g, (0, 57, 125, 14), w - rw_, by, rw_, 125 - rw_)
     pic = Image.linear_gradient("L").resize((w - 22, h - 34)).convert("RGB")
     arr = np.array(pic).astype(np.float32) / 255
-    c0, c1 = np.array(GLASS, np.float32), np.array(GREEN_LO, np.float32)
+    # the gen window's placeholder art-well gradient: GLASS to the theme's own accent lowlight
+    # (ACCENT_LO for cisco-7945, which has no GREEN; GREEN_LO for the Norstar themes).
+    accent_lo = ACCENT_LO if T.name == "cisco-7945" else GREEN_LO
+    c0, c1 = np.array(GLASS, np.float32), np.array(accent_lo, np.float32)
     col = c0 + (c1 - c0) * arr[..., :1]
     img.paste(Image.fromarray(col.astype(np.uint8)), (11, 20))
     return img
@@ -1742,15 +2436,27 @@ PREVIEW_ROWS = [("Hold Music - Please Stay On The Line", "4:12"), ("Line 1 - Rin
                 ("Feature 0 - Release", "5:51"), ("Call Forward - After Hours", "4:05"),
                 ("Voicemail - Press Rls", "3:22")]
 
+CISCO_PREVIEW_ROWS = [("Marsha Cramer x1013", "4:12"), ("Hughes, Nick - 1012", "3:47"),
+                      ("Price, Conrad - Directories", "5:03"), ("Reed, Anna - 1009", "2:58"),
+                      ("Redial - New Call", "6:21"), ("CFwdAll - Mobility", "3:33"),
+                      ("Your Current Options", "4:40"), ("Records 1 to 4 of 4", "3:09"),
+                      ("Dial - EditDial", "5:51"), ("Exit - more", "4:05"),
+                      ("Services - Applications", "3:22")]
+
 
 def preview():
+    cisco = T.name == "cisco-7945"
+    rows = CISCO_PREVIEW_ROWS if cisco else PREVIEW_ROWS
+    gen_title = "directories" if cisco else "album art"
     bars = [12, 15, 14, 11, 13, 10, 9, 11, 8, 7, 9, 6, 5, 6, 4, 3, 4, 2, 3]
     A = dict(pressed=None, eq=True, pl=True, clutter="AV", shuffle=True, repeat=False, playing=True, stereo=True,
              pos=0.38, seek=False, volume=72, vdrag=False, balance=0, time=196, remaining=False,
-             title="Hold Music - Please Stay On The Line (Jan 14)", bars=bars)
+             title=("Marsha Cramer x1013 (Directories)" if cisco else
+                    "Hold Music - Please Stay On The Line (Jan 14)"), bars=bars)
     B = dict(pressed="play", eq=False, pl=True, clutter="", shuffle=False, repeat=True, playing=False, stereo=False,
              pos=0.8, seek=True, volume=25, vdrag=True, balance=-60, time=95, remaining=True,
-             title="Paused: Quiet Hours (Live)", bars=[3, 2, 4, 1, 2, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
+             title=("Paused: Redial (Live)" if cisco else "Paused: Quiet Hours (Live)"),
+             bars=[3, 2, 4, 1, 2, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
     EA = dict(pressed=None, on=True, auto=False, preamp=50, drag=None,
               bands=[75, 68, 56, 49, 49, 33, 30, 30, 49, 49])
     EB = dict(pressed="close", on=False, auto=True, preamp=70, drag=3,
@@ -1761,8 +2467,8 @@ def preview():
         col = Image.new("RGB", (275, h))
         col.paste(preview_main(lit, st), (0, 0))
         col.paste(preview_eq(lit, est), (0, 116))
-        col.paste(preview_playlist(lit, 275, 232, PREVIEW_ROWS, pressed_close=not lit, drag=not lit), (0, 232))
-        col.paste(preview_gen(lit, 275, 140, "album art", pressed_close=not lit), (0, 464))
+        col.paste(preview_playlist(lit, 275, 232, rows, pressed_close=not lit, drag=not lit), (0, 232))
+        col.paste(preview_gen(lit, 275, 140, gen_title, pressed_close=not lit), (0, 464))
         cols.append(col)
     gap = 12
     out = Image.new("RGB", (275 * 2 + gap * 3, cols[0].height + gap * 2), (60, 60, 64))
@@ -1775,7 +2481,7 @@ def preview():
     m = preview_main(True, A)
     mb = preview_main(False, B)
     e = preview_eq(True, EA)
-    p = preview_playlist(True, 275, 232, PREVIEW_ROWS)
+    p = preview_playlist(True, 275, 232, rows)
     for name, im, box in (("display", m, (8, 14, 272, 72)), ("keys", m, (0, 70, 275, 116)),
                           ("keys-b", mb, (0, 70, 275, 116)), ("titlebar", m, (0, 0, 275, 16)),
                           ("eq", e, (0, 0, 275, 116)), ("playlist-bottom", p, (0, 190, 275, 232)),
@@ -1791,7 +2497,11 @@ def use_theme(name):
     os.makedirs(OUT, exist_ok=True)
     _rng = np.random.default_rng(T.seed)
     for k in PALETTE_KEYS:
-        globals()[k] = getattr(T, k)
+        # Each theme only defines the palette keys its own drawing functions use (the cisco-7945
+        # theme has no SLOT/PAPER/RED/GREEN, the Norstar themes have no ACCENT/CISCO_*); leave a
+        # key a theme doesn't define at whatever it was (unused by that theme's own functions).
+        if hasattr(T, k):
+            globals()[k] = getattr(T, k)
 
 
 if __name__ == "__main__":

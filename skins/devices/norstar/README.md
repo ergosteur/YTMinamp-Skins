@@ -1,30 +1,37 @@
-# Norstar: the Nortel Meridian Norstar M7310 office phone, charcoal and ash
+# Office phones: the Nortel Norstar M7310 and the Cisco IP Phone 7945
 
-Two skins from one generator (`gen_skin.py`, based on `skins/ember/gen_skin.py` by way of the
-sibling `devices/honda-accord` generator's theme scaffold, keeping Ember's sheet layouts), one
-layout in two colourways. Two real marks are used, each once: the "meridian" logo is the main
-titlebar's wordmark, its long rule running out towards the titlebar buttons, and the NORTEL mark
-sits small on the groove line across the bottom of the main window (where the real phone has it,
-top centre, the titlebar is already the meridian rule). Both are loaded from `source/` at build
-time, masked (alpha times darkness against white), cropped to their bounding box, supersampled
-down (LANCZOS to 4x, then BOX) and painted through the mask in the theme's print colour; the
-meridian crop gets a sub-pixel vertical offset so its rule lands on one pixel row, and the rule's
-own scaled columns are repeated to stretch it. Everything else is drawn by the script: flat
-bevelled keys, fine noise for the matte plastic, hand-made pixel fonts (a mixed-case key font
-after the phone's key lettering, a 5x7 dot-matrix clock font).
+Three skins from one generator (`gen_skin.py`, based on `skins/ember/gen_skin.py` by way of the
+sibling `devices/honda-accord` generator's theme scaffold, keeping Ember's sheet layouts): two
+colourways of the Nortel Meridian Norstar M7310 key phone sharing one layout, and the Cisco IP
+Phone 7945 (a colour-LCD office phone, grouped here by device type rather than brand) with its own,
+unrelated main-window layout. The cisco-7945 theme reuses this file's generic drawing helpers
+(bevelled keys, wells, glass, sliders, pixel fonts) where they fit, and writes its own versions
+only where the Norstar ones bake in Norstar-specific shapes (the speaker grille, the memory keys'
+paper designation strips).
 
 ```sh
-/usr/bin/python3 -I gen_skin.py                # all of them
-/usr/bin/python3 -I gen_skin.py m7310-ash      # some (m7310-charcoal, m7310-ash)
+/usr/bin/python3 -I gen_skin.py                     # all of them
+/usr/bin/python3 -I gen_skin.py m7310-ash cisco-7945  # some
 /usr/bin/python3 -I gen_skin.py --list
 ```
 
-Outputs: `Nortel-Norstar-M7310.wsz`, `Nortel-Norstar-M7310-Ash.wsz`, `preview-m7310-charcoal.png`
-and `preview-m7310-ash.png` here; sheets in `out/<theme>/`, 4x detail crops (display, keys,
-titlebar, EQ, playlist) in `out/scratch/` (`out/` is ignored). Deterministic. Each .wsz is
+Outputs: `Nortel-Norstar-M7310.wsz`, `Nortel-Norstar-M7310-Ash.wsz`, `Cisco-IP-Phone-7945.wsz`,
+and a `preview-<theme>.png` per theme, here; sheets in `out/<theme>/`, 4x detail crops (display,
+keys, titlebar, EQ, playlist) in `out/scratch/` (`out/` is ignored). Deterministic. Each .wsz is
 finished by `skins/genex_wacup.py`.
 
-## Themes
+## Nortel Norstar M7310
+
+Two skins, `m7310-charcoal` and `m7310-ash`, sharing one layout. Two real marks are used, each
+once: the "meridian" logo is the main titlebar's wordmark, its long rule running out towards the
+titlebar buttons, and the NORTEL mark sits small on the groove line across the bottom of the main
+window (where the real phone has it, top centre, the titlebar is already the meridian rule). Both
+are loaded from `source/` at build time, masked (alpha times darkness against white), cropped to
+their bounding box, supersampled down (LANCZOS to 4x, then BOX) and painted through the mask in
+the theme's print colour; the meridian crop gets a sub-pixel vertical offset so its rule lands on
+one pixel row, and the rule's own scaled columns are repeated to stretch it. Everything else is
+drawn by the script: flat bevelled keys, fine noise for the matte plastic, hand-made pixel fonts
+(a mixed-case key font after the phone's key lettering, a 5x7 dot-matrix clock font).
 
 Both share the layout. The main window is the phone's face:
 
@@ -59,7 +66,7 @@ Both share the layout. The main window is the phone's face:
   glass #A8B8A4 with ink #1E241E, paper #EAE7D8, print #54524A (dark grey wordmarks).
   Playlist: #1E241E on #EAE7D8, #AA2414 current, #B0CCBA selection. Font: Arial.
 
-## Limits
+### Limits
 
 - The NORTEL mark is 8 px tall: the globe's swoosh reads as a broken O, the letters are clean.
   Both logos are painted in the print colour, not Nortel blue (the phones printed them
@@ -74,7 +81,7 @@ Both share the layout. The main window is the phone's face:
 - Colours sampled from the reference photos and adjusted by eye (the ash photo is small and
   angled; its LCD and body were lightened / greened to match the charcoal set's glass).
 
-## Sources
+### Sources
 
 - `source/m7310-charcoal.png` (user-supplied photo, M7310 charcoal, straight on): reference only,
   for layout, keys, LCD, bezel, grille and colours.
@@ -85,3 +92,88 @@ Both share the layout. The main window is the phone's face:
   was Northern Telecom / Nortel's key telephone system).
 - `source/nortel-logo.png` (user-supplied, blue on transparent, 2800x1400): masked and painted
   once, small on the main window's bottom groove. Nortel logo (c) Nortel Networks.
+
+## Cisco IP Phone 7945
+
+One skin, `cisco-7945`, a 2007 colour-LCD office phone (Cisco Unified Communications Manager
+desk sets) grouped in this phone folder rather than `devices/cisco/`'s networking-gear family.
+Its own main window: this is the same fixed classic-Winamp control grid every skin in this
+collection draws onto (titlebar buttons, transport row, shuffle / repeat, EQ / PL toggles,
+volume / balance, seek bar, clutterbar — all at the app's own fixed pixel positions, per
+`ui/src/lib/skin/render/sprites.js`), but reskinned and remapped to the 7945's own controls
+instead of the Norstar's:
+
+- Two-tone body, prominent rather than subtle: the whole upper half of the main window — the
+  titlebar (the Cisco badge and "Cisco IP Phone 7945" print) and the screen bezel below it — is
+  one continuous light silver shoulder with no seam between them, exactly as the real unit's
+  moulding reads (the logo and model name sit on the same silver plate the screen does, not on
+  the charcoal body); the lower half (keypad, nav cluster, icon-grid, volume, headset row) is
+  charcoal. That's the opposite of the Norstar skins' dark-bezel / light-key scheme, carried
+  through to the keys too: charcoal key faces with near-white ink (the 7945's keys are dark
+  plastic with white icons; the Norstar's are the reverse).
+- Rounded, not boxy: the silver shoulder's top two corners and the bottom corners where it meets
+  the charcoal body are chamfered, and every key (transport, eject, shuffle / repeat, EQ / PL,
+  EQ On / Auto, Presets) has its corners rounded off the same way — classic Winamp windows can't
+  actually be non-rectangular, so this softens the shapes drawn *within* the window rather than
+  the window itself, after the boxier, flat-bevelled Norstar look. The About badge and the nav
+  cluster's Play key read round on their own (a filled disc, a checkmark on a teal accent key).
+- Display: the phone's own pale blue-grey colour-LCD look (not the Norstar's grey-green), same
+  L-shaped split (time and analyzer left, title and kbps / kHz / STEREO right) and the same 5x7
+  dot-matrix clock technique, recoloured — dark navy ink on the pale blue glass, so the TrueType
+  title draws dark on the LCD as the layout requires.
+- The nav cluster's centre checkmark is Play (a teal accent key, the one colour accent on the
+  skin); the ring's left / right arrows are Previous / Next and the up / down arrows Stop / Pause
+  — so the whole core transport comes from the one five-way cluster, as on the real unit. The
+  headset key is Eject (a headset icon; the "pick up to eject" pairing). The round, lit "?" Help
+  button at the centre of the icon-key grid is the About spot (a filled teal disc that is also
+  where the one spare slot the control grid doesn't otherwise ask for gets used).
+- Shuffle and Repeat sit where two of the icon-key grid's keys are (an icon in the key instead of
+  a text label, each with a round lit LED to its left where the Norstar skins use a triangle —
+  this phone's own look), but not drawn as that grid's own globe / directory icons: redrawn that
+  small (20px) those read as a crossed-out circle and two flat bars, not as anything in particular,
+  so the keys carry the standard crossing-arrows (shuffle) and looping-arrow (repeat) glyphs
+  instead — unmistakable at this size where the literal icons weren't. The two round line /
+  feature keys beside the screen are EQ and PL (small labelled toggles with the same round LED).
+  EQ On / Auto, in the EQ window, match.
+- Volume is the volume rocker (reusing the Norstar skins' own slider art unmodified — a long key
+  with small / large speaker icons and a slim LCD level window, which fits this phone's rocker
+  just as well); balance is a short L / R rocker built the same way (the real phone has no second
+  rocker). Seek is the body's recessed seam, as on the Norstar skins.
+- The main titlebar is the silver shoulder itself (see above) and carries the one real mark used,
+  the Cisco badge (the bridge bars redrawn as pixels, "cisco" in the skin's own pixel font) plus
+  "CISCO IP PHONE 7945" printed beside it in dark ink, as the real unit prints its model name on
+  that same plate. The EQ / PLAYLIST / gen window titlebars are a smaller silver label plate (the
+  same material) inset in an otherwise plain charcoal bar — no speaker grille (this phone doesn't
+  have one).
+
+Palette: body / keys #5A5D61 (charcoal, near-white key ink #E6E8E9), screen bezel #C4C4C3, LCD
+glass #9EC3D6 with ink #122838, teal accent #426A7E (Play, the lit LEDs, the About badge).
+Playlist: #122838 on #D6DCE0, #C65C26 current, #96BCD0 selection. Font: Arial.
+
+### Limits
+
+- The real phone's dial pad, the handset and cradle, and two of the icon-grid's four keys aren't
+  drawn as such, for the same reason as the Norstar skins' unused controls: the window's fixed
+  sprite slots don't ask for them, and nothing is left over to spend on them once the rest of the
+  control list is covered.
+- The on-screen soft-key labels ("Dial / EditDial / Exit / more", from the straight-on reference
+  photo) aren't reproduced on the LCD itself; EQ and PL are the two round line keys beside the
+  screen instead (see above), which the fixed control grid has room for.
+- The Cisco bridge logo's text is redrawn in the skin's own pixel font rather than the exact
+  typeface; its bar count (9) and the general soundwave silhouette are measured from the
+  downloaded SVG, not reproduced bar-for-bar.
+
+### Sources
+
+- `source/cisco-7945.png` (user-supplied photo, straight on): the idle Directories screen, the
+  screen bezel and keypad layout, colours for the LCD / selection / body.
+- `source/cisco-7945-angle.png` (user-supplied photo, 3/4 angle, sharper): the icon-key grid's
+  actual arrangement and the lit "?" Help button, the nav cluster's checkmark colour, the volume
+  rocker's end caps, the headset / mute / speaker row.
+- `source/cisco-logo-2006/Cisco_logo.svg`: Wikimedia Commons `File:Cisco_logo.svg`
+  (https://upload.wikimedia.org/wikipedia/commons/6/64/Cisco_logo.svg), downloaded into this
+  folder's own `source/` (not read from `devices/cisco/`'s copy). Rasterised at build time
+  (`rsvg-convert`, cached in `out/scratch/`) only to measure the bridge's bar heights and the
+  badge's two inks (a dark teal and a red, both embedded in the SVG's paths); the badge itself is
+  redrawn as pixels, in the skin's own font, in those two inks.
+- Cisco logo (c) Cisco Systems, Inc.
